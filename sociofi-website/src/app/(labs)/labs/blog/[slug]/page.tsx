@@ -275,9 +275,10 @@ export function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const post = posts[params.slug];
+  const { slug } = await params;
+  const post = posts[slug];
   if (!post) return {};
   return {
     title: `${post.title} — SocioFi Labs`,
@@ -297,12 +298,13 @@ const placeholder = (
   </p>
 );
 
-export default function LabsBlogPostPage({
+export default async function LabsBlogPostPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const post = posts[params.slug];
+  const { slug } = await params;
+  const post = posts[slug];
   if (!post) notFound();
 
   return <BlogPost content={{ ...post, children: placeholder }} />;
