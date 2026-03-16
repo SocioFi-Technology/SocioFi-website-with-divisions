@@ -102,7 +102,7 @@ export default function PricingCard({
         >
           <h3
             style={{
-              fontFamily: 'var(--font-display)',
+              fontFamily: 'var(--font-headline)',
               fontSize: '1.1rem',
               fontWeight: 600,
               color: 'var(--text-primary)',
@@ -159,9 +159,9 @@ export default function PricingCard({
         >
           <span
             style={{
-              fontFamily: 'var(--font-display)',
+              fontFamily: 'var(--font-headline)',
               fontSize: 'clamp(2rem, 3vw, 2.4rem)',
-              fontWeight: 800,
+              fontWeight: 400,
               color: featured ? accent : 'var(--text-primary)',
               letterSpacing: '-0.03em',
               lineHeight: 1,

@@ -580,14 +580,16 @@ export function generateStaticParams() {
   return Object.keys(SOLUTIONS).map((slug) => ({ slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }) {
-  const solution = SOLUTIONS[params.slug];
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const solution = SOLUTIONS[slug];
   if (!solution) return {};
   return solution.metadata;
 }
 
-export default function StudioSolutionPage({ params }: { params: { slug: string } }) {
-  const solution = SOLUTIONS[params.slug];
+export default async function StudioSolutionPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const solution = SOLUTIONS[slug];
   if (!solution) notFound();
   return <AudienceLanding content={solution.content} />;
 }

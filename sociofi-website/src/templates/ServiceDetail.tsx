@@ -217,9 +217,9 @@ export default function ServiceDetail({ content }: { content: ServiceDetailConte
 
                 <p className="sec-label">{caseStudy.label ?? 'Case study'}</p>
                 <h3 style={{
-                  fontFamily: 'var(--font-display)',
+                  fontFamily: 'var(--font-headline)',
                   fontSize: 'clamp(1.4rem, 2.5vw, 2rem)',
-                  fontWeight: 700,
+                  fontWeight: 400,
                   letterSpacing: '-0.02em',
                   color: 'var(--text-primary)',
                   marginBottom: 16,
@@ -249,9 +249,9 @@ export default function ServiceDetail({ content }: { content: ServiceDetailConte
                   marginBottom: caseStudy.href ? 28 : 0,
                 }}>
                   <span style={{
-                    fontFamily: 'var(--font-display)',
+                    fontFamily: 'var(--font-headline)',
                     fontSize: '1.4rem',
-                    fontWeight: 800,
+                    fontWeight: 400,
                     letterSpacing: '-0.03em',
                     color: 'var(--division-accent)',
                   }}>
@@ -275,7 +275,7 @@ export default function ServiceDetail({ content }: { content: ServiceDetailConte
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: 6,
-                        fontFamily: 'var(--font-display)',
+                        fontFamily: 'var(--font-headline)',
                         fontSize: '0.9rem',
                         fontWeight: 600,
                         color: 'var(--division-accent)',

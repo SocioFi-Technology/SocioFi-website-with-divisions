@@ -94,9 +94,9 @@ export default function BlogPost({ content }: { content: BlogPostContent }) {
             </div>
 
             <h1 style={{
-              fontFamily: 'var(--font-display)',
+              fontFamily: 'var(--font-headline)',
               fontSize: 'clamp(2rem, 4vw, 3rem)',
-              fontWeight: 800,
+              fontWeight: 400,
               letterSpacing: '-0.03em',
               lineHeight: 1.1,
               color: 'var(--text-primary)',
@@ -116,7 +116,7 @@ export default function BlogPost({ content }: { content: BlogPostContent }) {
               <AuthorAvatar name={author.name} />
               <div>
                 <div style={{
-                  fontFamily: 'var(--font-display)',
+                  fontFamily: 'var(--font-headline)',
                   fontSize: '0.9rem',
                   fontWeight: 600,
                   color: 'var(--text-primary)',
@@ -194,9 +194,9 @@ export default function BlogPost({ content }: { content: BlogPostContent }) {
               >
                 <div>
                   <h3 style={{
-                    fontFamily: 'var(--font-display)',
+                    fontFamily: 'var(--font-headline)',
                     fontSize: '1.1rem',
-                    fontWeight: 700,
+                    fontWeight: 400,
                     color: 'var(--text-primary)',
                     letterSpacing: '-0.01em',
                     marginBottom: 6,
@@ -227,7 +227,7 @@ export default function BlogPost({ content }: { content: BlogPostContent }) {
           <Container narrow>
             <ScrollReveal>
               <h2 style={{
-                fontFamily: 'var(--font-display)',
+                fontFamily: 'var(--font-headline)',
                 fontSize: '1.2rem',
                 fontWeight: 600,
                 color: 'var(--text-primary)',
@@ -269,7 +269,7 @@ export default function BlogPost({ content }: { content: BlogPostContent }) {
                         {post.category}
                       </span>
                       <span style={{
-                        fontFamily: 'var(--font-display)',
+                        fontFamily: 'var(--font-headline)',
                         fontSize: '0.95rem',
                         fontWeight: 600,
                         color: 'var(--text-primary)',
@@ -316,9 +316,9 @@ function AuthorAvatar({ name }: { name: string }) {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      fontFamily: 'var(--font-display)',
+      fontFamily: 'var(--font-headline)',
       fontSize: '0.78rem',
-      fontWeight: 700,
+      fontWeight: 400,
       color: 'var(--division-accent)',
       flexShrink: 0,
     }}>

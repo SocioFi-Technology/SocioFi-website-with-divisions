@@ -121,7 +121,7 @@ export default function Logo({
   const dims = sizeMap[size];
   const accent = config.accent;
   const isParent = division === 'technology';
-  const divisionLabel = isParent ? null : config.name.replace('SocioFi ', '');
+  const divisionLabel = isParent ? 'Technology' : config.name.replace('SocioFi ', '');
 
   // Division logos shift the right chevron left to make room for the modifier
   const leftChevron  = isParent ? 'M11 12 L23 24 L11 36' : 'M10 12 L22 24 L10 36';
@@ -157,6 +157,53 @@ export default function Logo({
     </svg>
   );
 
+  // For division pages: mark + "SocioFi" links to /, division label links to division root
+  // For parent (technology): single link to /
+  if (!isParent && showWordmark) {
+    return (
+      <span
+        style={{ display: 'inline-flex', alignItems: 'center', gap: dims.gap }}
+        className={className}
+      >
+        {/* Mark → homepage */}
+        <Link href="/" style={{ textDecoration: 'none', display: 'inline-flex', flexShrink: 0 }} aria-label="SocioFi Technology — Home">
+          {mark}
+        </Link>
+
+        {/* Stacked wordmark: SocioFi → /, DIVISION → division root */}
+        <span style={{ display: 'flex', flexDirection: 'column', gap: 1, lineHeight: 1 }}>
+          <Link href="/" style={{ textDecoration: 'none' }} aria-label="SocioFi Technology — Home">
+            <span style={{
+              fontFamily: 'var(--font-display, Syne, sans-serif)',
+              fontWeight: 800,
+              fontSize: dims.wordmark,
+              color: 'var(--text-primary)',
+              letterSpacing: '-0.03em',
+              lineHeight: 1,
+              display: 'block',
+            }}>
+              SocioFi
+            </span>
+          </Link>
+          <Link href={href} style={{ textDecoration: 'none' }} aria-label={config.name}>
+            <span style={{
+              fontFamily: 'var(--font-display, Syne, sans-serif)',
+              fontWeight: 800,
+              fontSize: dims.sub,
+              color: accent,
+              letterSpacing: '0.04em',
+              textTransform: 'uppercase',
+              lineHeight: 1,
+              display: 'block',
+            }}>
+              {divisionLabel}
+            </span>
+          </Link>
+        </span>
+      </span>
+    );
+  }
+
   const wordmark = showWordmark && (
     <span
       style={{
@@ -182,7 +229,7 @@ export default function Logo({
         <span
           style={{
             fontFamily: 'var(--font-display, Syne, sans-serif)',
-            fontWeight: 500,
+            fontWeight: 800,
             fontSize: dims.sub,
             color: accent,
             letterSpacing: '0.04em',

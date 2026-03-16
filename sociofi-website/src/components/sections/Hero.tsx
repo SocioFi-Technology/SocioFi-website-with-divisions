@@ -128,12 +128,12 @@ export default function Hero({
             <StaggerItem withScale>
               <h1
                 style={{
-                  fontFamily: 'var(--font-display)',
+                  fontFamily: 'var(--font-headline)',
                   fontSize: isMinimal
                     ? 'clamp(2rem, 3.5vw, 2.8rem)'
                     : 'clamp(2.6rem, 5vw, 4rem)',
-                  fontWeight: 800,
-                  letterSpacing: '-0.035em',
+                  fontWeight: 400,
+                  letterSpacing: '-0.02em',
                   lineHeight: 1.06,
                   color: 'var(--text-primary)',
                   margin: 0,

@@ -191,9 +191,9 @@ function ProductColumn({ product }: { product: ProductRoadmap }) {
           />
           <h3
             style={{
-              fontFamily: 'var(--font-display)',
+              fontFamily: 'var(--font-headline)',
               fontSize: '1.05rem',
-              fontWeight: 700,
+              fontWeight: 400,
               color: 'var(--text-primary)',
               letterSpacing: '-0.01em',
               margin: 0,
@@ -273,9 +273,9 @@ export default function RoadmapPage() {
 
               <h1
                 style={{
-                  fontFamily: 'var(--font-display)',
+                  fontFamily: 'var(--font-headline)',
                   fontSize: 'clamp(2rem, 3.5vw, 2.8rem)',
-                  fontWeight: 700,
+                  fontWeight: 400,
                   lineHeight: 1.12,
                   letterSpacing: '-0.025em',
                   color: 'var(--text-primary)',

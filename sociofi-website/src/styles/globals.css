@@ -3,6 +3,21 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Force Tailwind to generate responsive utilities used across the 91-page site */
+@source inline("grid grid-cols-1 grid-cols-2 grid-cols-3 grid-cols-4 grid-cols-5");
+@source inline("sm:grid-cols-1 sm:grid-cols-2 sm:grid-cols-3 sm:grid-cols-4");
+@source inline("md:grid-cols-1 md:grid-cols-2 md:grid-cols-3 md:grid-cols-4 md:grid-cols-5");
+@source inline("lg:grid-cols-1 lg:grid-cols-2 lg:grid-cols-3 lg:grid-cols-4 lg:grid-cols-5");
+@source inline("xl:grid-cols-2 xl:grid-cols-3 xl:grid-cols-4");
+@source inline("md:col-span-1 md:col-span-2 md:col-span-3 md:col-span-4 md:col-span-5");
+@source inline("lg:col-span-1 lg:col-span-2 lg:col-span-3 lg:col-span-4 lg:col-span-5");
+@source inline("hidden md:flex md:block md:hidden lg:flex lg:block lg:hidden sm:flex sm:block sm:hidden");
+@source inline("md:flex-row md:items-center md:justify-between md:justify-center");
+@source inline("gap-4 gap-5 gap-6 gap-8 gap-10 gap-12 gap-16 gap-20");
+@source inline("md:gap-4 md:gap-6 md:gap-8 md:gap-10 md:gap-16 lg:gap-4 lg:gap-6 lg:gap-8 lg:gap-12 lg:gap-16 xl:gap-16");
+@source inline("items-start items-center items-end justify-start justify-center justify-end justify-between");
+@source inline("flex-col flex-row flex-wrap w-full max-w-none");
+
 /* ══════════════════════════════════════════════════════════════
    SOCIOFI TECHNOLOGY — GLOBAL STYLES
    Design System v2 | Dark-first, Light-polished
@@ -34,9 +49,10 @@
   --division-accent-light: var(--teal-light);
 
   /* Font stacks (populated by next/font CSS vars in layout.tsx) */
-  --font-display: var(--font-syne, 'Syne'), sans-serif;
-  --font-body:    var(--font-outfit, 'Outfit'), sans-serif;
-  --font-mono:    var(--font-fira, 'Fira Code'), monospace;
+  --font-display:  var(--font-syne, 'Syne'), sans-serif;   /* logo + brand marks only */
+  --font-headline: 'General Sans', system-ui, sans-serif;  /* all headings */
+  --font-body:     var(--font-outfit, 'Outfit'), sans-serif;
+  --font-mono:     var(--font-fira, 'Fira Code'), monospace;
 
   /* Motion curves */
   --ease:        cubic-bezier(0.16, 1, 0.3, 1);
@@ -220,6 +236,25 @@ html {
   scrollbar-gutter: stable;
 }
 
+/* ── General Sans — place files in /public/fonts/ ────────────────────────
+   Download free from: https://pangrampangram.com/products/general-sans
+   Required files: GeneralSans-Variable.woff2  (or individual weights)
+   ─────────────────────────────────────────────────────────────────────── */
+@font-face {
+  font-family: 'General Sans';
+  src: url('/fonts/GeneralSans-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'General Sans';
+  src: url('/fonts/GeneralSans-VariableItalic.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
 body {
   background-color: var(--bg);
   color: var(--text-primary);
@@ -268,9 +303,10 @@ body::before {
    5. TYPOGRAPHY BASE STYLES
    ────────────────────────────────────────────────────────────── */
 
-/* Headings use Syne exclusively */
+/* Headings — General Sans 400 */
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-display);
+  font-family: var(--font-headline);
+  font-weight: 400;
   color: var(--text-primary);
   line-height: 1.15;
 }
@@ -278,41 +314,41 @@ h1, h2, h3, h4, h5, h6 {
 /* Display / Hero H1 */
 h1 {
   font-size: clamp(2.6rem, 5vw, 4rem);
-  font-weight: 800;
+  font-weight: 400;
   line-height: 1.06;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.02em;
 }
 
 /* Page title H1 (use .h1-page class for smaller pages) */
 .h1-page {
   font-size: clamp(2rem, 3.5vw, 2.8rem);
-  font-weight: 700;
+  font-weight: 400;
   line-height: 1.12;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.015em;
 }
 
 /* Section title H2 */
 h2 {
   font-size: clamp(1.8rem, 3vw, 2.4rem);
-  font-weight: 700;
+  font-weight: 400;
   line-height: 1.15;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
 
 /* Subsection H3 */
 h3 {
   font-size: 1.2rem;
-  font-weight: 600;
+  font-weight: 400;
   line-height: 1.3;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.005em;
 }
 
 /* Card title H4 */
 h4 {
   font-size: 1.1rem;
-  font-weight: 600;
+  font-weight: 400;
   line-height: 1.25;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.005em;
 }
 
 /* Body text */
@@ -1047,7 +1083,8 @@ pre code {
 .prose h3,
 .prose h4 {
   color: var(--text-primary);
-  font-family: var(--font-display);
+  font-family: var(--font-headline);
+  font-weight: 400;
 }
 
 .prose a {
@@ -1100,5 +1137,50 @@ pre code {
 
   body::before {
     display: none;
+  }
+}
+
+/* ── Responsive visibility helpers (replaces Tailwind md: prefix) ────── */
+/* Desktop: ≥ 768px */
+.show-desktop { display: none !important; }
+.hide-desktop { display: flex !important; }
+
+@media (min-width: 768px) {
+  .show-desktop { display: flex !important; }
+  .hide-desktop { display: none !important; }
+  .show-desktop-block { display: block !important; }
+  .hide-desktop-block { display: none !important; }
+}
+
+/* ── Footer responsive grid ──────────────────────────────────────────── */
+@media (max-width: 1023px) {
+  .footer-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 32px !important;
+  }
+}
+@media (max-width: 599px) {
+  .footer-grid {
+    grid-template-columns: 1fr !important;
+    gap: 28px !important;
+  }
+}
+
+/* ── AaaS page responsive grids ────────────────────────────────────────── */
+@media (max-width: 767px) {
+  .proof-grid {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+  }
+  .process-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .aaas-compare-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  .process-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
   }
 }

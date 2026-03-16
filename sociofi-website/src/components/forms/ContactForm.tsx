@@ -193,8 +193,8 @@ export default function ContactForm({
           </svg>
         </div>
         <h3 style={{
-          fontFamily: 'var(--font-display)', fontSize: '1.2rem',
-          fontWeight: 700, color: 'var(--text-primary)', margin: 0,
+          fontFamily: 'var(--font-headline)', fontSize: '1.2rem',
+          fontWeight: 400, color: 'var(--text-primary)', margin: 0,
         }}>
           Message received
         </h3>

@@ -92,7 +92,7 @@ export default function ComparisonTable({
                       style={{
                         padding: isFeatureCol ? '16px 20px 16px 0' : '16px 20px',
                         textAlign: isFeatureCol ? 'left' : 'center',
-                        fontFamily: isFeatureCol ? 'var(--font-mono)' : 'var(--font-display)',
+                        fontFamily: isFeatureCol ? 'var(--font-mono)' : 'var(--font-headline)',
                         fontSize: isFeatureCol ? '0.7rem' : '0.95rem',
                         fontWeight: isFeatureCol ? 500 : 700,
                         letterSpacing: isFeatureCol ? '0.1em' : '-0.01em',

@@ -208,9 +208,9 @@ function NarrativeContent({ section }: { section: NarrativeSection }) {
     <div>
       {section.label && <p className="sec-label">{section.label}</p>}
       <h2 style={{
-        fontFamily: 'var(--font-display)',
+        fontFamily: 'var(--font-headline)',
         fontSize: 'clamp(1.8rem, 3vw, 2.4rem)',
-        fontWeight: 700,
+        fontWeight: 400,
         letterSpacing: '-0.02em',
         lineHeight: 1.15,
         color: 'var(--text-primary)',
@@ -236,9 +236,9 @@ function NarrativeContent({ section }: { section: NarrativeSection }) {
           gap: 12,
         }}>
           <span style={{
-            fontFamily: 'var(--font-display)',
+            fontFamily: 'var(--font-headline)',
             fontSize: '2.4rem',
-            fontWeight: 800,
+            fontWeight: 400,
             letterSpacing: '-0.04em',
             color: 'var(--division-accent)',
           }}>

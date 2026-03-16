@@ -93,9 +93,9 @@ export default function TestimonialCard({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontFamily: 'var(--font-display)',
+            fontFamily: 'var(--font-headline)',
             fontSize: '0.82rem',
-            fontWeight: 700,
+            fontWeight: 400,
             color: accent,
             flexShrink: 0,
             letterSpacing: '0.02em',
@@ -107,7 +107,7 @@ export default function TestimonialCard({
         <div>
           <div
             style={{
-              fontFamily: 'var(--font-display)',
+              fontFamily: 'var(--font-headline)',
               fontSize: '0.9rem',
               fontWeight: 600,
               color: 'var(--text-primary)',

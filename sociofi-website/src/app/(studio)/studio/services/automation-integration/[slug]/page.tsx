@@ -305,14 +305,16 @@ export function generateStaticParams() {
   return Object.keys(PAGES).map((slug) => ({ slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }) {
-  const page = PAGES[params.slug];
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const page = PAGES[slug];
   if (!page) return {};
   return page.metadata;
 }
 
-export default function AutomationDeepDivePage({ params }: { params: { slug: string } }) {
-  const page = PAGES[params.slug];
+export default async function AutomationDeepDivePage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const page = PAGES[slug];
   if (!page) notFound();
   return <DeepDive content={page.content} />;
 }

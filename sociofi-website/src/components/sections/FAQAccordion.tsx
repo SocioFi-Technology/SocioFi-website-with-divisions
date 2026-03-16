@@ -100,7 +100,7 @@ export default function FAQAccordion({
                       }}
                     >
                       <span style={{
-                        fontFamily: 'var(--font-display)',
+                        fontFamily: 'var(--font-headline)',
                         fontSize: '1rem',
                         fontWeight: 600,
                         letterSpacing: '-0.01em',

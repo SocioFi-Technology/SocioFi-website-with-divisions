@@ -94,10 +94,10 @@ export default function MetricBar({
           {metrics.map((m, i) => (
             <div key={i} style={{ textAlign: 'center' }}>
               <div style={{
-                fontFamily: 'var(--font-display)',
+                fontFamily: 'var(--font-headline)',
                 fontSize: 'clamp(2rem, 3.5vw, 2.8rem)',
-                fontWeight: 800,
-                letterSpacing: '-0.035em',
+                fontWeight: 400,
+                letterSpacing: '-0.02em',
                 lineHeight: 1,
                 marginBottom: 8,
               }}>

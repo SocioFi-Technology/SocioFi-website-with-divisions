@@ -83,9 +83,9 @@ export default function DetailPage({ content }: { content: DetailPageContent }) 
             </p>
 
             <h1 style={{
-              fontFamily: 'var(--font-display)',
+              fontFamily: 'var(--font-headline)',
               fontSize: 'clamp(2rem, 4vw, 3.2rem)',
-              fontWeight: 800,
+              fontWeight: 400,
               letterSpacing: '-0.03em',
               lineHeight: 1.08,
               color: 'var(--text-primary)',
@@ -194,9 +194,9 @@ export default function DetailPage({ content }: { content: DetailPageContent }) 
               <div style={{ marginBottom: 48 }}>
                 <p className="sec-label">{relatedLabel}</p>
                 <h2 style={{
-                  fontFamily: 'var(--font-display)',
+                  fontFamily: 'var(--font-headline)',
                   fontSize: 'clamp(1.8rem, 3vw, 2.4rem)',
-                  fontWeight: 700,
+                  fontWeight: 400,
                   letterSpacing: '-0.02em',
                   color: 'var(--text-primary)',
                 }}>
@@ -267,9 +267,9 @@ function NarrativeText({ section }: { section: DetailSection }) {
       {section.label && <p className="sec-label">{section.label}</p>}
       {section.headline && (
         <h2 style={{
-          fontFamily: 'var(--font-display)',
+          fontFamily: 'var(--font-headline)',
           fontSize: 'clamp(1.6rem, 2.5vw, 2rem)',
-          fontWeight: 700,
+          fontWeight: 400,
           letterSpacing: '-0.02em',
           lineHeight: 1.2,
           color: 'var(--text-primary)',

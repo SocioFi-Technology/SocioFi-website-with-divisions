@@ -382,14 +382,14 @@ export default function HomePageClient() {
                   width: 6, height: 6, borderRadius: '50%',
                   background: 'var(--teal-light)', display: 'inline-block',
                 }} />
-                AI-Native Software Company
+                Agent-as-a-Service · AaaS
               </div>
 
               {/* H1 */}
               <h1 style={{
-                fontFamily: 'var(--font-display)',
+                fontFamily: 'var(--font-headline)',
                 fontSize: 'clamp(2.8rem, 6vw, 5rem)',
-                fontWeight: 800,
+                fontWeight: 400,
                 letterSpacing: '-0.035em',
                 lineHeight: 1.06,
                 marginBottom: 28,
@@ -412,7 +412,7 @@ export default function HomePageClient() {
                 marginInline: 'auto',
                 marginBottom: 44,
               }}>
-                Seven specialized divisions. One mission: build intelligent software systems where AI agents handle the heavy lifting and human engineers architect everything else.
+                The world is moving from SaaS to AaaS — software that doesn't just store data, it acts on it. Seven specialized divisions. One mission: build intelligent agent systems your business actually runs on.
               </p>
 
               {/* Buttons */}
@@ -522,7 +522,7 @@ export default function HomePageClient() {
 
                         {/* Subtitle */}
                         <h3 style={{
-                          fontFamily: 'var(--font-display)',
+                          fontFamily: 'var(--font-headline)',
                           fontSize: i === 0 ? '1.3rem' : '1.05rem',
                           fontWeight: 600, letterSpacing: '-0.01em',
                           color: 'var(--text-primary)', lineHeight: 1.25,
@@ -545,7 +545,7 @@ export default function HomePageClient() {
                         {/* Explore link */}
                         <div style={{
                           display: 'flex', alignItems: 'center', gap: 6,
-                          fontFamily: 'var(--font-display)',
+                          fontFamily: 'var(--font-headline)',
                           fontSize: '0.82rem', fontWeight: 600,
                           color: div.accent, marginTop: 'auto',
                         }}>
@@ -563,9 +563,206 @@ export default function HomePageClient() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          SOCIAL PROOF
+          AAAS — THE SHIFT
       ═══════════════════════════════════════════════════════════════════ */}
       <section style={{ paddingBlock: 'var(--space-section)', background: 'var(--bg)' }}>
+        <Container>
+          <ScrollReveal>
+            <SectionHeader
+              label="The Shift"
+              title={<>Software is becoming AaaS.<br /><span className="gradient-text">Are you ready?</span></>}
+              subtitle="SaaS gave businesses software to use. AaaS gives businesses agents that work. The shift is happening now — and it changes everything about how companies operate."
+              centered
+              className="mb-16"
+            />
+          </ScrollReveal>
+
+          {/* SaaS vs AaaS comparison */}
+          <ScrollReveal>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr auto 1fr',
+              gap: 0,
+              maxWidth: 860,
+              marginInline: 'auto',
+              marginBottom: 64,
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border)',
+              borderRadius: 'var(--radius-lg)',
+              overflow: 'hidden',
+            }}
+            className="aaas-compare-grid"
+            >
+              {/* SaaS column */}
+              <div style={{ padding: '32px 28px' }}>
+                <div style={{
+                  fontFamily: 'var(--font-mono)', fontSize: '0.66rem', fontWeight: 500,
+                  color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.12em',
+                  marginBottom: 16,
+                }}>
+                  SaaS Era
+                </div>
+                {[
+                  'Software you log into',
+                  'You do the work, software stores it',
+                  'Notifications you have to act on',
+                  'Dashboards you have to read',
+                  'Automations you have to trigger',
+                  'Updates you have to apply',
+                ].map((item) => (
+                  <div key={item} style={{
+                    display: 'flex', alignItems: 'flex-start', gap: 10,
+                    padding: '10px 0',
+                    borderBottom: '1px solid var(--border)',
+                    fontFamily: 'var(--font-body)', fontSize: '0.88rem',
+                    color: 'var(--text-muted)', lineHeight: 1.5,
+                  }}>
+                    <span style={{ color: 'var(--text-muted)', marginTop: 2, flexShrink: 0 }}>—</span>
+                    {item}
+                  </div>
+                ))}
+              </div>
+
+              {/* Divider */}
+              <div style={{
+                width: 1,
+                background: 'linear-gradient(180deg, transparent 0%, var(--border-hover) 20%, var(--teal) 50%, var(--border-hover) 80%, transparent 100%)',
+                position: 'relative',
+              }}>
+                <div style={{
+                  position: 'absolute', top: '50%', left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  width: 32, height: 32, borderRadius: '50%',
+                  background: 'var(--bg-card)',
+                  border: '1px solid var(--teal)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontFamily: 'var(--font-mono)', fontSize: '0.6rem',
+                  color: 'var(--teal)', fontWeight: 600,
+                  zIndex: 1,
+                }}>
+                  vs
+                </div>
+              </div>
+
+              {/* AaaS column */}
+              <div style={{ padding: '32px 28px' }}>
+                <div style={{
+                  fontFamily: 'var(--font-mono)', fontSize: '0.66rem', fontWeight: 500,
+                  color: 'var(--teal-light)', textTransform: 'uppercase', letterSpacing: '0.12em',
+                  marginBottom: 16,
+                }}>
+                  AaaS Era
+                </div>
+                {[
+                  'Agent systems that act for you',
+                  'Agents do the work, humans review',
+                  'Agents take action on triggers automatically',
+                  'Agents generate insights and act on them',
+                  'Agents that execute workflows end-to-end',
+                  'Agents that self-update and self-correct',
+                ].map((item) => (
+                  <div key={item} style={{
+                    display: 'flex', alignItems: 'flex-start', gap: 10,
+                    padding: '10px 0',
+                    borderBottom: '1px solid var(--border)',
+                    fontFamily: 'var(--font-body)', fontSize: '0.88rem',
+                    color: 'var(--text-primary)', lineHeight: 1.5,
+                  }}>
+                    <span style={{ color: 'var(--teal)', marginTop: 2, flexShrink: 0 }}>›</span>
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </ScrollReveal>
+
+          {/* 3 proof cards */}
+          <StaggerChildren className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              {
+                label: 'FabricxAI',
+                accent: '#E8916F',
+                agentCount: 22,
+                stat: '22 agents',
+                title: 'Workflow automation, end-to-end',
+                desc: 'FabricxAI runs 22 coordinated agents that ingest, classify, route, process, and report — without a human in the loop for routine work.',
+              },
+              {
+                label: 'NEXARA',
+                accent: '#7B6FE8',
+                agentCount: 13,
+                stat: '13 agents',
+                title: 'Conversational intelligence layer',
+                desc: 'NEXARA deploys 13 specialized agents handling intent classification, context retrieval, response generation, escalation, and follow-up.',
+              },
+              {
+                label: 'Dev Pipeline',
+                accent: '#72C4B2',
+                agentCount: 10,
+                stat: '10 agents',
+                title: 'Our own build system, agentified',
+                desc: 'The pipeline we use to build client software runs 10 agents: spec parsing, code generation, review, testing, security scan, and deploy.',
+              },
+            ].map((card) => (
+              <StaggerItem key={card.label}>
+                <article className="card" style={{
+                  padding: '28px 24px', height: '100%',
+                  display: 'flex', flexDirection: 'column',
+                  position: 'relative', overflow: 'hidden',
+                }}>
+                  <div style={{
+                    position: 'absolute', top: 0, left: 0, right: 0, height: 2,
+                    background: card.accent,
+                  }} />
+                  <div style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    marginBottom: 16,
+                  }}>
+                    <div style={{
+                      fontFamily: 'var(--font-mono)', fontSize: '0.66rem', fontWeight: 500,
+                      color: card.accent, textTransform: 'uppercase', letterSpacing: '0.12em',
+                    }}>
+                      {card.label}
+                    </div>
+                    <div style={{
+                      fontFamily: 'var(--font-display)', fontSize: '1.4rem', fontWeight: 800,
+                      color: card.accent, letterSpacing: '-0.02em',
+                    }}>
+                      {card.stat}
+                    </div>
+                  </div>
+                  <h3 style={{
+                    fontFamily: 'var(--font-headline)', fontSize: '1rem', fontWeight: 600,
+                    color: 'var(--text-primary)', lineHeight: 1.3, marginBottom: 10,
+                  }}>
+                    {card.title}
+                  </h3>
+                  <p style={{
+                    fontFamily: 'var(--font-body)', fontSize: '0.84rem', lineHeight: 1.65,
+                    color: 'var(--text-secondary)', flex: 1,
+                  }}>
+                    {card.desc}
+                  </p>
+                </article>
+              </StaggerItem>
+            ))}
+          </StaggerChildren>
+
+          <ScrollReveal>
+            <div style={{ textAlign: 'center', marginTop: 48 }}>
+              <Button href="/aaas" variant="ghost" size="md">
+                Learn about AaaS
+                <ArrowRight size={16} aria-hidden="true" />
+              </Button>
+            </div>
+          </ScrollReveal>
+        </Container>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          SOCIAL PROOF
+      ═══════════════════════════════════════════════════════════════════ */}
+      <section style={{ paddingBlock: 'var(--space-section)', background: 'var(--bg-2)' }}>
         <Container>
           <ScrollReveal>
             <SectionHeader
@@ -598,7 +795,7 @@ export default function HomePageClient() {
       {/* ═══════════════════════════════════════════════════════════════════
           LATEST FROM SOCIOFI TECHNOLOGY
       ═══════════════════════════════════════════════════════════════════ */}
-      <section style={{ paddingBlock: 'var(--space-section)', background: 'var(--bg-2)' }}>
+      <section style={{ paddingBlock: 'var(--space-section)', background: 'var(--bg)' }}>
         <Container>
           <ScrollReveal>
             <SectionHeader
@@ -626,7 +823,7 @@ export default function HomePageClient() {
                       {item.type}
                     </div>
                     <h3 style={{
-                      fontFamily: 'var(--font-display)',
+                      fontFamily: 'var(--font-headline)',
                       fontSize: '1rem', fontWeight: 600, letterSpacing: '-0.01em',
                       lineHeight: 1.35, color: 'var(--text-primary)',
                       marginBottom: 10, flex: 1,
@@ -643,7 +840,7 @@ export default function HomePageClient() {
                     </p>
                     <div style={{
                       display: 'flex', alignItems: 'center', gap: 6,
-                      fontFamily: 'var(--font-display)',
+                      fontFamily: 'var(--font-headline)',
                       fontSize: '0.8rem', fontWeight: 600,
                       color: item.accent, marginTop: 'auto',
                     }}>

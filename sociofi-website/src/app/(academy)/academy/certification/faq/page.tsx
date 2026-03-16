@@ -101,9 +101,9 @@ export default function CertificationFAQPage() {
             </div>
             <h1
               style={{
-                fontFamily: 'var(--font-display)',
+                fontFamily: 'var(--font-headline)',
                 fontSize: 'clamp(2rem, 3.5vw, 2.8rem)',
-                fontWeight: 700,
+                fontWeight: 400,
                 lineHeight: 1.12,
                 color: 'var(--text-primary)',
                 letterSpacing: '-0.025em',

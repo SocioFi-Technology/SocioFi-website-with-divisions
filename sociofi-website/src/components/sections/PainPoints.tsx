@@ -95,7 +95,7 @@ export default function PainPoints({
                     {point.icon ?? <WarnIcon />}
                   </div>
                   <h3 style={{
-                    fontFamily: 'var(--font-display)',
+                    fontFamily: 'var(--font-headline)',
                     fontSize: '1.05rem', fontWeight: 600,
                     letterSpacing: '-0.01em',
                     color: 'var(--text-primary)', margin: 0,
@@ -119,7 +119,7 @@ export default function PainPoints({
           <ScrollReveal delay={0.2}>
             <p style={{
               marginTop: 'var(--space-3xl)',
-              fontFamily: 'var(--font-display)',
+              fontFamily: 'var(--font-headline)',
               fontSize: 'clamp(1.1rem, 2vw, 1.4rem)',
               fontWeight: 600,
               lineHeight: 1.4,

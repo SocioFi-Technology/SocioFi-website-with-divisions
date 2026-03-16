@@ -70,7 +70,7 @@ export default function SectionHeader({
 
       <Tag
         style={{
-          fontFamily: 'var(--font-display)',
+          fontFamily: 'var(--font-headline)',
           fontSize: titleSize,
           fontWeight: titleWeight,
           letterSpacing: titleTracking,

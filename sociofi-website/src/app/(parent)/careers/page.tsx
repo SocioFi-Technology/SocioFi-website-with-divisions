@@ -75,7 +75,7 @@ function OpenRoles() {
         >
           <div>
             <div style={{
-              fontFamily: 'var(--font-display)',
+              fontFamily: 'var(--font-headline)',
               fontSize: '0.95rem', fontWeight: 600,
               color: 'var(--text-primary)', letterSpacing: '-0.01em',
               marginBottom: 4,

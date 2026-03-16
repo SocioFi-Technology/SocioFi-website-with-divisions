@@ -62,8 +62,14 @@ export const divisions: Record<DivisionSlug, Division> = {
     cta: null,
     url: '/',
     navLinks: [
+      { label: 'AaaS', href: '/aaas', dropdown: [
+        { label: 'What is AaaS?', href: '/aaas', description: 'The shift from SaaS to Agent-as-a-Service' },
+        { label: 'AI Agent Systems', href: '/studio/services/ai-agent-systems', description: 'Custom agent pipelines for your business' },
+        { label: 'How We Build Agents', href: '/aaas#how-we-build', description: 'Our 4-phase agent deployment process' },
+      ]},
       { label: 'Studio', href: '/studio', dropdown: [
         { label: 'Product Development', href: '/studio/services/product-development', description: 'Full-stack apps, built with AI' },
+        { label: 'AI Agent Systems', href: '/studio/services/ai-agent-systems', description: 'Custom agent pipelines, deployed' },
         { label: 'Rescue & Ship', href: '/studio/services/rescue-ship', description: 'Fix broken builds and get to launch' },
         { label: 'Portfolio', href: '/studio/portfolio', description: "Work we've shipped" },
         { label: 'Process', href: '/studio/process', description: 'How we build' },
@@ -109,6 +115,7 @@ export const divisions: Record<DivisionSlug, Division> = {
     url: '/studio',
     navLinks: [
       { label: 'Services', href: '/studio/services', dropdown: [
+        { label: 'AI Agent Systems', href: '/studio/services/ai-agent-systems', description: 'Custom agent pipelines for your business' },
         { label: 'Product Development', href: '/studio/services/product-development', description: 'From idea to scaled product' },
         { label: 'Rescue & Ship', href: '/studio/services/rescue-ship', description: 'Already started? We take it from here' },
         { label: 'Automation & Integration', href: '/studio/services/automation-integration', description: 'Stop doing manually what software can do' },
@@ -216,9 +223,9 @@ export const divisions: Record<DivisionSlug, Division> = {
     navLinks: [
       { label: 'Courses', href: '/academy/courses', dropdown: [
         { label: 'All Courses', href: '/academy/courses', description: 'Browse the full catalog' },
-        { label: 'AI Development', href: '/academy/courses/ai-development', description: 'Build with modern AI tools' },
-        { label: 'Deployment & DevOps', href: '/academy/courses/deployment', description: 'Go from code to live product' },
-        { label: 'Product Fundamentals', href: '/academy/courses/product-fundamentals', description: 'Build things people want' },
+        { label: 'AI Native Fundamentals', href: '/academy/courses/ai-native-fundamentals', description: 'Build with modern AI tools' },
+        { label: 'Prototype to Production', href: '/academy/courses/prototype-to-production', description: 'Go from code to live product' },
+        { label: 'Multi-Agent Design', href: '/academy/courses/multi-agent-design', description: 'Architect agent systems' },
       ]},
       { label: 'Workshops', href: '/academy/workshops' },
       { label: 'Corporate Training', href: '/academy/corporate' },

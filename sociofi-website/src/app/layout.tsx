@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
 import { Syne, Outfit, Fira_Code } from 'next/font/google';
 import { ThemeProvider } from 'next-themes';
+import { OrganizationJsonLd, WebsiteJsonLd } from '@/components/shared/JsonLd';
 import '../styles/globals.css';
 import '../styles/animations.css';
+import '../styles/responsive.css';
 
 const syne = Syne({
   subsets: ['latin'],
@@ -26,19 +28,29 @@ const firaCode = Fira_Code({
 });
 
 export const metadata: Metadata = {
-  title: 'SocioFi Technology — AI-Agent-Native Software Development',
+  metadataBase: new URL('https://sociofi.tech'),
+  title: {
+    default: 'SocioFi Technology — AI-Agent-Native Software Development',
+    template: '%s — SocioFi Technology',
+  },
   description: 'SocioFi Technology builds production-ready software using AI agents, expert human engineers, and a proven process. From prototype to product in weeks.',
   openGraph: {
     title: 'SocioFi Technology — AI-Agent-Native Software Development',
     description: 'SocioFi Technology builds production-ready software using AI agents, expert human engineers, and a proven process.',
     type: 'website',
-    images: ['/og-image.png'],
+    url: 'https://sociofi.tech',
+    siteName: 'SocioFi Technology',
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'SocioFi Technology' }],
   },
   twitter: {
     card: 'summary_large_image',
+    site: '@sociofitech',
   },
   icons: {
     icon: '/favicon.svg',
+  },
+  alternates: {
+    canonical: 'https://sociofi.tech',
   },
 };
 
@@ -50,6 +62,8 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${syne.variable} ${outfit.variable} ${firaCode.variable}`}>
+        <OrganizationJsonLd />
+        <WebsiteJsonLd />
         <ThemeProvider
           attribute="data-theme"
           defaultTheme="dark"

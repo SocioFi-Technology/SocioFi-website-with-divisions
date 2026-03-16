@@ -94,7 +94,7 @@ export default function ProcessTimeline({
                 >
                   <h3
                     style={{
-                      fontFamily: 'var(--font-display)',
+                      fontFamily: 'var(--font-headline)',
                       fontSize: '1.15rem',
                       fontWeight: 600,
                       letterSpacing: '-0.01em',

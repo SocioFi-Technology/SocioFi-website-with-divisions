@@ -218,7 +218,7 @@ function HubCardComponent({ card }: { card: HubCard }) {
         )}
 
         <h3 style={{
-          fontFamily: 'var(--font-display)',
+          fontFamily: 'var(--font-headline)',
           fontSize: '1.15rem',
           fontWeight: 600,
           color: 'var(--text-primary)',
@@ -245,7 +245,7 @@ function HubCardComponent({ card }: { card: HubCard }) {
             display: 'flex',
             alignItems: 'center',
             gap: 6,
-            fontFamily: 'var(--font-display)',
+            fontFamily: 'var(--font-headline)',
             fontSize: '0.85rem',
             fontWeight: 600,
             color: accent,
@@ -316,7 +316,7 @@ function FlowStepItem({
 
       <div style={{ paddingTop: 8 }}>
         <div style={{
-          fontFamily: 'var(--font-display)',
+          fontFamily: 'var(--font-headline)',
           fontSize: '1rem',
           fontWeight: 600,
           color: 'var(--text-primary)',
