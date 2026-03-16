@@ -1,10 +1,20 @@
+'use client';
+
+import { useScroll, useTransform, motion, useReducedMotion } from 'framer-motion';
+
 export default function AnimatedGrid() {
+  const reduced = useReducedMotion();
+  const { scrollY } = useScroll();
+
+  // Scroll-linked translateY at 0.1x scroll speed — adds subtle parallax depth
+  const y = useTransform(scrollY, [0, 1000], [0, reduced ? 0 : 100]);
+
   return (
     <div
       className="absolute inset-0 overflow-hidden pointer-events-none"
       aria-hidden="true"
     >
-      <div
+      <motion.div
         className="absolute inset-0 animate-grid-drift"
         style={{
           backgroundImage: `
@@ -16,6 +26,7 @@ export default function AnimatedGrid() {
             'radial-gradient(ellipse 80% 70% at 50% 0%, black 40%, transparent 100%)',
           WebkitMaskImage:
             'radial-gradient(ellipse 80% 70% at 50% 0%, black 40%, transparent 100%)',
+          y,
         }}
       />
     </div>

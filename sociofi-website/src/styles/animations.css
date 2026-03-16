@@ -515,3 +515,44 @@
     animation: fade-in 0.2s ease forwards !important;
   }
 }
+
+/* ──────────────────────────────────────────────────────────────
+   11. MOBILE OVERRIDES
+   On small screens: simplify animations, disable parallax,
+   increase touch targets. Parallax is JS-driven (framer-motion
+   useTransform) and respects useReducedMotion — these CSS rules
+   catch CSS-only animation simplification.
+   ────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Slower, simpler orb float — less distracting on small screens */
+  .orb-1, .orb-2, .orb-3, .orb-4 {
+    animation-duration: 14s !important;
+    animation-timing-function: ease-in-out !important;
+  }
+
+  /* Reduce stagger speed on mobile — tighter timing feels better */
+  .stagger-children.is-visible > *:nth-child(1)  { animation-delay: 0.00s !important; }
+  .stagger-children.is-visible > *:nth-child(2)  { animation-delay: 0.05s !important; }
+  .stagger-children.is-visible > *:nth-child(3)  { animation-delay: 0.10s !important; }
+  .stagger-children.is-visible > *:nth-child(4)  { animation-delay: 0.15s !important; }
+  .stagger-children.is-visible > *:nth-child(n+5) { animation-delay: 0.20s !important; }
+
+  /* Smaller translateY distance on mobile — less travel = less jank */
+  .reveal-up  { transform: translateY(16px) !important; }
+  .reveal-down { transform: translateY(-16px) !important; }
+
+  /* Minimum 44px touch targets for interactive elements */
+  .btn {
+    min-height: 44px;
+  }
+
+  /* Disable card hover lift on touch (no persistent hover state) */
+  @media (hover: none) {
+    .card:hover {
+      transform: none !important;
+    }
+    .btn:hover {
+      transform: none !important;
+    }
+  }
+}

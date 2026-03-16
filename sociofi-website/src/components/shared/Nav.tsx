@@ -45,7 +45,13 @@ export default function Nav({ division }: NavProps) {
     href === '/' ? pathname === '/' : pathname.startsWith(href);
 
   return (
-    <header className={`nav${scrolled ? ' scrolled' : ''}`} role="banner">
+    <motion.header
+      className={`nav${scrolled ? ' scrolled' : ''}`}
+      role="banner"
+      initial={{ y: -20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.4, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+    >
       <div className="container">
         <div style={{
           display: 'flex',
@@ -174,7 +180,7 @@ export default function Nav({ division }: NavProps) {
           </motion.div>
         )}
       </AnimatePresence>
-    </header>
+    </motion.header>
   );
 }
 

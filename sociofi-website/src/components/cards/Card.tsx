@@ -72,6 +72,7 @@ export default function Card({
       {/* Icon */}
       {icon && (
         <div
+          className="card-icon"
           style={{
             width: 44,
             height: 44,

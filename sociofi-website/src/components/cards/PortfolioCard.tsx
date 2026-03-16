@@ -60,6 +60,8 @@ export default function PortfolioCard({
             height: 200,
             overflow: 'hidden',
             background: `linear-gradient(135deg, ${accent2} 0%, ${accent} 100%)`,
+            transform: hovered ? 'scale(1.04)' : 'scale(1)',
+            transition: 'transform 0.6s var(--ease)',
           }}
         >
           {/* Grid overlay on placeholder */}

@@ -107,17 +107,26 @@ export function StaggerItem({
   children,
   className = '',
   direction = 'up',
+  withScale = false,
 }: {
   children: ReactNode;
   className?: string;
   direction?: Direction;
+  /** Combine translateY with a slight scale-in (0.97→1) for headlines */
+  withScale?: boolean;
 }) {
   const reduced = useReducedMotion() ?? false;
   const variants = getVariants(direction, 24, reduced);
 
+  // Overlay scale on top of directional translate for "headline" effect
+  const scaledVariants = withScale && !reduced ? {
+    hidden: { ...variants.hidden, scale: 0.97 },
+    visible: { ...variants.visible, scale: 1 },
+  } : variants;
+
   return (
     <motion.div
-      variants={variants}
+      variants={scaledVariants}
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       className={className}
     >

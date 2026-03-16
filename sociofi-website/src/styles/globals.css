@@ -228,10 +228,27 @@ body {
   line-height: 1.65;
   /* Smooth theme transitions — excludes position/layout props for perf */
   transition:
-    background-color 0.35s var(--ease),
-    color 0.35s var(--ease);
+    background-color 0.3s var(--ease),
+    color 0.3s var(--ease);
   /* Noise texture overlay — subtle grain like Linear.app */
   position: relative;
+}
+
+/* ── Extended theme transitions — key containers & components ── */
+/* Only background/color/border — never position/transform to avoid jank */
+.nav,
+section,
+header,
+footer,
+aside,
+[class*="card"],
+[class*="glass"],
+[class*="btn"],
+[class*="badge"] {
+  transition:
+    background-color 0.3s var(--ease),
+    border-color 0.3s var(--ease),
+    color 0.3s var(--ease);
 }
 
 /* Noise grain layer — CSS only, no image files needed */

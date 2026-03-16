@@ -97,7 +97,7 @@ export default function Hero({
           }
         >
           {/* ── Text block ──────────────────────────────────────────────── */}
-          <StaggerChildren>
+          <StaggerChildren delay={0.3} stagger={0.15}>
             {/* Badge */}
             {badge && (
               <StaggerItem>
@@ -125,7 +125,7 @@ export default function Hero({
             )}
 
             {/* Headline */}
-            <StaggerItem>
+            <StaggerItem withScale>
               <h1
                 style={{
                   fontFamily: 'var(--font-display)',
@@ -194,7 +194,7 @@ export default function Hero({
 
           {/* ── Right content ── split layout only ─────────────────────── */}
           {hasSplit && (
-            <ScrollReveal direction="left" delay={0.25}>
+            <ScrollReveal direction="left" delay={0.6}>
               <div className="relative flex items-center justify-center lg:justify-end">
                 {rightContent}
               </div>
