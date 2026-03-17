@@ -59,9 +59,9 @@ function LogoPlaceholder({ item }: { item: LogoItem }) {
           borderRadius: 'var(--radius-xs)',
           background: 'var(--bg-3)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontFamily: 'var(--font-display)',
+          fontFamily: 'var(--font-headline)',
           fontSize: '0.65rem',
-          fontWeight: 700,
+          fontWeight: 400,
           color: 'var(--text-muted)',
           letterSpacing: '0.04em',
         }}>
@@ -69,7 +69,7 @@ function LogoPlaceholder({ item }: { item: LogoItem }) {
         </div>
       )}
       <span style={{
-        fontFamily: 'var(--font-display)',
+        fontFamily: 'var(--font-headline)',
         fontSize: '0.9rem',
         fontWeight: 600,
         color: 'var(--text-secondary)',

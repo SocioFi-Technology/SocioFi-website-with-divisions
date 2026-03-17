@@ -167,9 +167,9 @@ export default function DivisionOverview({ content }: { content: DivisionOvervie
                 <div>
                   <p className="sec-label">{featured.label}</p>
                   <h2 style={{
-                    fontFamily: 'var(--font-display)',
+                    fontFamily: 'var(--font-headline)',
                     fontSize: 'clamp(1.8rem, 3vw, 2.4rem)',
-                    fontWeight: 700,
+                    fontWeight: 400,
                     letterSpacing: '-0.02em',
                     lineHeight: 1.15,
                     color: 'var(--text-primary)',
@@ -193,7 +193,7 @@ export default function DivisionOverview({ content }: { content: DivisionOvervie
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: 8,
-                        fontFamily: 'var(--font-display)',
+                        fontFamily: 'var(--font-headline)',
                         fontSize: '0.95rem',
                         fontWeight: 600,
                         color: 'var(--division-accent)',

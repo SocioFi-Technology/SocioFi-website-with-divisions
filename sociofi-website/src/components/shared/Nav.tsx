@@ -71,7 +71,7 @@ export default function Nav({ division }: NavProps) {
           {/* Desktop nav links */}
           <nav
             aria-label="Main navigation"
-            className="hidden md:flex"
+            className="show-desktop"
             style={{ alignItems: 'center', gap: 2, flex: 1, justifyContent: 'center' }}
           >
             {ctx.navLinks.map((link) => (
@@ -93,7 +93,7 @@ export default function Nav({ division }: NavProps) {
 
             {/* CTA button — desktop only */}
             {ctx.cta && (
-              <div className="hidden md:block">
+              <div className="show-desktop-block" style={{ display: 'none' }}>
                 <Button
                   href={ctx.cta.href}
                   variant="primary"
@@ -106,7 +106,7 @@ export default function Nav({ division }: NavProps) {
             )}
 
             {/* Mobile hamburger */}
-            <div className="md:hidden">
+            <div className="hide-desktop">
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
                 aria-label={mobileOpen ? 'Close navigation' : 'Open navigation'}

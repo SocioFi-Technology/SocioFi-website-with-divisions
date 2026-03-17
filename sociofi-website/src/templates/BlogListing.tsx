@@ -148,9 +148,9 @@ export default function BlogListing({ content }: { content: BlogListingContent }
                       </span>
                     </div>
                     <h2 style={{
-                      fontFamily: 'var(--font-display)',
+                      fontFamily: 'var(--font-headline)',
                       fontSize: 'clamp(1.4rem, 2.5vw, 2rem)',
-                      fontWeight: 700,
+                      fontWeight: 400,
                       letterSpacing: '-0.025em',
                       lineHeight: 1.2,
                       color: 'var(--text-primary)',
@@ -279,9 +279,9 @@ export default function BlogListing({ content }: { content: BlogListingContent }
                 marginInline: 'auto',
               }}>
                 <h3 style={{
-                  fontFamily: 'var(--font-display)',
+                  fontFamily: 'var(--font-headline)',
                   fontSize: '1.4rem',
-                  fontWeight: 700,
+                  fontWeight: 400,
                   letterSpacing: '-0.02em',
                   color: 'var(--text-primary)',
                   marginBottom: 12,
@@ -343,7 +343,7 @@ function PostCard({ post }: { post: BlogPost }) {
         </div>
 
         <h3 style={{
-          fontFamily: 'var(--font-display)',
+          fontFamily: 'var(--font-headline)',
           fontSize: '1.05rem',
           fontWeight: 600,
           letterSpacing: '-0.01em',

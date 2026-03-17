@@ -164,7 +164,7 @@ export default function PortfolioCard({
 
           <h3
             style={{
-              fontFamily: 'var(--font-display)',
+              fontFamily: 'var(--font-headline)',
               fontSize: '1.1rem',
               fontWeight: 600,
               letterSpacing: '-0.01em',

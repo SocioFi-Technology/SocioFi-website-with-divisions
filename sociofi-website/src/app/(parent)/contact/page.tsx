@@ -78,9 +78,9 @@ export default function ContactPage() {
                 Get in touch
               </p>
               <h1 style={{
-                fontFamily: 'var(--font-display)',
+                fontFamily: 'var(--font-headline)',
                 fontSize: 'clamp(2rem, 4vw, 3rem)',
-                fontWeight: 800, letterSpacing: '-0.03em', lineHeight: 1.08,
+                fontWeight: 400, letterSpacing: '-0.03em', lineHeight: 1.08,
                 color: 'var(--text-primary)', marginBottom: 20,
               }}>
                 No Pitch. No Pressure.<br />Just a Conversation.
@@ -137,8 +137,8 @@ export default function ContactPage() {
                       Prefer to talk?
                     </p>
                     <h3 style={{
-                      fontFamily: 'var(--font-display)',
-                      fontSize: '1.1rem', fontWeight: 700,
+                      fontFamily: 'var(--font-headline)',
+                      fontSize: '1.1rem', fontWeight: 400,
                       letterSpacing: '-0.01em', color: 'var(--text-primary)',
                       marginBottom: 10,
                     }}>
@@ -158,7 +158,7 @@ export default function ContactPage() {
                         padding: '10px 20px',
                         background: 'var(--teal)',
                         borderRadius: 'var(--radius-full)',
-                        fontFamily: 'var(--font-display)',
+                        fontFamily: 'var(--font-headline)',
                         fontSize: '0.88rem', fontWeight: 600,
                         color: 'white', textDecoration: 'none',
                       }}
@@ -192,7 +192,7 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <div style={{
-                        fontFamily: 'var(--font-display)',
+                        fontFamily: 'var(--font-headline)',
                         fontSize: '0.82rem', fontWeight: 600,
                         color: 'var(--text-primary)', marginBottom: 2,
                       }}>
@@ -220,7 +220,7 @@ export default function ContactPage() {
                     display: 'flex', flexDirection: 'column', gap: 16,
                   }}>
                     <p style={{
-                      fontFamily: 'var(--font-display)',
+                      fontFamily: 'var(--font-headline)',
                       fontSize: '0.88rem', fontWeight: 600,
                       color: 'var(--text-primary)', margin: 0,
                     }}>
@@ -292,9 +292,9 @@ export default function ContactPage() {
               FAQ
             </p>
             <h2 style={{
-              fontFamily: 'var(--font-display)',
+              fontFamily: 'var(--font-headline)',
               fontSize: 'clamp(1.8rem, 3vw, 2.4rem)',
-              fontWeight: 700, letterSpacing: '-0.02em',
+              fontWeight: 400, letterSpacing: '-0.02em',
               color: 'var(--text-primary)', margin: 0,
             }}>
               Quick answers

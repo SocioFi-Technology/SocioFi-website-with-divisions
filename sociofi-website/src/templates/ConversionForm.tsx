@@ -98,7 +98,7 @@ export default function ConversionForm({ content }: { content: ConversionFormCon
                 }}>
                   {sidebar.headline && (
                     <h3 style={{
-                      fontFamily: 'var(--font-display)',
+                      fontFamily: 'var(--font-headline)',
                       fontSize: '1.1rem',
                       fontWeight: 600,
                       color: 'var(--text-primary)',
@@ -144,7 +144,7 @@ export default function ConversionForm({ content }: { content: ConversionFormCon
                         &ldquo;{sidebar.testimonial.quote}&rdquo;
                       </p>
                       <div style={{
-                        fontFamily: 'var(--font-display)',
+                        fontFamily: 'var(--font-headline)',
                         fontSize: '0.84rem',
                         fontWeight: 600,
                         color: 'var(--text-primary)',
@@ -229,7 +229,7 @@ function TrustPoint({ point }: { point: TrustPoint }) {
       )}
       <div>
         <div style={{
-          fontFamily: 'var(--font-display)',
+          fontFamily: 'var(--font-headline)',
           fontSize: '0.92rem',
           fontWeight: 600,
           color: 'var(--text-primary)',

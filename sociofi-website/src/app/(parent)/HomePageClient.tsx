@@ -45,6 +45,7 @@ const SHIMMER_CSS = `
 // ── Division one-liners ───────────────────────────────────────────────────────
 
 const DIVISION_COPY: Record<string, string> = {
+  agents:   'Autonomous agent systems that act on your data. Not software you use — infrastructure that works for you.',
   studio:   'Custom AI-native software. From idea to production in weeks.',
   services: 'Ongoing maintenance, monitoring, and support for live products.',
   labs:     'Research, experimentation, and open-source contributions.',
@@ -70,10 +71,11 @@ function divisionModifier(modifier: LogoModifier, accent: string) {
     case 'signal-arcs': // Services
       return (
         <>
-          <circle cx="35" cy="24" r="1.5" fill={accent} />
-          <path d="M35 24 A4 4 0 0 1 39 20" stroke={accent} strokeWidth="1.5" strokeLinecap="round" fill="none" />
-          <path d="M34 24 A7 7 0 0 1 41 17" stroke={accent} strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.7" />
-          <path d="M33 24 A10 10 0 0 1 43 14" stroke={accent} strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.4" />
+          <path d="M 36.0 18.3 A 7 7 0 0 1 36.0 29.7" stroke={accent} strokeWidth="2" strokeLinecap="round" fill="none" opacity="0.9" />
+          <path d="M 38.3 15.0 A 11 11 0 0 1 38.3 33.0" stroke={accent} strokeWidth="1.6" strokeLinecap="round" fill="none" opacity="0.5" />
+          <path d="M 40.6 11.7 A 15 15 0 0 1 40.6 36.3" stroke={accent} strokeWidth="1.2" strokeLinecap="round" fill="none" opacity="0.22" />
+          <circle cx="32" cy="24" r="3" fill={accent} opacity="0.85" />
+          <circle cx="32" cy="24" r="5.5" stroke={accent} strokeWidth="1.2" fill="none" opacity="0.3" />
         </>
       );
     case 'particle-dots': // Labs
@@ -88,41 +90,85 @@ function divisionModifier(modifier: LogoModifier, accent: string) {
     case 'stacked-diamonds': // Products
       return (
         <>
-          <path d="M38 16 L42 20 L38 24 L34 20Z" stroke={accent} strokeWidth="1.4" fill="none" strokeLinejoin="round" />
-          <path d="M38 20 L42 24 L38 28 L34 24Z" stroke={accent} strokeWidth="1.4" fill="none" strokeLinejoin="round" opacity="0.65" />
-          <path d="M38 24 L42 28 L38 32 L34 28Z" stroke={accent} strokeWidth="1.4" fill="none" strokeLinejoin="round" opacity="0.35" />
+          <line x1="32" y1="24" x2="33" y2="16" stroke={accent} strokeWidth="0.8" strokeLinecap="round" strokeDasharray="1.5 2.5" opacity="0.18" />
+          <path d="M39 26 L43 30 L39 34 L35 30 Z" stroke={accent} strokeWidth="1.2" strokeLinejoin="round" fill="none" opacity="0.22" />
+          <path d="M39 18 L44 23 L39 28 L34 23 Z" stroke={accent} strokeWidth="1.6" strokeLinejoin="round" fill={`${accent}0D`} opacity="0.5" />
+          <path d="M39 10 L45 16 L39 22 L33 16 Z" stroke={accent} strokeWidth="2" strokeLinejoin="round" fill={`${accent}14`} opacity="0.9" />
+          <circle cx="39" cy="10" r="2.2" fill={accent} opacity="0.9" />
+          <circle cx="39" cy="10" r="4" stroke={accent} strokeWidth="1.2" fill="none" opacity="0.22" />
+          <circle cx="39" cy="16" r="1.2" fill={accent} opacity="0.4" />
+          <circle cx="32" cy="24" r="2" fill={accent} opacity="0.18" />
         </>
       );
-    case 'open-book': // Academy
+    case 'open-book': // Academy — open book + rays + tip dots
       return (
         <>
-          <line x1="38" y1="34" x2="38" y2="17" stroke={accent} strokeWidth="1.5" strokeLinecap="round" />
-          <path d="M38 17 Q31 18 30 33 L38 34" stroke={accent} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-          <path d="M38 17 Q45 18 46 33 L38 34" stroke={accent} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.55" />
-          <line x1="38" y1="13" x2="38" y2="10" stroke={accent} strokeWidth="1.4" strokeLinecap="round" opacity="0.7" />
-          <line x1="35" y1="14" x2="33" y2="11" stroke={accent} strokeWidth="1.2" strokeLinecap="round" opacity="0.5" />
-          <line x1="41" y1="14" x2="43" y2="11" stroke={accent} strokeWidth="1.2" strokeLinecap="round" opacity="0.5" />
+          <path d="M39 12 L32 15 L33 25 L39 25 Z" stroke={accent} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill={`${accent}14`} opacity="0.9" />
+          <path d="M39 12 L46 15 L45 25 L39 25 Z" stroke={accent} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill={`${accent}0C`} opacity="0.75" />
+          <line x1="39" y1="12" x2="39" y2="25" stroke={accent} strokeWidth="1.2" strokeLinecap="round" opacity="0.6" />
+          <line x1="33.5" y1="18" x2="37.5" y2="17.5" stroke={accent} strokeWidth="0.9" strokeLinecap="round" opacity="0.4" />
+          <line x1="34" y1="21.5" x2="37.5" y2="21.5" stroke={accent} strokeWidth="0.9" strokeLinecap="round" opacity="0.25" />
+          <line x1="40.5" y1="17.5" x2="44.5" y2="18" stroke={accent} strokeWidth="0.9" strokeLinecap="round" opacity="0.35" />
+          <line x1="40.5" y1="21.5" x2="44.5" y2="21.5" stroke={accent} strokeWidth="0.9" strokeLinecap="round" opacity="0.22" />
+          <line x1="39" y1="12" x2="39" y2="5" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.9" />
+          <line x1="36" y1="13.5" x2="32" y2="7" stroke={accent} strokeWidth="1.4" strokeLinecap="round" opacity="0.55" />
+          <line x1="42" y1="13.5" x2="46" y2="7" stroke={accent} strokeWidth="1.4" strokeLinecap="round" opacity="0.45" />
+          <circle cx="39" cy="4" r="2" fill={accent} opacity="0.9" />
+          <circle cx="31" cy="6" r="1.5" fill={accent} opacity="0.5" />
+          <circle cx="47" cy="6" r="1.5" fill={accent} opacity="0.4" />
+          <circle cx="32" cy="24" r="2.5" fill={accent} opacity="0.3" />
         </>
       );
     case 'ascending-branch': // Ventures
       return (
         <>
-          <path d="M38 38 L38 16" stroke={accent} strokeWidth="1.8" strokeLinecap="round" />
-          <path d="M38 28 L28 18" stroke={accent} strokeWidth="1.4" strokeLinecap="round" opacity="0.7" />
-          <path d="M38 22 L46 14" stroke={accent} strokeWidth="1.4" strokeLinecap="round" opacity="0.5" />
-          <circle cx="38" cy="38" r="2" fill={accent} />
-          <circle cx="28" cy="18" r="1.6" fill={accent} opacity="0.7" />
-          <circle cx="46" cy="14" r="1.4" fill={accent} opacity="0.5" />
+          <line x1="38" y1="30" x2="44" y2="30" stroke={accent} strokeWidth="1.4" strokeLinecap="round" opacity="0.35" />
+          <line x1="41" y1="29" x2="41" y2="20" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.9" />
+          <circle cx="41" cy="20" r="1.6" fill={accent} opacity="0.95" />
+          <circle cx="41" cy="20" r="3" stroke={accent} strokeWidth="1.2" fill="none" opacity="0.25" />
+          <line x1="41" y1="20" x2="36" y2="13" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.85" />
+          <line x1="41" y1="20" x2="46" y2="13" stroke={accent} strokeWidth="1.4" strokeLinecap="round" opacity="0.55" />
+          <path d="M36 13 L38 17 L34 17 Z" fill={accent} opacity="0.85" />
+          <path d="M46 13 L47 17 L44 17 Z" fill={accent} opacity="0.5" />
+          <circle cx="36" cy="11" r="1.3" fill={accent} opacity="0.9" />
+          <circle cx="46" cy="11" r="0.9" fill={accent} opacity="0.55" />
+          <line x1="36" y1="11" x2="46" y2="11" stroke={accent} strokeWidth="0.8" strokeLinecap="round" strokeDasharray="2 3" opacity="0.15" />
+          <circle cx="32" cy="24" r="1.5" fill={accent} opacity="0.25" />
         </>
       );
     case 'stacked-lines': // Cloud
       return (
         <>
-          <line x1="33" y1="17" x2="44" y2="17" stroke={accent} strokeWidth="1.6" strokeLinecap="round" />
-          <line x1="33" y1="23" x2="42" y2="23" stroke={accent} strokeWidth="1.6" strokeLinecap="round" opacity="0.7" />
-          <line x1="33" y1="29" x2="39" y2="29" stroke={accent} strokeWidth="1.6" strokeLinecap="round" opacity="0.45" />
-          <path d="M45 14 L45 20" stroke={accent} strokeWidth="1.5" strokeLinecap="round" />
-          <path d="M42 17 L45 14 L48 17" stroke={accent} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          <line x1="33" y1="32" x2="47" y2="32" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.9" />
+          <line x1="35" y1="26" x2="45" y2="26" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.65" />
+          <line x1="36" y1="20" x2="38" y2="20" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.38" />
+          <line x1="42" y1="20" x2="44" y2="20" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.38" />
+          <line x1="40" y1="31" x2="40" y2="20" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.95" />
+          <path d="M37 20 L40 13 L43 20 Z" fill={accent} opacity="0.95" />
+          <circle cx="40" cy="12" r="1.8" fill={accent} opacity="0.95" />
+          <circle cx="40" cy="12" r="3.5" stroke={accent} strokeWidth="1.2" fill="none" opacity="0.22" />
+          <circle cx="33" cy="32" r="1.5" fill={accent} opacity="0.5" />
+          <circle cx="35" cy="26" r="1.2" fill={accent} opacity="0.35" />
+          <circle cx="32" cy="24" r="2" fill={accent} opacity="0.18" />
+        </>
+      );
+    case 'agent-node-network': // Agents — hexagon orchestrator + satellite nodes
+      return (
+        <>
+          <line x1="32" y1="24" x2="33" y2="18" stroke={accent} strokeWidth="0.8" strokeLinecap="round" strokeDasharray="1.5 2.5" opacity="0.3" />
+          <circle cx="38" cy="18" r="9" stroke={accent} strokeWidth="0.8" fill="none" strokeDasharray="2 4" opacity="0.15" />
+          <line x1="32" y1="30" x2="35.5" y2="22.3" stroke={accent} strokeWidth="0.9" strokeLinecap="round" strokeDasharray="1.5 3" opacity="0.28" />
+          <line x1="44" y1="26" x2="43" y2="18" stroke={accent} strokeWidth="1" strokeLinecap="round" opacity="0.45" />
+          <line x1="38" y1="9" x2="40.5" y2="13.7" stroke={accent} strokeWidth="1" strokeLinecap="round" strokeDasharray="1.5 2.5" opacity="0.55" />
+          <path d="M43 18 L40.5 22.3 L35.5 22.3 L33 18 L35.5 13.7 L40.5 13.7 Z" stroke={accent} strokeWidth="1.6" strokeLinejoin="round" fill={`${accent}18`} opacity="0.9" />
+          <circle cx="38" cy="18" r="1.5" fill={accent} opacity="0.7" />
+          <circle cx="38" cy="18" r="4" stroke={accent} strokeWidth="0.8" fill="none" opacity="0.25" />
+          <circle cx="38" cy="9" r="2.5" fill={accent} opacity="0.88" />
+          <circle cx="38" cy="9" r="4.5" stroke={accent} strokeWidth="0.8" fill="none" opacity="0.2" />
+          <circle cx="44" cy="26" r="1.8" fill={accent} opacity="0.62" />
+          <circle cx="44" cy="26" r="3.5" stroke={accent} strokeWidth="0.7" fill="none" opacity="0.15" />
+          <circle cx="32" cy="30" r="1.4" fill={accent} opacity="0.42" />
+          <circle cx="32" cy="24" r="2" fill={accent} opacity="0.16" />
         </>
       );
     default:
@@ -382,14 +428,14 @@ export default function HomePageClient() {
                   width: 6, height: 6, borderRadius: '50%',
                   background: 'var(--teal-light)', display: 'inline-block',
                 }} />
-                AI-Native Software Company
+                Agent-as-a-Service · AaaS
               </div>
 
               {/* H1 */}
               <h1 style={{
-                fontFamily: 'var(--font-display)',
+                fontFamily: 'var(--font-headline)',
                 fontSize: 'clamp(2.8rem, 6vw, 5rem)',
-                fontWeight: 800,
+                fontWeight: 400,
                 letterSpacing: '-0.035em',
                 lineHeight: 1.06,
                 marginBottom: 28,
@@ -412,7 +458,7 @@ export default function HomePageClient() {
                 marginInline: 'auto',
                 marginBottom: 44,
               }}>
-                Seven specialized divisions. One mission: build intelligent software systems where AI agents handle the heavy lifting and human engineers architect everything else.
+                The world is moving from SaaS to AaaS — software that doesn't just store data, it acts on it. Seven specialized divisions. One mission: build intelligent agent systems your business actually runs on.
               </p>
 
               {/* Buttons */}
@@ -522,7 +568,7 @@ export default function HomePageClient() {
 
                         {/* Subtitle */}
                         <h3 style={{
-                          fontFamily: 'var(--font-display)',
+                          fontFamily: 'var(--font-headline)',
                           fontSize: i === 0 ? '1.3rem' : '1.05rem',
                           fontWeight: 600, letterSpacing: '-0.01em',
                           color: 'var(--text-primary)', lineHeight: 1.25,
@@ -545,7 +591,7 @@ export default function HomePageClient() {
                         {/* Explore link */}
                         <div style={{
                           display: 'flex', alignItems: 'center', gap: 6,
-                          fontFamily: 'var(--font-display)',
+                          fontFamily: 'var(--font-headline)',
                           fontSize: '0.82rem', fontWeight: 600,
                           color: div.accent, marginTop: 'auto',
                         }}>
@@ -563,9 +609,206 @@ export default function HomePageClient() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          SOCIAL PROOF
+          AAAS — THE SHIFT
       ═══════════════════════════════════════════════════════════════════ */}
       <section style={{ paddingBlock: 'var(--space-section)', background: 'var(--bg)' }}>
+        <Container>
+          <ScrollReveal>
+            <SectionHeader
+              label="The Shift"
+              title={<>Software is becoming AaaS.<br /><span className="gradient-text">Are you ready?</span></>}
+              subtitle="SaaS gave businesses software to use. AaaS gives businesses agents that work. The shift is happening now — and it changes everything about how companies operate."
+              centered
+              className="mb-16"
+            />
+          </ScrollReveal>
+
+          {/* SaaS vs AaaS comparison */}
+          <ScrollReveal>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr auto 1fr',
+              gap: 0,
+              maxWidth: 860,
+              marginInline: 'auto',
+              marginBottom: 64,
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border)',
+              borderRadius: 'var(--radius-lg)',
+              overflow: 'hidden',
+            }}
+            className="aaas-compare-grid"
+            >
+              {/* SaaS column */}
+              <div style={{ padding: '32px 28px' }}>
+                <div style={{
+                  fontFamily: 'var(--font-mono)', fontSize: '0.66rem', fontWeight: 500,
+                  color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.12em',
+                  marginBottom: 16,
+                }}>
+                  SaaS Era
+                </div>
+                {[
+                  'Software you log into',
+                  'You do the work, software stores it',
+                  'Notifications you have to act on',
+                  'Dashboards you have to read',
+                  'Automations you have to trigger',
+                  'Updates you have to apply',
+                ].map((item) => (
+                  <div key={item} style={{
+                    display: 'flex', alignItems: 'flex-start', gap: 10,
+                    padding: '10px 0',
+                    borderBottom: '1px solid var(--border)',
+                    fontFamily: 'var(--font-body)', fontSize: '0.88rem',
+                    color: 'var(--text-muted)', lineHeight: 1.5,
+                  }}>
+                    <span style={{ color: 'var(--text-muted)', marginTop: 2, flexShrink: 0 }}>—</span>
+                    {item}
+                  </div>
+                ))}
+              </div>
+
+              {/* Divider */}
+              <div style={{
+                width: 1,
+                background: 'linear-gradient(180deg, transparent 0%, var(--border-hover) 20%, var(--teal) 50%, var(--border-hover) 80%, transparent 100%)',
+                position: 'relative',
+              }}>
+                <div style={{
+                  position: 'absolute', top: '50%', left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  width: 32, height: 32, borderRadius: '50%',
+                  background: 'var(--bg-card)',
+                  border: '1px solid var(--teal)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontFamily: 'var(--font-mono)', fontSize: '0.6rem',
+                  color: 'var(--teal)', fontWeight: 600,
+                  zIndex: 1,
+                }}>
+                  vs
+                </div>
+              </div>
+
+              {/* AaaS column */}
+              <div style={{ padding: '32px 28px' }}>
+                <div style={{
+                  fontFamily: 'var(--font-mono)', fontSize: '0.66rem', fontWeight: 500,
+                  color: 'var(--teal-light)', textTransform: 'uppercase', letterSpacing: '0.12em',
+                  marginBottom: 16,
+                }}>
+                  AaaS Era
+                </div>
+                {[
+                  'Agent systems that act for you',
+                  'Agents do the work, humans review',
+                  'Agents take action on triggers automatically',
+                  'Agents generate insights and act on them',
+                  'Agents that execute workflows end-to-end',
+                  'Agents that self-update and self-correct',
+                ].map((item) => (
+                  <div key={item} style={{
+                    display: 'flex', alignItems: 'flex-start', gap: 10,
+                    padding: '10px 0',
+                    borderBottom: '1px solid var(--border)',
+                    fontFamily: 'var(--font-body)', fontSize: '0.88rem',
+                    color: 'var(--text-primary)', lineHeight: 1.5,
+                  }}>
+                    <span style={{ color: 'var(--teal)', marginTop: 2, flexShrink: 0 }}>›</span>
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </ScrollReveal>
+
+          {/* 3 proof cards */}
+          <StaggerChildren className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              {
+                label: 'FabricxAI',
+                accent: '#E8916F',
+                agentCount: 22,
+                stat: '22 agents',
+                title: 'Workflow automation, end-to-end',
+                desc: 'FabricxAI runs 22 coordinated agents that ingest, classify, route, process, and report — without a human in the loop for routine work.',
+              },
+              {
+                label: 'NEXARA',
+                accent: '#7B6FE8',
+                agentCount: 13,
+                stat: '13 agents',
+                title: 'Conversational intelligence layer',
+                desc: 'NEXARA deploys 13 specialized agents handling intent classification, context retrieval, response generation, escalation, and follow-up.',
+              },
+              {
+                label: 'Dev Pipeline',
+                accent: '#72C4B2',
+                agentCount: 10,
+                stat: '10 agents',
+                title: 'Our own build system, agentified',
+                desc: 'The pipeline we use to build client software runs 10 agents: spec parsing, code generation, review, testing, security scan, and deploy.',
+              },
+            ].map((card) => (
+              <StaggerItem key={card.label}>
+                <article className="card" style={{
+                  padding: '28px 24px', height: '100%',
+                  display: 'flex', flexDirection: 'column',
+                  position: 'relative', overflow: 'hidden',
+                }}>
+                  <div style={{
+                    position: 'absolute', top: 0, left: 0, right: 0, height: 2,
+                    background: card.accent,
+                  }} />
+                  <div style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    marginBottom: 16,
+                  }}>
+                    <div style={{
+                      fontFamily: 'var(--font-mono)', fontSize: '0.66rem', fontWeight: 500,
+                      color: card.accent, textTransform: 'uppercase', letterSpacing: '0.12em',
+                    }}>
+                      {card.label}
+                    </div>
+                    <div style={{
+                      fontFamily: 'var(--font-display)', fontSize: '1.4rem', fontWeight: 800,
+                      color: card.accent, letterSpacing: '-0.02em',
+                    }}>
+                      {card.stat}
+                    </div>
+                  </div>
+                  <h3 style={{
+                    fontFamily: 'var(--font-headline)', fontSize: '1rem', fontWeight: 600,
+                    color: 'var(--text-primary)', lineHeight: 1.3, marginBottom: 10,
+                  }}>
+                    {card.title}
+                  </h3>
+                  <p style={{
+                    fontFamily: 'var(--font-body)', fontSize: '0.84rem', lineHeight: 1.65,
+                    color: 'var(--text-secondary)', flex: 1,
+                  }}>
+                    {card.desc}
+                  </p>
+                </article>
+              </StaggerItem>
+            ))}
+          </StaggerChildren>
+
+          <ScrollReveal>
+            <div style={{ textAlign: 'center', marginTop: 48 }}>
+              <Button href="/aaas" variant="ghost" size="md">
+                Learn about AaaS
+                <ArrowRight size={16} aria-hidden="true" />
+              </Button>
+            </div>
+          </ScrollReveal>
+        </Container>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          SOCIAL PROOF
+      ═══════════════════════════════════════════════════════════════════ */}
+      <section style={{ paddingBlock: 'var(--space-section)', background: 'var(--bg-2)' }}>
         <Container>
           <ScrollReveal>
             <SectionHeader
@@ -598,7 +841,7 @@ export default function HomePageClient() {
       {/* ═══════════════════════════════════════════════════════════════════
           LATEST FROM SOCIOFI TECHNOLOGY
       ═══════════════════════════════════════════════════════════════════ */}
-      <section style={{ paddingBlock: 'var(--space-section)', background: 'var(--bg-2)' }}>
+      <section style={{ paddingBlock: 'var(--space-section)', background: 'var(--bg)' }}>
         <Container>
           <ScrollReveal>
             <SectionHeader
@@ -626,7 +869,7 @@ export default function HomePageClient() {
                       {item.type}
                     </div>
                     <h3 style={{
-                      fontFamily: 'var(--font-display)',
+                      fontFamily: 'var(--font-headline)',
                       fontSize: '1rem', fontWeight: 600, letterSpacing: '-0.01em',
                       lineHeight: 1.35, color: 'var(--text-primary)',
                       marginBottom: 10, flex: 1,
@@ -643,7 +886,7 @@ export default function HomePageClient() {
                     </p>
                     <div style={{
                       display: 'flex', alignItems: 'center', gap: 6,
-                      fontFamily: 'var(--font-display)',
+                      fontFamily: 'var(--font-headline)',
                       fontSize: '0.8rem', fontWeight: 600,
                       color: item.accent, marginTop: 'auto',
                     }}>

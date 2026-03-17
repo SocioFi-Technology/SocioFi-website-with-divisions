@@ -236,7 +236,7 @@ function GridItemCard({ item }: { item: GridItem }) {
             {item.readTime && <span style={{ color: 'var(--text-muted)', marginLeft: 8 }}>· {item.readTime}</span>}
           </div>
           <h3 style={{
-            fontFamily: 'var(--font-display)',
+            fontFamily: 'var(--font-headline)',
             fontSize: '1rem',
             fontWeight: 600,
             color: 'var(--text-primary)',

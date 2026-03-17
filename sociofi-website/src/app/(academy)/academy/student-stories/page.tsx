@@ -118,9 +118,9 @@ export default function StudentStoriesPage() {
             </div>
             <h1
               style={{
-                fontFamily: 'var(--font-display)',
+                fontFamily: 'var(--font-headline)',
                 fontSize: 'clamp(2.6rem, 5vw, 4rem)',
-                fontWeight: 800,
+                fontWeight: 400,
                 lineHeight: 1.06,
                 color: 'var(--text-primary)',
                 letterSpacing: '-0.035em',
@@ -174,9 +174,9 @@ export default function StudentStoriesPage() {
                 >
                   <div
                     style={{
-                      fontFamily: 'var(--font-display)',
+                      fontFamily: 'var(--font-headline)',
                       fontSize: 'clamp(2rem, 4vw, 2.8rem)',
-                      fontWeight: 800,
+                      fontWeight: 400,
                       color: accentColor,
                       letterSpacing: '-0.025em',
                       lineHeight: 1.1,
@@ -254,9 +254,9 @@ export default function StudentStoriesPage() {
                   >
                     <span
                       style={{
-                        fontFamily: 'var(--font-display)',
+                        fontFamily: 'var(--font-headline)',
                         fontSize: '1.8rem',
-                        fontWeight: 800,
+                        fontWeight: 400,
                         color: accentColor,
                         letterSpacing: '-0.025em',
                       }}

@@ -199,9 +199,9 @@ export default function AudienceLanding({ content }: { content: AudienceLandingC
               }}>
                 <p className="sec-label sec-label-center" style={{ marginBottom: 16 }}>Transparent pricing</p>
                 <h3 style={{
-                  fontFamily: 'var(--font-display)',
+                  fontFamily: 'var(--font-headline)',
                   fontSize: 'clamp(1.4rem, 2.5vw, 2rem)',
-                  fontWeight: 700,
+                  fontWeight: 400,
                   letterSpacing: '-0.02em',
                   color: 'var(--text-primary)',
                   marginBottom: 16,

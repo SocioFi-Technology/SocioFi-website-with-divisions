@@ -249,7 +249,7 @@ function IndicatorRow({ label, value, isAccent = false }: {
         {label}
       </span>
       <span style={{
-        fontFamily: isAccent ? 'var(--font-display)' : 'var(--font-mono)',
+        fontFamily: isAccent ? 'var(--font-headline)' : 'var(--font-mono)',
         fontSize: isAccent ? '1.1rem' : '0.84rem',
         fontWeight: isAccent ? 700 : 400,
         color: isAccent ? 'var(--division-accent)' : 'var(--text-primary)',

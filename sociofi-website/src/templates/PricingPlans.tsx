@@ -166,9 +166,9 @@ export default function PricingPlans({ content }: { content: PricingPlansContent
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10" style={{ alignItems: 'center' }}>
                   <div>
                     <h3 style={{
-                      fontFamily: 'var(--font-display)',
+                      fontFamily: 'var(--font-headline)',
                       fontSize: 'clamp(1.4rem, 2.5vw, 2rem)',
-                      fontWeight: 700,
+                      fontWeight: 400,
                       letterSpacing: '-0.02em',
                       color: 'var(--text-primary)',
                       marginBottom: 16,
@@ -187,9 +187,9 @@ export default function PricingPlans({ content }: { content: PricingPlansContent
                     {bundle.price && (
                       <div style={{ marginBottom: 28 }}>
                         <span style={{
-                          fontFamily: 'var(--font-display)',
+                          fontFamily: 'var(--font-headline)',
                           fontSize: '2rem',
-                          fontWeight: 800,
+                          fontWeight: 400,
                           letterSpacing: '-0.04em',
                           color: 'var(--division-accent)',
                         }}>

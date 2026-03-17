@@ -7,7 +7,7 @@ import type { Metadata } from 'next';
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   // TODO: fetch from Sanity
   return {
@@ -92,8 +92,8 @@ const placeholderContent: BlogPostContent = {
   ),
 };
 
-export default function BlogPostPage({ params }: { params: { slug: string } }) {
-  // TODO: fetch content from Sanity using params.slug
+export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
+  // TODO: fetch content from Sanity using slug
   const content = placeholderContent;
   return <BlogPost content={content} />;
 }

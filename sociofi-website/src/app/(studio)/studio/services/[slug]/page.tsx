@@ -1235,14 +1235,16 @@ export function generateStaticParams() {
   return Object.keys(SERVICES).map((slug) => ({ slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }) {
-  const service = SERVICES[params.slug];
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const service = SERVICES[slug];
   if (!service) return {};
   return service.metadata;
 }
 
-export default function StudioServicePage({ params }: { params: { slug: string } }) {
-  const service = SERVICES[params.slug];
+export default async function StudioServicePage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const service = SERVICES[slug];
   if (!service) notFound();
   return <ServiceDetail content={service.content} />;
 }

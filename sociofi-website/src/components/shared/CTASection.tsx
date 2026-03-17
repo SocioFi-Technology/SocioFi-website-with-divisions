@@ -114,9 +114,9 @@ export default function CTASection({
             <div style={{ maxWidth: 720 }}>
               <h2
                 style={{
-                  fontFamily: 'var(--font-display)',
+                  fontFamily: 'var(--font-headline)',
                   fontSize: 'clamp(2rem, 3.5vw, 2.8rem)',
-                  fontWeight: 700,
+                  fontWeight: 400,
                   letterSpacing: '-0.025em',
                   lineHeight: 1.12,
                   color: 'var(--text-primary)',

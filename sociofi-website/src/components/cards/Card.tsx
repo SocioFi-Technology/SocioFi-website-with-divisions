@@ -95,7 +95,7 @@ export default function Card({
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>
         <h3
           style={{
-            fontFamily: 'var(--font-display)',
+            fontFamily: 'var(--font-headline)',
             fontSize: '1.1rem',
             fontWeight: 600,
             letterSpacing: '-0.01em',
@@ -132,7 +132,7 @@ export default function Card({
             display: 'flex',
             alignItems: 'center',
             gap: 6,
-            fontFamily: 'var(--font-display)',
+            fontFamily: 'var(--font-headline)',
             fontSize: '0.85rem',
             fontWeight: 600,
             color: accent,

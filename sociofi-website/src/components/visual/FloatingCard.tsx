@@ -62,9 +62,9 @@ export default function FloatingCard({
       <div>
         <div
           style={{
-            fontFamily: 'var(--font-display)',
+            fontFamily: 'var(--font-headline)',
             fontSize: '1.1rem',
-            fontWeight: 700,
+            fontWeight: 400,
             color: 'var(--text-primary)',
             lineHeight: 1.15,
             letterSpacing: '-0.02em',

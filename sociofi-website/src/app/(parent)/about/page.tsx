@@ -49,8 +49,8 @@ function DivisionsMap() {
           background: 'linear-gradient(135deg, var(--navy) 0%, var(--teal) 100%)',
         }}>
           <span style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: '0.66rem', fontWeight: 800,
+            fontFamily: 'var(--font-headline)',
+            fontSize: '0.66rem', fontWeight: 400,
             color: 'white', letterSpacing: '-0.02em',
             textAlign: 'center', lineHeight: 1.25,
           }}>
@@ -84,13 +84,13 @@ function DivisionsMap() {
               background: `${div.accent}20`,
               border: `1.5px solid ${div.accent}`,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontFamily: 'var(--font-display)', fontWeight: 800,
+              fontFamily: 'var(--font-headline)', fontWeight: 400,
               fontSize: '0.68rem', color: div.accent,
             }}>
               {div.name[0]}
             </div>
             <span style={{
-              fontFamily: 'var(--font-display)',
+              fontFamily: 'var(--font-headline)',
               fontSize: '0.62rem', fontWeight: 600,
               color: 'var(--text-primary)', textAlign: 'center',
             }}>

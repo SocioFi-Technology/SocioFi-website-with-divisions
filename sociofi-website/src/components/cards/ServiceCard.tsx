@@ -88,7 +88,7 @@ export default function ServiceCard({
       <div style={{ flex: 1 }}>
         <h3
           style={{
-            fontFamily: 'var(--font-display)',
+            fontFamily: 'var(--font-headline)',
             fontSize: '1.15rem',
             fontWeight: 600,
             letterSpacing: '-0.01em',
@@ -120,7 +120,7 @@ export default function ServiceCard({
             display: 'inline-flex',
             alignItems: 'center',
             gap: hovered ? 10 : 6,
-            fontFamily: 'var(--font-display)',
+            fontFamily: 'var(--font-headline)',
             fontSize: '0.88rem',
             fontWeight: 600,
             color: accent,

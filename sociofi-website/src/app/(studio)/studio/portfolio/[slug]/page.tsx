@@ -277,14 +277,16 @@ export function generateStaticParams() {
   return Object.keys(ITEMS).map((slug) => ({ slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }) {
-  const item = ITEMS[params.slug];
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const item = ITEMS[slug];
   if (!item) return {};
   return item.metadata;
 }
 
-export default function StudioPortfolioItemPage({ params }: { params: { slug: string } }) {
-  const item = ITEMS[params.slug];
+export default async function StudioPortfolioItemPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const item = ITEMS[slug];
   if (!item) notFound();
   return <DetailPage content={item.content} />;
 }

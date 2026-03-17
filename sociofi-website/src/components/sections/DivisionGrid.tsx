@@ -115,9 +115,9 @@ function DivisionCard({ division, featured = false }: DivisionCardProps) {
           </p>
 
           <h3 style={{
-            fontFamily: 'var(--font-display)',
+            fontFamily: 'var(--font-headline)',
             fontSize: featured ? '1.3rem' : '1.1rem',
-            fontWeight: 700,
+            fontWeight: 400,
             letterSpacing: '-0.02em',
             color: 'var(--text-primary)',
             margin: '0 0 10px',
@@ -142,7 +142,7 @@ function DivisionCard({ division, featured = false }: DivisionCardProps) {
             display: 'flex',
             alignItems: 'center',
             gap: hovered ? 10 : 6,
-            fontFamily: 'var(--font-display)',
+            fontFamily: 'var(--font-headline)',
             fontSize: '0.85rem',
             fontWeight: 600,
             color: accent,
