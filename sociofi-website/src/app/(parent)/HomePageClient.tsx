@@ -45,6 +45,7 @@ const SHIMMER_CSS = `
 // ── Division one-liners ───────────────────────────────────────────────────────
 
 const DIVISION_COPY: Record<string, string> = {
+  agents:   'Autonomous agent systems that act on your data. Not software you use — infrastructure that works for you.',
   studio:   'Custom AI-native software. From idea to production in weeks.',
   services: 'Ongoing maintenance, monitoring, and support for live products.',
   labs:     'Research, experimentation, and open-source contributions.',
@@ -123,6 +124,25 @@ function divisionModifier(modifier: LogoModifier, accent: string) {
           <line x1="33" y1="29" x2="39" y2="29" stroke={accent} strokeWidth="1.6" strokeLinecap="round" opacity="0.45" />
           <path d="M45 14 L45 20" stroke={accent} strokeWidth="1.5" strokeLinecap="round" />
           <path d="M42 17 L45 14 L48 17" stroke={accent} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </>
+      );
+    case 'agent-node-network': // Agents — hexagon orchestrator + satellite nodes
+      return (
+        <>
+          <line x1="32" y1="24" x2="33" y2="18" stroke={accent} strokeWidth="0.8" strokeLinecap="round" strokeDasharray="1.5 2.5" opacity="0.3" />
+          <circle cx="38" cy="18" r="9" stroke={accent} strokeWidth="0.8" fill="none" strokeDasharray="2 4" opacity="0.15" />
+          <line x1="32" y1="30" x2="35.5" y2="22.3" stroke={accent} strokeWidth="0.9" strokeLinecap="round" strokeDasharray="1.5 3" opacity="0.28" />
+          <line x1="44" y1="26" x2="43" y2="18" stroke={accent} strokeWidth="1" strokeLinecap="round" opacity="0.45" />
+          <line x1="38" y1="9" x2="40.5" y2="13.7" stroke={accent} strokeWidth="1" strokeLinecap="round" strokeDasharray="1.5 2.5" opacity="0.55" />
+          <path d="M43 18 L40.5 22.3 L35.5 22.3 L33 18 L35.5 13.7 L40.5 13.7 Z" stroke={accent} strokeWidth="1.6" strokeLinejoin="round" fill={`${accent}18`} opacity="0.9" />
+          <circle cx="38" cy="18" r="1.5" fill={accent} opacity="0.7" />
+          <circle cx="38" cy="18" r="4" stroke={accent} strokeWidth="0.8" fill="none" opacity="0.25" />
+          <circle cx="38" cy="9" r="2.5" fill={accent} opacity="0.88" />
+          <circle cx="38" cy="9" r="4.5" stroke={accent} strokeWidth="0.8" fill="none" opacity="0.2" />
+          <circle cx="44" cy="26" r="1.8" fill={accent} opacity="0.62" />
+          <circle cx="44" cy="26" r="3.5" stroke={accent} strokeWidth="0.7" fill="none" opacity="0.15" />
+          <circle cx="32" cy="30" r="1.4" fill={accent} opacity="0.42" />
+          <circle cx="32" cy="24" r="2" fill={accent} opacity="0.16" />
         </>
       );
     default:

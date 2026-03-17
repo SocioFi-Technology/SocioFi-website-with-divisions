@@ -116,19 +116,19 @@ const PROCESS_STEPS = [
 
 const AUDIENCES = [
   {
-    accent: '#72C4B2',
+    accent: '#8B5CF6',
     title: 'Founders with AI prototypes',
     pain: "You've built an AI demo but it doesn't actually do anything reliably.",
     gain: "We turn your prototype into a production agent system with proper error handling, monitoring, and real integration.",
   },
   {
-    accent: '#4DBFA8',
+    accent: '#A78BFA',
     title: 'Operations teams drowning in manual work',
     pain: 'Your team spends hours on data entry, routing, formatting, and chasing approvals.',
     gain: 'We build agent pipelines that eliminate the routine work and escalate only the exceptions.',
   },
   {
-    accent: '#6BA3E8',
+    accent: '#6D28D9',
     title: 'SMBs without a dev team',
     pain: "You know AI can automate this — but you don't have engineers to build or maintain agent systems.",
     gain: 'SocioFi is your AI engineering team. We design, build, and keep your agent systems running.',
@@ -159,16 +159,16 @@ export default function AaaSPageClient() {
         {/* Background orbs */}
         <div aria-hidden="true" style={{
           position: 'absolute', width: 600, height: 600, borderRadius: '50%',
-          background: 'radial-gradient(circle, var(--navy) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(139,92,246,0.15) 0%, transparent 70%)',
           top: '-10%', left: '-5%',
-          opacity: 'var(--glow-opacity)', filter: 'blur(60px)',
+          opacity: 0.6, filter: 'blur(60px)',
           pointerEvents: 'none',
         }} />
         <div aria-hidden="true" style={{
           position: 'absolute', width: 500, height: 500, borderRadius: '50%',
-          background: 'radial-gradient(circle, var(--teal) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(109,40,217,0.12) 0%, transparent 70%)',
           bottom: '-10%', right: '-5%',
-          opacity: 'var(--glow-opacity)', filter: 'blur(60px)',
+          opacity: 0.6, filter: 'blur(60px)',
           pointerEvents: 'none',
         }} />
 
@@ -188,13 +188,13 @@ export default function AaaSPageClient() {
                 borderRadius: 'var(--radius-full)',
                 fontFamily: 'var(--font-mono)',
                 fontSize: '0.68rem', fontWeight: 500,
-                color: 'var(--teal-light)',
+                color: 'var(--division-accent)',
                 textTransform: 'uppercase', letterSpacing: '0.12em',
                 marginBottom: 36,
               }}>
                 <span style={{
                   width: 6, height: 6, borderRadius: '50%',
-                  background: 'var(--teal-light)', display: 'inline-block',
+                  background: 'var(--division-accent)', display: 'inline-block',
                 }} />
                 Agent-as-a-Service · AaaS
               </div>
@@ -277,7 +277,7 @@ export default function AaaSPageClient() {
                 <div style={{
                   padding: '16px 28px',
                   fontFamily: 'var(--font-mono)', fontSize: '0.7rem', fontWeight: 500,
-                  color: 'var(--teal-light)', textTransform: 'uppercase', letterSpacing: '0.12em',
+                  color: 'var(--division-accent)', textTransform: 'uppercase', letterSpacing: '0.12em',
                 }}>
                   AaaS — What agents do instead
                 </div>
@@ -307,9 +307,9 @@ export default function AaaSPageClient() {
                     fontFamily: 'var(--font-body)', fontSize: '0.9rem',
                     color: 'var(--text-primary)', lineHeight: 1.5,
                     display: 'flex', alignItems: 'center', gap: 10,
-                    background: i % 2 === 0 ? 'transparent' : 'rgba(89,163,146,0.02)',
+                    background: i % 2 === 0 ? 'transparent' : 'rgba(139,92,246,0.03)',
                   }}>
-                    <span style={{ color: 'var(--teal)', flexShrink: 0 }}>›</span>
+                    <span style={{ color: 'var(--division-accent)', flexShrink: 0 }}>›</span>
                     {row.aaas}
                   </div>
                 </div>
@@ -343,13 +343,13 @@ export default function AaaSPageClient() {
                     background: 'var(--bg-3)',
                     border: '1px solid var(--border)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: 'var(--teal)', marginBottom: 20,
+                    color: 'var(--division-accent)', marginBottom: 20,
                   }}>
                     {layer.icon}
                   </div>
                   <div style={{
                     fontFamily: 'var(--font-mono)', fontSize: '0.66rem', fontWeight: 500,
-                    color: 'var(--teal)', textTransform: 'uppercase', letterSpacing: '0.12em',
+                    color: 'var(--division-accent)', textTransform: 'uppercase', letterSpacing: '0.12em',
                     marginBottom: 8,
                   }}>
                     {layer.label}
@@ -516,7 +516,7 @@ export default function AaaSPageClient() {
                   </div>
                   <div style={{
                     fontFamily: 'var(--font-mono)', fontSize: '0.64rem', fontWeight: 500,
-                    color: 'var(--teal)', textTransform: 'uppercase', letterSpacing: '0.12em',
+                    color: 'var(--division-accent)', textTransform: 'uppercase', letterSpacing: '0.12em',
                     marginBottom: 8,
                   }}>
                     {step.label}
