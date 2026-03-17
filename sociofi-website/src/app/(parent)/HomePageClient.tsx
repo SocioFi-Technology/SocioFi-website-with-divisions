@@ -94,15 +94,23 @@ function divisionModifier(modifier: LogoModifier, accent: string) {
           <path d="M38 24 L42 28 L38 32 L34 28Z" stroke={accent} strokeWidth="1.4" fill="none" strokeLinejoin="round" opacity="0.35" />
         </>
       );
-    case 'open-book': // Academy
+    case 'open-book': // Academy — open book + rays + tip dots
       return (
         <>
-          <line x1="38" y1="34" x2="38" y2="17" stroke={accent} strokeWidth="1.5" strokeLinecap="round" />
-          <path d="M38 17 Q31 18 30 33 L38 34" stroke={accent} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-          <path d="M38 17 Q45 18 46 33 L38 34" stroke={accent} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.55" />
-          <line x1="38" y1="13" x2="38" y2="10" stroke={accent} strokeWidth="1.4" strokeLinecap="round" opacity="0.7" />
-          <line x1="35" y1="14" x2="33" y2="11" stroke={accent} strokeWidth="1.2" strokeLinecap="round" opacity="0.5" />
-          <line x1="41" y1="14" x2="43" y2="11" stroke={accent} strokeWidth="1.2" strokeLinecap="round" opacity="0.5" />
+          <path d="M39 12 L32 15 L33 25 L39 25 Z" stroke={accent} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill={`${accent}14`} opacity="0.9" />
+          <path d="M39 12 L46 15 L45 25 L39 25 Z" stroke={accent} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill={`${accent}0C`} opacity="0.75" />
+          <line x1="39" y1="12" x2="39" y2="25" stroke={accent} strokeWidth="1.2" strokeLinecap="round" opacity="0.6" />
+          <line x1="33.5" y1="18" x2="37.5" y2="17.5" stroke={accent} strokeWidth="0.9" strokeLinecap="round" opacity="0.4" />
+          <line x1="34" y1="21.5" x2="37.5" y2="21.5" stroke={accent} strokeWidth="0.9" strokeLinecap="round" opacity="0.25" />
+          <line x1="40.5" y1="17.5" x2="44.5" y2="18" stroke={accent} strokeWidth="0.9" strokeLinecap="round" opacity="0.35" />
+          <line x1="40.5" y1="21.5" x2="44.5" y2="21.5" stroke={accent} strokeWidth="0.9" strokeLinecap="round" opacity="0.22" />
+          <line x1="39" y1="12" x2="39" y2="5" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.9" />
+          <line x1="36" y1="13.5" x2="32" y2="7" stroke={accent} strokeWidth="1.4" strokeLinecap="round" opacity="0.55" />
+          <line x1="42" y1="13.5" x2="46" y2="7" stroke={accent} strokeWidth="1.4" strokeLinecap="round" opacity="0.45" />
+          <circle cx="39" cy="4" r="2" fill={accent} opacity="0.9" />
+          <circle cx="31" cy="6" r="1.5" fill={accent} opacity="0.5" />
+          <circle cx="47" cy="6" r="1.5" fill={accent} opacity="0.4" />
+          <circle cx="32" cy="24" r="2.5" fill={accent} opacity="0.3" />
         </>
       );
     case 'ascending-branch': // Ventures
