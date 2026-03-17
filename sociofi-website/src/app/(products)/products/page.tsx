@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import DivisionOverview, { type DivisionOverviewContent } from '@/templates/DivisionOverview';
+import ProductsHeroVisual from '@/components/visual/ProductsHeroVisual';
 import { Brain, Chart, Code, Target, GitBranch } from '@/lib/icons';
 
 export const metadata: Metadata = {
@@ -30,6 +31,7 @@ const content: DivisionOverviewContent = {
       { label: 'View Products', href: '#products', variant: 'primary' },
       { label: 'See roadmap', href: '/products/roadmap', variant: 'ghost' },
     ],
+    rightContent: <ProductsHeroVisual />,
   },
 
   metrics: [
@@ -107,6 +109,7 @@ const content: DivisionOverviewContent = {
     primaryCTA: { label: 'Get early access', href: '/products/nexus-aria/early-access' },
     ghostCTA: { label: 'See the roadmap', href: '/products/roadmap' },
   },
+  divisionVariant: 'products',
 };
 
 export default function ProductsPage() {

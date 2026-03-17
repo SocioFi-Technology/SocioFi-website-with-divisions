@@ -8,6 +8,16 @@ import ScrollReveal, { StaggerChildren, StaggerItem } from '@/components/shared/
 import ServiceCard from '@/components/cards/ServiceCard';
 import Card from '@/components/cards/Card';
 import TestimonialCard from '@/components/cards/TestimonialCard';
+import {
+  DotGridBackground,
+  ScanLineBackground,
+  ConstellationBackground,
+  GradientMeshBackground,
+  WarmGradientBackground,
+  RisingParticleBackground,
+  LayeredBandBackground,
+} from '@/components/visual/DivisionBackgrounds';
+import DealCalculator from '@/components/sections/DealCalculator';
 
 // ── Content Interfaces ────────────────────────────────────────────────────────
 
@@ -65,6 +75,8 @@ export interface DivisionOverviewContent {
     ghostCTA?: { label: string; href: string };
     note?: string;
   };
+  /** Division-specific visual personality variant */
+  divisionVariant?: 'studio' | 'services' | 'labs' | 'products' | 'academy' | 'ventures' | 'cloud';
 }
 
 // ── Template ──────────────────────────────────────────────────────────────────
@@ -77,6 +89,7 @@ export default function DivisionOverview({ content }: { content: DivisionOvervie
     features, featuresLabel = 'Why us',
     featuresTitle = 'Built differently',
     featured, testimonials, cta,
+    divisionVariant,
   } = content;
 
   return (
@@ -99,7 +112,14 @@ export default function DivisionOverview({ content }: { content: DivisionOvervie
       )}
 
       {/* ── Services / Card grid ─────────────────────────────────────────── */}
-      <section style={{ paddingBlock: 'var(--space-section)', background: 'var(--bg)' }}>
+      <section style={{ paddingBlock: 'var(--space-section)', background: 'var(--bg)', position: 'relative', overflow: 'hidden' }}>
+        {divisionVariant === 'studio' && <DotGridBackground />}
+        {divisionVariant === 'services' && <ScanLineBackground />}
+        {divisionVariant === 'labs' && <ConstellationBackground />}
+        {divisionVariant === 'products' && <GradientMeshBackground />}
+        {divisionVariant === 'academy' && <WarmGradientBackground />}
+        {divisionVariant === 'ventures' && <RisingParticleBackground />}
+        {divisionVariant === 'cloud' && <LayeredBandBackground />}
         <Container>
           <ScrollReveal>
             <SectionHeader
@@ -252,6 +272,26 @@ export default function DivisionOverview({ content }: { content: DivisionOvervie
                 </StaggerItem>
               ))}
             </StaggerChildren>
+          </Container>
+        </section>
+      )}
+
+      {/* ── Deal Calculator (Ventures only) ──────────────────────────────── */}
+      {divisionVariant === 'ventures' && (
+        <section style={{ paddingBlock: 'var(--space-section)', background: 'var(--bg)' }}>
+          <Container>
+            <ScrollReveal>
+              <SectionHeader
+                label="Estimate your deal"
+                title="Which model works for you?"
+                subtitle="Tell us about your product and stage — we'll give you an indicative deal range before you apply."
+                centered
+                className="mb-12"
+              />
+            </ScrollReveal>
+            <ScrollReveal delay={0.1}>
+              <DealCalculator />
+            </ScrollReveal>
           </Container>
         </section>
       )}

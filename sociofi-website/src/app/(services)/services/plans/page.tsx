@@ -19,6 +19,8 @@ const content: PricingPlansContent = {
     ],
   },
 
+  showRecommender: true,
+
   plans: [
     {
       name: 'Essential',
