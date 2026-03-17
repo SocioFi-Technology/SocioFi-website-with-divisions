@@ -44,13 +44,6 @@ const faqItems: FAQItem[] = [
 export default function ContactPage() {
   return (
     <>
-      <TrustBar items={[
-        'Response within 4 hours',
-        'Engineer-first — no SDR handoffs',
-        'Fixed-scope pricing',
-        'Based in Dhaka, working globally',
-      ]} />
-
       {/* ── Main section ──────────────────────────────────────────────────── */}
       <section style={{
         position: 'relative',
@@ -303,6 +296,14 @@ export default function ContactPage() {
         </ScrollReveal>
       </div>
       <FAQAccordion items={faqItems} standalone />
+
+      {/* TrustBar — before footer */}
+      <TrustBar items={[
+        'Response within 4 hours',
+        'Engineer-first — no SDR handoffs',
+        'Fixed-scope pricing',
+        'Based in Dhaka, working globally',
+      ]} />
     </>
   );
 }

@@ -8,6 +8,8 @@ import SectionHeader from '@/components/shared/SectionHeader';
 import ScrollReveal, { StaggerChildren, StaggerItem } from '@/components/shared/ScrollReveal';
 import PricingCard from '@/components/cards/PricingCard';
 import Button from '@/components/shared/Button';
+import ProjectConfigurator from '@/components/sections/ProjectConfigurator';
+import PlanRecommender from '@/components/sections/PlanRecommender';
 
 // ── Content Interfaces ────────────────────────────────────────────────────────
 
@@ -46,6 +48,8 @@ export interface PricingPlansContent {
     description: string;
     buttons?: HeroButton[];
   };
+  showConfigurator?: boolean;
+  showRecommender?: boolean;
   plans: PricingPlan[];
   comparisonHeaders?: string[];
   comparisonRows?: ComparisonRow[];
@@ -66,7 +70,7 @@ export interface PricingPlansContent {
 
 export default function PricingPlans({ content }: { content: PricingPlansContent }) {
   const {
-    hero, plans,
+    hero, plans, showConfigurator, showRecommender,
     comparisonHeaders, comparisonRows, comparisonHighlight = 1,
     bundle, trustItems, faqs, cta,
   } = content;
@@ -85,9 +89,44 @@ export default function PricingPlans({ content }: { content: PricingPlansContent
         showOrbs={false}
       />
 
-      {/* ── Trust bar ────────────────────────────────────────────────────── */}
-      {trustItems && trustItems.length > 0 && (
-        <TrustBar items={trustItems} />
+      {/* ── Project Configurator (Studio only) ───────────────────────────── */}
+      {showConfigurator && (
+        <section style={{ paddingBlock: 'var(--space-section)', background: 'var(--bg-2)' }}>
+          <Container>
+            <ScrollReveal>
+              <SectionHeader
+                label="Estimate"
+                title="Get a ballpark before the call"
+                subtitle="Select your project type and complexity — we'll give you a rough range. The real number comes from the scoping call."
+                centered
+                className="mb-12"
+              />
+            </ScrollReveal>
+            <ScrollReveal delay={0.1}>
+              <ProjectConfigurator />
+            </ScrollReveal>
+          </Container>
+        </section>
+      )}
+
+      {/* ── Plan Recommender (Services only) ─────────────────────────────── */}
+      {showRecommender && (
+        <section style={{ paddingBlock: 'var(--space-section)', background: 'var(--bg-2)' }}>
+          <Container>
+            <ScrollReveal>
+              <SectionHeader
+                label="Not sure which plan?"
+                title="Answer 3 questions — we'll tell you"
+                subtitle="No sales call needed. Tell us where you are, and we'll point you to the right coverage level."
+                centered
+                className="mb-12"
+              />
+            </ScrollReveal>
+            <ScrollReveal delay={0.1}>
+              <PlanRecommender />
+            </ScrollReveal>
+          </Container>
+        </section>
       )}
 
       {/* ── Pricing cards ────────────────────────────────────────────────── */}
@@ -251,6 +290,11 @@ export default function PricingPlans({ content }: { content: PricingPlansContent
         ghostCTA={cta.ghostCTA}
         note={cta.note}
       />
+
+      {/* TrustBar — before footer */}
+      {trustItems && trustItems.length > 0 && (
+        <TrustBar items={trustItems} />
+      )}
     </>
   );
 }

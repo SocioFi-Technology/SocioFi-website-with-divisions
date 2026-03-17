@@ -1,4 +1,5 @@
 import DivisionOverview, { type DivisionOverviewContent } from '@/templates/DivisionOverview';
+import ServicesHeroVisual from '@/components/visual/ServicesHeroVisual';
 import { Eye, Shield, Wrench, Rocket, Zap, Lightning, Calendar, Chart } from '@/lib/icons';
 import type { Metadata } from 'next';
 
@@ -23,6 +24,7 @@ const content: DivisionOverviewContent = {
       { label: 'See plans', href: '/services/plans', variant: 'primary' },
       { label: 'How it works', href: '/services/how-it-works', variant: 'ghost' },
     ],
+    rightContent: <ServicesHeroVisual />,
   },
 
   metrics: [
@@ -142,6 +144,7 @@ const content: DivisionOverviewContent = {
     ghostCTA: { label: 'See plans', href: '/services/plans' },
     note: 'Setup in 48 hours. Month-to-month. Cancel anytime.',
   },
+  divisionVariant: 'services',
 };
 
 export default function ServicesPage() {

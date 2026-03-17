@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Container from '@/components/shared/Container';
-import Logo from '@/components/shared/Logo';
+import Logo, { LogoMark } from '@/components/shared/Logo';
 import { divisions } from '@/lib/divisions';
 import type { Division } from '@/lib/divisions';
 import { Mail, ArrowRight } from '@/lib/icons';
@@ -12,13 +12,13 @@ interface FooterProps {
 }
 
 const DIVISIONS_NAV = [
-  { label: 'Studio',   href: '/studio',   accent: '#72C4B2' },
-  { label: 'Services', href: '/services', accent: '#4DBFA8' },
-  { label: 'Labs',     href: '/labs',     accent: '#7B6FE8' },
-  { label: 'Products', href: '/products', accent: '#E8916F' },
-  { label: 'Academy',  href: '/academy',  accent: '#E8B84D' },
-  { label: 'Ventures', href: '/ventures', accent: '#6BA3E8' },
-  { label: 'Cloud',    href: '/cloud',    accent: '#5BB5E0' },
+  { label: 'Studio',   slug: 'studio',   href: '/studio',   accent: '#72C4B2' },
+  { label: 'Services', slug: 'services', href: '/services', accent: '#4DBFA8' },
+  { label: 'Labs',     slug: 'labs',     href: '/labs',     accent: '#7B6FE8' },
+  { label: 'Products', slug: 'products', href: '/products', accent: '#E8916F' },
+  { label: 'Academy',  slug: 'academy',  href: '/academy',  accent: '#E8B84D' },
+  { label: 'Ventures', slug: 'ventures', href: '/ventures', accent: '#6BA3E8' },
+  { label: 'Cloud',    slug: 'cloud',    href: '/cloud',    accent: '#5BB5E0' },
 ];
 
 const COMPANY_LINKS = [
@@ -169,17 +169,7 @@ export default function Footer({ division }: FooterProps) {
                     onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = item.accent; }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)'; }}
                   >
-                    <span
-                      aria-hidden="true"
-                      style={{
-                        width: 6,
-                        height: 6,
-                        borderRadius: '50%',
-                        background: item.accent,
-                        flexShrink: 0,
-                        opacity: 0.6,
-                      }}
-                    />
+                    <LogoMark division={item.slug} size="xs" />
                     {item.label}
                   </Link>
                 </li>

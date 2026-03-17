@@ -1,4 +1,6 @@
 import StoryPage, { type StoryPageContent } from '@/templates/StoryPage';
+import Logo, { LogoMark } from '@/components/shared/Logo';
+import type { DivisionSlug } from '@/lib/divisions';
 import { Brain, Shield, Target, Heart, Code } from '@/lib/icons';
 import type { Metadata } from 'next';
 
@@ -10,14 +12,15 @@ export const metadata: Metadata = {
 
 // ── Divisions visual map (used as narrative visual) ───────────────────────────
 
-const DIVISIONS = [
-  { name: 'Studio',   accent: '#72C4B2', verb: 'Builds',     url: '/studio' },
-  { name: 'Services', accent: '#4DBFA8', verb: 'Maintains',  url: '/services' },
-  { name: 'Labs',     accent: '#7B6FE8', verb: 'Researches', url: '/labs' },
-  { name: 'Products', accent: '#E8916F', verb: 'Monetises',  url: '/products' },
-  { name: 'Academy',  accent: '#E8B84D', verb: 'Teaches',    url: '/academy' },
-  { name: 'Ventures', accent: '#6BA3E8', verb: 'Co-builds',  url: '/ventures' },
-  { name: 'Cloud',    accent: '#5BB5E0', verb: 'Hosts',      url: '/cloud' },
+const DIVISIONS: { name: string; slug: DivisionSlug; accent: string; verb: string; url: string }[] = [
+  { name: 'Studio',   slug: 'studio',   accent: '#72C4B2', verb: 'Builds',     url: '/studio' },
+  { name: 'Services', slug: 'services', accent: '#4DBFA8', verb: 'Maintains',  url: '/services' },
+  { name: 'Labs',     slug: 'labs',     accent: '#7B6FE8', verb: 'Researches', url: '/labs' },
+  { name: 'Products', slug: 'products', accent: '#E8916F', verb: 'Monetises',  url: '/products' },
+  { name: 'Academy',  slug: 'academy',  accent: '#E8B84D', verb: 'Teaches',    url: '/academy' },
+  { name: 'Ventures', slug: 'ventures', accent: '#6BA3E8', verb: 'Co-builds',  url: '/ventures' },
+  { name: 'Cloud',    slug: 'cloud',    accent: '#5BB5E0', verb: 'Hosts',      url: '/cloud' },
+  { name: 'Agents',   slug: 'agents',   accent: '#8B5CF6', verb: 'Automates',  url: '/aaas' },
 ];
 
 function DivisionsMap() {
@@ -38,29 +41,15 @@ function DivisionsMap() {
         marginBottom: 20,
         textAlign: 'center',
       }}>
-        Seven divisions. One company.
+        Eight divisions. One company.
       </p>
 
       {/* Central hub */}
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
-        <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          width: 68, height: 68, borderRadius: '50%',
-          background: 'linear-gradient(135deg, var(--navy) 0%, var(--teal) 100%)',
-        }}>
-          <span style={{
-            fontFamily: 'var(--font-headline)',
-            fontSize: '0.66rem', fontWeight: 400,
-            color: 'white', letterSpacing: '-0.02em',
-            textAlign: 'center', lineHeight: 1.25,
-          }}>
-            SocioFi<br />
-            <span style={{ fontWeight: 500, fontSize: '0.6rem' }}>Technology</span>
-          </span>
-        </div>
+        <Logo division="technology" size="sm" showWordmark href="/" />
       </div>
 
-      {/* Division grid */}
+      {/* Division grid — 4 cols × 2 rows = 8 cells, no filler needed */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(4, 1fr)',
@@ -68,7 +57,7 @@ function DivisionsMap() {
       }}>
         {DIVISIONS.map((div) => (
           <a
-            key={div.name}
+            key={div.slug}
             href={div.url}
             style={{
               display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
@@ -79,16 +68,7 @@ function DivisionsMap() {
               textDecoration: 'none',
             }}
           >
-            <div style={{
-              width: 26, height: 26, borderRadius: '50%',
-              background: `${div.accent}20`,
-              border: `1.5px solid ${div.accent}`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontFamily: 'var(--font-headline)', fontWeight: 400,
-              fontSize: '0.68rem', color: div.accent,
-            }}>
-              {div.name[0]}
-            </div>
+            <LogoMark division={div.slug} size="sm" />
             <span style={{
               fontFamily: 'var(--font-headline)',
               fontSize: '0.62rem', fontWeight: 600,
@@ -105,8 +85,6 @@ function DivisionsMap() {
             </span>
           </a>
         ))}
-        {/* Balance the last row */}
-        <div />
       </div>
 
       <p style={{
@@ -155,11 +133,11 @@ const content: StoryPageContent = {
     },
     {
       label: 'Our structure',
-      headline: 'Seven specialist divisions. One company.',
+      headline: 'Eight specialist divisions. One company.',
       body: (
         <>
           <p style={{ margin: '0 0 20px' }}>
-            We built SocioFi Technology with seven divisions because the problems our customers face don&apos;t fit in one box. Studio builds. Services maintains. Labs researches. Products ships. Academy teaches. Ventures co-builds. Cloud hosts.
+            We built SocioFi Technology with eight divisions because the problems our customers face don&apos;t fit in one box. Studio builds. Services maintains. Labs researches. Products ships. Academy teaches. Ventures co-builds. Cloud hosts. Agents automates.
           </p>
           <p style={{ margin: '0 0 20px' }}>
             Each division is staffed with engineers who do that one thing every day — not generalists stretched across everything. You always deal with a specialist, never someone learning on your project.
@@ -171,7 +149,7 @@ const content: StoryPageContent = {
       ),
       visual: <DivisionsMap />,
       visualSide: 'right',
-      stat: { value: '7', label: 'Specialist divisions' },
+      stat: { value: '8', label: 'Specialist divisions' },
     },
     {
       label: 'How we work',
