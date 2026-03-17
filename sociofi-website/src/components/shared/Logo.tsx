@@ -118,16 +118,35 @@ function modifierElements(modifier: LogoModifier, accent: string) {
         </>
       );
 
-    // Ventures — ascending branch
+    // Ventures — ascending fork: trunk from ground → fork node → two diverging branches
+    // L branch (primary, 85%) = founder's path; R branch (secondary, 55%) = equity position
     case 'ascending-branch':
       return (
         <>
-          <path d="M38 38 L38 16" stroke={accent} strokeWidth="1.8" strokeLinecap="round" />
-          <path d="M38 28 L28 18" stroke={accent} strokeWidth="1.4" strokeLinecap="round" opacity="0.7" />
-          <path d="M38 22 L46 14" stroke={accent} strokeWidth="1.4" strokeLinecap="round" opacity="0.5" />
-          <circle cx="38" cy="38" r="2" fill={accent} />
-          <circle cx="28" cy="18" r="1.6" fill={accent} opacity="0.7" />
-          <circle cx="46" cy="14" r="1.4" fill={accent} opacity="0.5" />
+          {/* Ground base tick — entry anchor */}
+          <line x1="38" y1="30" x2="44" y2="30" stroke={accent} strokeWidth="1.4" strokeLinecap="round" opacity="0.35" />
+          {/* Trunk — rises from base to fork */}
+          <line x1="41" y1="29" x2="41" y2="20" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.9" />
+          {/* Fork node */}
+          <circle cx="41" cy="20" r="1.6" fill={accent} opacity="0.95" />
+          {/* Halo at fork */}
+          <circle cx="41" cy="20" r="3" stroke={accent} strokeWidth="1.2" fill="none" opacity="0.25" />
+          {/* Branch Left — primary (85% op) */}
+          <line x1="41" y1="20" x2="36" y2="13" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.85" />
+          {/* Branch Right — secondary (55% op) */}
+          <line x1="41" y1="20" x2="46" y2="13" stroke={accent} strokeWidth="1.4" strokeLinecap="round" opacity="0.55" />
+          {/* Arrowhead Left */}
+          <path d="M36 13 L38 17 L34 17 Z" fill={accent} opacity="0.85" />
+          {/* Arrowhead Right */}
+          <path d="M46 13 L47 17 L44 17 Z" fill={accent} opacity="0.5" />
+          {/* Terminal dot Left */}
+          <circle cx="36" cy="11" r="1.3" fill={accent} opacity="0.9" />
+          {/* Terminal dot Right */}
+          <circle cx="46" cy="11" r="0.9" fill={accent} opacity="0.55" />
+          {/* Horizon dash — shared horizon line */}
+          <line x1="36" y1="11" x2="46" y2="11" stroke={accent} strokeWidth="0.8" strokeLinecap="round" strokeDasharray="2 3" opacity="0.15" />
+          {/* Apex ghost — links chevron to modifier */}
+          <circle cx="32" cy="24" r="1.5" fill={accent} opacity="0.25" />
         </>
       );
 
