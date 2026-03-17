@@ -103,6 +103,44 @@ function modifierElements(modifier: LogoModifier, accent: string) {
         </>
       );
 
+    // Agents — hexagonal orchestrator + satellite agent nodes
+    // Hex: flat-top, r=5, centre (38,18). Nodes: A(38,9) B(44,26) C(32,30)
+    case 'agent-node-network':
+      return (
+        <>
+          {/* Connector from chevron apex to hex left vertex */}
+          <line x1="32" y1="24" x2="33" y2="18" stroke={accent} strokeWidth="0.8" strokeLinecap="round" strokeDasharray="1.5 2.5" opacity="0.3" />
+          {/* Pulse ring */}
+          <circle cx="38" cy="18" r="9" stroke={accent} strokeWidth="0.8" fill="none" strokeDasharray="2 4" opacity="0.15" />
+          {/* Connection C -> hex bottom-left (35.5,22.3) */}
+          <line x1="32" y1="30" x2="35.5" y2="22.3" stroke={accent} strokeWidth="0.9" strokeLinecap="round" strokeDasharray="1.5 3" opacity="0.28" />
+          {/* Connection B -> hex right vertex (43,18) */}
+          <line x1="44" y1="26" x2="43" y2="18" stroke={accent} strokeWidth="1" strokeLinecap="round" opacity="0.45" />
+          {/* Connection A -> hex top-right vertex (40.5,13.7) */}
+          <line x1="38" y1="9" x2="40.5" y2="13.7" stroke={accent} strokeWidth="1" strokeLinecap="round" strokeDasharray="1.5 2.5" opacity="0.55" />
+          {/* Hexagon orchestrator — flat-top r=5 centre(38,18) */}
+          <path
+            d="M43 18 L40.5 22.3 L35.5 22.3 L33 18 L35.5 13.7 L40.5 13.7 Z"
+            stroke={accent} strokeWidth="1.6" strokeLinejoin="round"
+            fill={`${accent}18`} opacity="0.9"
+          />
+          {/* Hex centre dot */}
+          <circle cx="38" cy="18" r="1.5" fill={accent} opacity="0.7" />
+          {/* Hex centre halo */}
+          <circle cx="38" cy="18" r="4" stroke={accent} strokeWidth="0.8" fill="none" opacity="0.25" />
+          {/* Node A — top (primary) */}
+          <circle cx="38" cy="9" r="2.5" fill={accent} opacity="0.88" />
+          <circle cx="38" cy="9" r="4.5" stroke={accent} strokeWidth="0.8" fill="none" opacity="0.2" />
+          {/* Node B — right (secondary) */}
+          <circle cx="44" cy="26" r="1.8" fill={accent} opacity="0.62" />
+          <circle cx="44" cy="26" r="3.5" stroke={accent} strokeWidth="0.7" fill="none" opacity="0.15" />
+          {/* Node C — lower (tertiary) */}
+          <circle cx="32" cy="30" r="1.4" fill={accent} opacity="0.42" />
+          {/* Apex ghost */}
+          <circle cx="32" cy="24" r="2" fill={accent} opacity="0.16" />
+        </>
+      );
+
     default:
       return null;
   }

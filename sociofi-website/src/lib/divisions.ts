@@ -6,7 +6,8 @@ export type DivisionSlug =
   | 'products'
   | 'academy'
   | 'ventures'
-  | 'cloud';
+  | 'cloud'
+  | 'agents';
 
 export type LogoModifier =
   | 'none'
@@ -16,7 +17,8 @@ export type LogoModifier =
   | 'stacked-diamonds'
   | 'open-book'
   | 'ascending-branch'
-  | 'stacked-lines';
+  | 'stacked-lines'
+  | 'agent-node-network';
 
 export interface NavDropdownItem {
   label: string;
@@ -270,6 +272,24 @@ export const divisions: Record<DivisionSlug, Division> = {
       { label: 'Security', href: '/cloud/security' },
       { label: 'Providers', href: '/cloud/providers' },
       { label: 'Plans', href: '/cloud/plans' },
+    ],
+  },
+
+  agents: {
+    name: 'SocioFi Agents',
+    slug: 'agents',
+    accent: '#8B5CF6',
+    accentLight: '#A78BFA',
+    accentDark: '#6D28D9',
+    subtitle: 'Agent as a Service',
+    description: 'Autonomous agents that act on your data. Not just software — an operating system for your business.',
+    modifier: 'agent-node-network',
+    cta: { label: 'Deploy Agents', href: '/aaas' },
+    url: '/aaas',
+    navLinks: [
+      { label: 'What is AaaS', href: '/aaas' },
+      { label: 'AI Agent Systems', href: '/studio/services/ai-agent-systems' },
+      { label: 'How We Build', href: '/aaas#how-we-build' },
     ],
   },
 };
