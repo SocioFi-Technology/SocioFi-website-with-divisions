@@ -71,10 +71,11 @@ function divisionModifier(modifier: LogoModifier, accent: string) {
     case 'signal-arcs': // Services
       return (
         <>
-          <circle cx="35" cy="24" r="1.5" fill={accent} />
-          <path d="M35 24 A4 4 0 0 1 39 20" stroke={accent} strokeWidth="1.5" strokeLinecap="round" fill="none" />
-          <path d="M34 24 A7 7 0 0 1 41 17" stroke={accent} strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.7" />
-          <path d="M33 24 A10 10 0 0 1 43 14" stroke={accent} strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.4" />
+          <path d="M 36.0 18.3 A 7 7 0 0 1 36.0 29.7" stroke={accent} strokeWidth="2" strokeLinecap="round" fill="none" opacity="0.9" />
+          <path d="M 38.3 15.0 A 11 11 0 0 1 38.3 33.0" stroke={accent} strokeWidth="1.6" strokeLinecap="round" fill="none" opacity="0.5" />
+          <path d="M 40.6 11.7 A 15 15 0 0 1 40.6 36.3" stroke={accent} strokeWidth="1.2" strokeLinecap="round" fill="none" opacity="0.22" />
+          <circle cx="32" cy="24" r="3" fill={accent} opacity="0.85" />
+          <circle cx="32" cy="24" r="5.5" stroke={accent} strokeWidth="1.2" fill="none" opacity="0.3" />
         </>
       );
     case 'particle-dots': // Labs
