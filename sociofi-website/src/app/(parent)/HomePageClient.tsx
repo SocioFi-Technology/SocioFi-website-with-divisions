@@ -128,11 +128,17 @@ function divisionModifier(modifier: LogoModifier, accent: string) {
     case 'stacked-lines': // Cloud
       return (
         <>
-          <line x1="33" y1="17" x2="44" y2="17" stroke={accent} strokeWidth="1.6" strokeLinecap="round" />
-          <line x1="33" y1="23" x2="42" y2="23" stroke={accent} strokeWidth="1.6" strokeLinecap="round" opacity="0.7" />
-          <line x1="33" y1="29" x2="39" y2="29" stroke={accent} strokeWidth="1.6" strokeLinecap="round" opacity="0.45" />
-          <path d="M45 14 L45 20" stroke={accent} strokeWidth="1.5" strokeLinecap="round" />
-          <path d="M42 17 L45 14 L48 17" stroke={accent} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          <line x1="33" y1="32" x2="47" y2="32" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.9" />
+          <line x1="35" y1="26" x2="45" y2="26" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.65" />
+          <line x1="36" y1="20" x2="38" y2="20" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.38" />
+          <line x1="42" y1="20" x2="44" y2="20" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.38" />
+          <line x1="40" y1="31" x2="40" y2="20" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.95" />
+          <path d="M37 20 L40 13 L43 20 Z" fill={accent} opacity="0.95" />
+          <circle cx="40" cy="12" r="1.8" fill={accent} opacity="0.95" />
+          <circle cx="40" cy="12" r="3.5" stroke={accent} strokeWidth="1.2" fill="none" opacity="0.22" />
+          <circle cx="33" cy="32" r="1.5" fill={accent} opacity="0.5" />
+          <circle cx="35" cy="26" r="1.2" fill={accent} opacity="0.35" />
+          <circle cx="32" cy="24" r="2" fill={accent} opacity="0.18" />
         </>
       );
     case 'agent-node-network': // Agents — hexagon orchestrator + satellite nodes

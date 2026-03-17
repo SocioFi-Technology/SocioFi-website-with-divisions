@@ -116,15 +116,33 @@ function modifierElements(modifier: LogoModifier, accent: string) {
         </>
       );
 
-    // Cloud — stacked lines with arrow
+    // Cloud — infrastructure stack (3 tapered layers) + deploy arrow punching through
+    // L3 foundation (widest) → L2 app → L1 deploy surface (split); arrow rises from L3
+    // centre, punches through L1 gap, terminates in deployed dot + halo above
     case 'stacked-lines':
       return (
         <>
-          <line x1="33" y1="17" x2="44" y2="17" stroke={accent} strokeWidth="1.6" strokeLinecap="round" />
-          <line x1="33" y1="23" x2="42" y2="23" stroke={accent} strokeWidth="1.6" strokeLinecap="round" opacity="0.7" />
-          <line x1="33" y1="29" x2="39" y2="29" stroke={accent} strokeWidth="1.6" strokeLinecap="round" opacity="0.45" />
-          <path d="M45 14 L45 20" stroke={accent} strokeWidth="1.5" strokeLinecap="round" />
-          <path d="M42 17 L45 14 L48 17" stroke={accent} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          {/* Layer 3 — Foundation (widest, 90% op) */}
+          <line x1="33" y1="32" x2="47" y2="32" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.9" />
+          {/* Layer 2 — Application (65% op) */}
+          <line x1="35" y1="26" x2="45" y2="26" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.65" />
+          {/* Layer 1 — Deployment surface, split left of arrow */}
+          <line x1="36" y1="20" x2="38" y2="20" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.38" />
+          {/* Layer 1 — right of arrow */}
+          <line x1="42" y1="20" x2="44" y2="20" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.38" />
+          {/* Arrow shaft — originates at L3, punches through L1 */}
+          <line x1="40" y1="31" x2="40" y2="20" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.95" />
+          {/* Arrowhead */}
+          <path d="M37 20 L40 13 L43 20 Z" fill={accent} opacity="0.95" />
+          {/* Terminal deployed dot */}
+          <circle cx="40" cy="12" r="1.8" fill={accent} opacity="0.95" />
+          {/* Halo ring */}
+          <circle cx="40" cy="12" r="3.5" stroke={accent} strokeWidth="1.2" fill="none" opacity="0.22" />
+          {/* Layer endpoint dots */}
+          <circle cx="33" cy="32" r="1.5" fill={accent} opacity="0.5" />
+          <circle cx="35" cy="26" r="1.2" fill={accent} opacity="0.35" />
+          {/* Apex ghost — links chevron to modifier */}
+          <circle cx="32" cy="24" r="2" fill={accent} opacity="0.18" />
         </>
       );
 
