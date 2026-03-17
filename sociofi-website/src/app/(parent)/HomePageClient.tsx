@@ -90,9 +90,14 @@ function divisionModifier(modifier: LogoModifier, accent: string) {
     case 'stacked-diamonds': // Products
       return (
         <>
-          <path d="M38 16 L42 20 L38 24 L34 20Z" stroke={accent} strokeWidth="1.4" fill="none" strokeLinejoin="round" />
-          <path d="M38 20 L42 24 L38 28 L34 24Z" stroke={accent} strokeWidth="1.4" fill="none" strokeLinejoin="round" opacity="0.65" />
-          <path d="M38 24 L42 28 L38 32 L34 28Z" stroke={accent} strokeWidth="1.4" fill="none" strokeLinejoin="round" opacity="0.35" />
+          <line x1="32" y1="24" x2="33" y2="16" stroke={accent} strokeWidth="0.8" strokeLinecap="round" strokeDasharray="1.5 2.5" opacity="0.18" />
+          <path d="M39 26 L43 30 L39 34 L35 30 Z" stroke={accent} strokeWidth="1.2" strokeLinejoin="round" fill="none" opacity="0.22" />
+          <path d="M39 18 L44 23 L39 28 L34 23 Z" stroke={accent} strokeWidth="1.6" strokeLinejoin="round" fill={`${accent}0D`} opacity="0.5" />
+          <path d="M39 10 L45 16 L39 22 L33 16 Z" stroke={accent} strokeWidth="2" strokeLinejoin="round" fill={`${accent}14`} opacity="0.9" />
+          <circle cx="39" cy="10" r="2.2" fill={accent} opacity="0.9" />
+          <circle cx="39" cy="10" r="4" stroke={accent} strokeWidth="1.2" fill="none" opacity="0.22" />
+          <circle cx="39" cy="16" r="1.2" fill={accent} opacity="0.4" />
+          <circle cx="32" cy="24" r="2" fill={accent} opacity="0.18" />
         </>
       );
     case 'open-book': // Academy — open book + rays + tip dots
