@@ -1,916 +1,573 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useInView, useScroll, useTransform } from 'framer-motion';
 import Link from 'next/link';
 import Container from '@/components/shared/Container';
-import SectionHeader from '@/components/shared/SectionHeader';
-import CTASection from '@/components/shared/CTASection';
-import ScrollReveal, { StaggerChildren, StaggerItem } from '@/components/shared/ScrollReveal';
-import MetricBar from '@/components/sections/MetricBar';
-import LogoMarquee from '@/components/sections/LogoMarquee';
-import TestimonialCard from '@/components/cards/TestimonialCard';
-import AnimatedGrid from '@/components/visual/AnimatedGrid';
 import Button from '@/components/shared/Button';
-import { ArrowRight, Brain, Code, Shield, Rocket, Book, CloudIcon, Zap } from '@/lib/icons';
-import { divisionList, type LogoModifier } from '@/lib/divisions';
+import AnimatedGrid from '@/components/visual/AnimatedGrid';
 
-// ── CSS injected into <head> for keyframe animations ─────────────────────────
-
-const SHIMMER_CSS = `
-  @keyframes hero-shimmer {
-    0%   { background-position: 200% center; }
-    100% { background-position: -200% center; }
-  }
-  .hero-shimmer {
-    background: linear-gradient(
-      90deg,
-      #4A6CB8 0%,
-      #72C4B2 25%,
-      #A3DFD2 50%,
-      #72C4B2 75%,
-      #4A6CB8 100%
-    );
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    animation: hero-shimmer 4s linear infinite;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .hero-shimmer { animation: none; }
-  }
-`;
-
-// ── Division one-liners ───────────────────────────────────────────────────────
-
-const DIVISION_COPY: Record<string, string> = {
-  agents:   'Autonomous agent systems that act on your data. Not software you use — infrastructure that works for you.',
-  studio:   'Custom AI-native software. From idea to production in weeks.',
-  services: 'Ongoing maintenance, monitoring, and support for live products.',
-  labs:     'Research, experimentation, and open-source contributions.',
-  products: 'Our own AI-powered products: FabricxAI, NEXUS ARIA, DevBridge.',
-  academy:  'Learn to build with AI. Courses, workshops, and certification.',
-  ventures: 'We co-build with founders. Equity, revenue share, or hybrid deals.',
-  cloud:    'Managed hosting and infrastructure. You build, we run.',
+/* ─── Division colours (verified from logo SVGs) ─────────────────────── */
+const C = {
+  studio: '#72C4B2', agents: '#8B5CF6', services: '#4DBFA8',
+  cloud: '#5BB5E0', labs: '#7B6FE8', products: '#E8916F',
+  academy: '#E8B84D', ventures: '#6BA3E8', navy: '#3A589E',
 };
 
-// ── Logo mark — single 48×48 SVG matching Logo.tsx exactly ───────────────────
+/* ─── Styles ──────────────────────────────────────────────────────────── */
+const STYLES = `
+  .hp-s { padding: 100px 0; }
+  .hp-s-sm { padding: 80px 0; }
+  .hp-alt { background: var(--bg-2); }
 
-function divisionModifier(modifier: LogoModifier, accent: string) {
-  switch (modifier) {
-    case 'corner-brackets': // Studio — crosshair with ring
-      return (
-        <>
-          <line x1="38" y1="14" x2="38" y2="34" stroke={accent} strokeWidth="1.5" strokeLinecap="round" />
-          <line x1="34" y1="24" x2="42" y2="24" stroke={accent} strokeWidth="1.5" strokeLinecap="round" />
-          <circle cx="38" cy="24" r="3.5" stroke={accent} strokeWidth="1.5" fill="none" />
-          <circle cx="38" cy="24" r="1.2" fill={accent} />
-        </>
-      );
-    case 'signal-arcs': // Services
-      return (
-        <>
-          <path d="M 36.0 18.3 A 7 7 0 0 1 36.0 29.7" stroke={accent} strokeWidth="2" strokeLinecap="round" fill="none" opacity="0.9" />
-          <path d="M 38.3 15.0 A 11 11 0 0 1 38.3 33.0" stroke={accent} strokeWidth="1.6" strokeLinecap="round" fill="none" opacity="0.5" />
-          <path d="M 40.6 11.7 A 15 15 0 0 1 40.6 36.3" stroke={accent} strokeWidth="1.2" strokeLinecap="round" fill="none" opacity="0.22" />
-          <circle cx="32" cy="24" r="3" fill={accent} opacity="0.85" />
-          <circle cx="32" cy="24" r="5.5" stroke={accent} strokeWidth="1.2" fill="none" opacity="0.3" />
-        </>
-      );
-    case 'particle-dots': // Labs
-      return (
-        <>
-          <circle cx="38" cy="14" r="2.5" fill={accent} />
-          <circle cx="42" cy="22" r="1.8" fill={accent} opacity="0.8" />
-          <circle cx="38" cy="30" r="2" fill={accent} opacity="0.6" />
-          <circle cx="43" cy="32" r="1.2" fill={accent} opacity="0.4" />
-        </>
-      );
-    case 'stacked-diamonds': // Products
-      return (
-        <>
-          <line x1="32" y1="24" x2="33" y2="16" stroke={accent} strokeWidth="0.8" strokeLinecap="round" strokeDasharray="1.5 2.5" opacity="0.18" />
-          <path d="M39 26 L43 30 L39 34 L35 30 Z" stroke={accent} strokeWidth="1.2" strokeLinejoin="round" fill="none" opacity="0.22" />
-          <path d="M39 18 L44 23 L39 28 L34 23 Z" stroke={accent} strokeWidth="1.6" strokeLinejoin="round" fill={`${accent}0D`} opacity="0.5" />
-          <path d="M39 10 L45 16 L39 22 L33 16 Z" stroke={accent} strokeWidth="2" strokeLinejoin="round" fill={`${accent}14`} opacity="0.9" />
-          <circle cx="39" cy="10" r="2.2" fill={accent} opacity="0.9" />
-          <circle cx="39" cy="10" r="4" stroke={accent} strokeWidth="1.2" fill="none" opacity="0.22" />
-          <circle cx="39" cy="16" r="1.2" fill={accent} opacity="0.4" />
-          <circle cx="32" cy="24" r="2" fill={accent} opacity="0.18" />
-        </>
-      );
-    case 'open-book': // Academy — open book + rays + tip dots
-      return (
-        <>
-          <path d="M39 12 L32 15 L33 25 L39 25 Z" stroke={accent} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill={`${accent}14`} opacity="0.9" />
-          <path d="M39 12 L46 15 L45 25 L39 25 Z" stroke={accent} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill={`${accent}0C`} opacity="0.75" />
-          <line x1="39" y1="12" x2="39" y2="25" stroke={accent} strokeWidth="1.2" strokeLinecap="round" opacity="0.6" />
-          <line x1="33.5" y1="18" x2="37.5" y2="17.5" stroke={accent} strokeWidth="0.9" strokeLinecap="round" opacity="0.4" />
-          <line x1="34" y1="21.5" x2="37.5" y2="21.5" stroke={accent} strokeWidth="0.9" strokeLinecap="round" opacity="0.25" />
-          <line x1="40.5" y1="17.5" x2="44.5" y2="18" stroke={accent} strokeWidth="0.9" strokeLinecap="round" opacity="0.35" />
-          <line x1="40.5" y1="21.5" x2="44.5" y2="21.5" stroke={accent} strokeWidth="0.9" strokeLinecap="round" opacity="0.22" />
-          <line x1="39" y1="12" x2="39" y2="5" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.9" />
-          <line x1="36" y1="13.5" x2="32" y2="7" stroke={accent} strokeWidth="1.4" strokeLinecap="round" opacity="0.55" />
-          <line x1="42" y1="13.5" x2="46" y2="7" stroke={accent} strokeWidth="1.4" strokeLinecap="round" opacity="0.45" />
-          <circle cx="39" cy="4" r="2" fill={accent} opacity="0.9" />
-          <circle cx="31" cy="6" r="1.5" fill={accent} opacity="0.5" />
-          <circle cx="47" cy="6" r="1.5" fill={accent} opacity="0.4" />
-          <circle cx="32" cy="24" r="2.5" fill={accent} opacity="0.3" />
-        </>
-      );
-    case 'ascending-branch': // Ventures
-      return (
-        <>
-          <line x1="38" y1="30" x2="44" y2="30" stroke={accent} strokeWidth="1.4" strokeLinecap="round" opacity="0.35" />
-          <line x1="41" y1="29" x2="41" y2="20" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.9" />
-          <circle cx="41" cy="20" r="1.6" fill={accent} opacity="0.95" />
-          <circle cx="41" cy="20" r="3" stroke={accent} strokeWidth="1.2" fill="none" opacity="0.25" />
-          <line x1="41" y1="20" x2="36" y2="13" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.85" />
-          <line x1="41" y1="20" x2="46" y2="13" stroke={accent} strokeWidth="1.4" strokeLinecap="round" opacity="0.55" />
-          <path d="M36 13 L38 17 L34 17 Z" fill={accent} opacity="0.85" />
-          <path d="M46 13 L47 17 L44 17 Z" fill={accent} opacity="0.5" />
-          <circle cx="36" cy="11" r="1.3" fill={accent} opacity="0.9" />
-          <circle cx="46" cy="11" r="0.9" fill={accent} opacity="0.55" />
-          <line x1="36" y1="11" x2="46" y2="11" stroke={accent} strokeWidth="0.8" strokeLinecap="round" strokeDasharray="2 3" opacity="0.15" />
-          <circle cx="32" cy="24" r="1.5" fill={accent} opacity="0.25" />
-        </>
-      );
-    case 'stacked-lines': // Cloud
-      return (
-        <>
-          <line x1="33" y1="32" x2="47" y2="32" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.9" />
-          <line x1="35" y1="26" x2="45" y2="26" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.65" />
-          <line x1="36" y1="20" x2="38" y2="20" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.38" />
-          <line x1="42" y1="20" x2="44" y2="20" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.38" />
-          <line x1="40" y1="31" x2="40" y2="20" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.95" />
-          <path d="M37 20 L40 13 L43 20 Z" fill={accent} opacity="0.95" />
-          <circle cx="40" cy="12" r="1.8" fill={accent} opacity="0.95" />
-          <circle cx="40" cy="12" r="3.5" stroke={accent} strokeWidth="1.2" fill="none" opacity="0.22" />
-          <circle cx="33" cy="32" r="1.5" fill={accent} opacity="0.5" />
-          <circle cx="35" cy="26" r="1.2" fill={accent} opacity="0.35" />
-          <circle cx="32" cy="24" r="2" fill={accent} opacity="0.18" />
-        </>
-      );
-    case 'agent-node-network': // Agents — hexagon orchestrator + satellite nodes
-      return (
-        <>
-          <line x1="32" y1="24" x2="33" y2="18" stroke={accent} strokeWidth="0.8" strokeLinecap="round" strokeDasharray="1.5 2.5" opacity="0.3" />
-          <circle cx="38" cy="18" r="9" stroke={accent} strokeWidth="0.8" fill="none" strokeDasharray="2 4" opacity="0.15" />
-          <line x1="32" y1="30" x2="35.5" y2="22.3" stroke={accent} strokeWidth="0.9" strokeLinecap="round" strokeDasharray="1.5 3" opacity="0.28" />
-          <line x1="44" y1="26" x2="43" y2="18" stroke={accent} strokeWidth="1" strokeLinecap="round" opacity="0.45" />
-          <line x1="38" y1="9" x2="40.5" y2="13.7" stroke={accent} strokeWidth="1" strokeLinecap="round" strokeDasharray="1.5 2.5" opacity="0.55" />
-          <path d="M43 18 L40.5 22.3 L35.5 22.3 L33 18 L35.5 13.7 L40.5 13.7 Z" stroke={accent} strokeWidth="1.6" strokeLinejoin="round" fill={`${accent}18`} opacity="0.9" />
-          <circle cx="38" cy="18" r="1.5" fill={accent} opacity="0.7" />
-          <circle cx="38" cy="18" r="4" stroke={accent} strokeWidth="0.8" fill="none" opacity="0.25" />
-          <circle cx="38" cy="9" r="2.5" fill={accent} opacity="0.88" />
-          <circle cx="38" cy="9" r="4.5" stroke={accent} strokeWidth="0.8" fill="none" opacity="0.2" />
-          <circle cx="44" cy="26" r="1.8" fill={accent} opacity="0.62" />
-          <circle cx="44" cy="26" r="3.5" stroke={accent} strokeWidth="0.7" fill="none" opacity="0.15" />
-          <circle cx="32" cy="30" r="1.4" fill={accent} opacity="0.42" />
-          <circle cx="32" cy="24" r="2" fill={accent} opacity="0.16" />
-        </>
-      );
-    default:
-      return null;
+  .g3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+  .g4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+  .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+  .build-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+
+  .cmp-table { width: 100%; border-collapse: collapse; }
+  .cmp-table th, .cmp-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); font-family: var(--font-body); font-size: 0.88rem; }
+  .cmp-table th { font-family: var(--font-mono); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); font-weight: 500; }
+  .cmp-table td { color: var(--text-secondary); }
+  .cmp-table td:first-child { color: var(--text-primary); font-weight: 500; }
+  .cmp-sf { color: var(--teal-light) !important; font-weight: 600 !important; }
+
+  .grad-text {
+    background: linear-gradient(135deg, var(--navy-bright), var(--teal) 60%, var(--teal-pale));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
   }
-}
+  @media (forced-colors: active) { .grad-text { -webkit-text-fill-color: unset; } }
 
-/** Single 48×48 SVG mark — matches Logo.tsx exactly */
-function DivisionLogoMark({
-  modifier,
-  accent,
-  size = 56,
-}: {
-  modifier: LogoModifier;
-  accent: string;
-  size?: number;
-}) {
+  @keyframes hp-shimmer {
+    0% { background-position: 200% center; }
+    100% { background-position: -200% center; }
+  }
+  .hp-shimmer {
+    background: linear-gradient(90deg, #4A6CB8, #72C4B2 30%, #A3DFD2 50%, #72C4B2 70%, #4A6CB8);
+    background-size: 200% auto;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    animation: hp-shimmer 5s linear infinite;
+  }
+
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 14px; font-family: var(--font-body); font-size: 0.8rem; border: 1px solid var(--border); border-radius: 100px; color: var(--text-secondary); text-decoration: none; transition: border-color 0.2s, color 0.2s; }
+  .pill:hover { color: var(--text-primary); border-color: var(--border-hover); }
+
+  .flow-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center; font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); letter-spacing: 0.06em; }
+
+  @media (max-width: 1024px) { .g4 { grid-template-columns: repeat(2,1fr) !important; } }
+  @media (max-width: 900px) {
+    .g3 { grid-template-columns: 1fr !important; }
+    .build-grid { grid-template-columns: 1fr !important; }
+  }
+  @media (max-width: 768px) {
+    .hp-s { padding: 72px 0; }
+    .hp-s-sm { padding: 56px 0; }
+    .g2 { grid-template-columns: 1fr !important; }
+    .g4 { grid-template-columns: 1fr 1fr !important; }
+  }
+  @media (max-width: 480px) { .g4 { grid-template-columns: 1fr !important; } }
+  @media (prefers-reduced-motion: reduce) { .hp-shimmer { animation: none; } }
+`;
+
+/* ─── Primitives ──────────────────────────────────────────────────────── */
+
+function Badge({ children, color }: { children: React.ReactNode; color?: string }) {
+  const c = color ?? 'var(--teal-light)';
   return (
-    <svg
-      viewBox="0 0 48 48"
-      fill="none"
-      width={size}
-      height={size}
-      aria-hidden="true"
-      style={{ flexShrink: 0 }}
-    >
-      {/* Left chevron — navy, shifted left for division modifier room */}
-      <path d="M10 12 L22 24 L10 36" stroke="#4A6CB8" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-      {/* Right chevron — division accent, shifted left */}
-      <path d="M20 12 L32 24 L20 36" stroke={accent} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-      {/* Division modifier */}
-      {divisionModifier(modifier, accent)}
-    </svg>
+    <div style={{
+      display: 'inline-flex', alignItems: 'center', gap: 8,
+      padding: '5px 14px', background: `color-mix(in srgb, ${c} 10%, transparent)`,
+      border: `1px solid color-mix(in srgb, ${c} 25%, transparent)`, borderRadius: 100,
+      fontFamily: 'var(--font-mono)', fontSize: '0.64rem', fontWeight: 500,
+      color: c, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 24,
+    }}>
+      <span style={{ width: 5, height: 5, borderRadius: '50%', background: c, flexShrink: 0 }} aria-hidden="true" />
+      {children}
+    </div>
   );
 }
 
-// ── Floating card data ────────────────────────────────────────────────────────
-
-const FLOATING_CARDS = [
-  { icon: <Brain  size={13} aria-hidden="true" />, label: 'AI Agent Build',    top: '22%',  left: '3%',  phase: 0 },
-  { icon: <Code   size={13} aria-hidden="true" />, label: 'Human Review',      bottom: '28%', left: '5%', phase: 1 },
-  { icon: <Rocket size={13} aria-hidden="true" />, label: 'Ship in Weeks',     top: '18%',  right: '3%', phase: 2 },
-  { icon: <Shield size={13} aria-hidden="true" />, label: 'Production-Ready',  bottom: '22%', right: '5%', phase: 3 },
-];
-
-// ── Testimonial data ──────────────────────────────────────────────────────────
-
-const TESTIMONIALS = [
-  {
-    quote: "I had an AI-built prototype that wouldn't deploy. SocioFi rebuilt the architecture, fixed the issues, and launched it in three weeks. It's been running in production for six months without a single incident.",
-    author: 'Marcus T.',
-    role: 'Founder',
-    company: 'PropTech Startup',
-  },
-  {
-    quote: "We needed someone who could understand our non-technical requirements and actually write the code. SocioFi Studio did both, and the result is better than anything a traditional agency could deliver.",
-    author: 'Layla A.',
-    role: 'Operations Lead',
-    company: 'E-Commerce Co.',
-  },
-  {
-    quote: "Our app was going down twice a week before SocioFi Cloud. Since migrating, we've had 99.97% uptime and noticeably faster response times. The monitoring setup alone was worth it.",
-    author: 'Dominic F.',
-    role: 'CTO',
-    company: 'B2B SaaS',
-  },
-];
-
-// ── Latest content ────────────────────────────────────────────────────────────
-
-const LATEST = [
-  {
-    type: 'Engineering',
-    accent: 'var(--teal)',
-    title: 'Why 80% of AI-generated prototypes never make it to production',
-    excerpt: 'AI tools accelerate the first 80%. The last 20% — deployment, security, observability — is where most prototypes get stuck.',
-    cta: 'Read article',
-    href: '/blog/why-ai-prototypes-fail-production',
-  },
-  {
-    type: 'Case Study',
-    accent: '#72C4B2',
-    title: 'From broken prototype to 10,000 MAU — in 8 weeks',
-    excerpt: "A founder came to us with a prototype that couldn't handle concurrent users. We rebuilt the data layer, deployed properly, and watched it scale.",
-    cta: 'View case study',
-    href: '/studio/portfolio',
-  },
-  {
-    type: 'Product Update',
-    accent: '#E8916F',
-    title: 'NEXUS ARIA 2.0: multi-modal input and custom fine-tuning',
-    excerpt: 'Our conversational AI platform now supports voice, image analysis, and domain-specific fine-tuning — all through a single API.',
-    cta: "See what's new",
-    href: '/products/nexus-aria',
-  },
-];
-
-// ── Magnetic Card ─────────────────────────────────────────────────────────────
-
-function MagneticCard({ children }: { children: React.ReactNode }) {
-  const [rot, setRot] = useState({ x: 0, y: 0 });
+function Fade({ children, d = 0, style }: { children: React.ReactNode; d?: number; style?: React.CSSProperties }) {
   const ref = useRef<HTMLDivElement>(null);
-
-  const onMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = ref.current?.getBoundingClientRect();
-    if (!rect) return;
-    const cx = (e.clientX - rect.left) / rect.width - 0.5;
-    const cy = (e.clientY - rect.top) / rect.height - 0.5;
-    setRot({ x: -cy * 4, y: cx * 4 });
-  };
-
+  const v = useInView(ref, { once: true, margin: '-6% 0px' });
   return (
-    <motion.div
-      ref={ref}
-      onMouseMove={onMove}
-      onMouseLeave={() => setRot({ x: 0, y: 0 })}
-      animate={{ rotateX: rot.x, rotateY: rot.y }}
-      transition={{ type: 'spring', stiffness: 400, damping: 40 }}
-      style={{ transformStyle: 'preserve-3d', perspective: 800, height: '100%' }}
-    >
+    <motion.div ref={ref} initial={{ opacity: 0, y: 24 }} animate={v ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: d }} style={style}>
       {children}
     </motion.div>
   );
 }
 
-// ── Homepage ──────────────────────────────────────────────────────────────────
+function H2({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
+  return <h2 style={{ fontFamily: 'var(--font-headline)', fontSize: 'clamp(1.8rem, 3vw, 2.4rem)', fontWeight: 600, letterSpacing: '-0.025em', lineHeight: 1.15, color: 'var(--text-primary)', ...style }}>{children}</h2>;
+}
 
-export default function HomePageClient() {
-  const heroRef = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
-  const orb1Y = useTransform(scrollYProgress, [0, 1], [0, -120]);
-  const orb2Y = useTransform(scrollYProgress, [0, 1], [0, 80]);
-  const orb3Y = useTransform(scrollYProgress, [0, 1], [0, -60]);
+function P({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
+  return <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.95rem', lineHeight: 1.75, color: 'var(--text-secondary)', ...style }}>{children}</p>;
+}
+
+function Card({ children, accent, featured, style }: { children: React.ReactNode; accent?: string; featured?: boolean; style?: React.CSSProperties }) {
+  const [h, setH] = useState(false);
+  const a = accent ?? C.studio;
+  return (
+    <div onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)} style={{
+      background: featured ? `radial-gradient(ellipse at top left, color-mix(in srgb, ${a} 8%, var(--bg-card)), var(--bg-card) 60%)` : 'var(--bg-card)',
+      border: `1px solid ${h ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.06)'}`,
+      borderRadius: 18, padding: '28px 32px', position: 'relative', overflow: 'hidden',
+      transition: 'border-color 0.25s, box-shadow 0.25s, transform 0.25s',
+      transform: h ? 'translateY(-2px)' : 'none',
+      boxShadow: h ? `0 0 0 1px ${a}30, 0 16px 32px rgba(0,0,0,0.15)` : featured ? `0 0 0 1px ${a}18` : 'none',
+      ...style,
+    }}>
+      {children}
+    </div>
+  );
+}
+
+function Glass({ children, accent, style }: { children: React.ReactNode; accent?: string; style?: React.CSSProperties }) {
+  const a = accent ?? C.studio;
+  return (
+    <div style={{
+      background: `radial-gradient(ellipse at top left, color-mix(in srgb, ${a} 6%, var(--bg-card)), var(--bg-card) 70%)`,
+      border: '1px solid rgba(255,255,255,0.07)', borderLeft: `2px solid ${a}60`,
+      borderRadius: 14, padding: '28px 32px', ...style,
+    }}>
+      {children}
+    </div>
+  );
+}
+
+const cardTitle: React.CSSProperties = { fontFamily: 'var(--font-headline)', fontSize: '1.05rem', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.01em', marginBottom: 8, lineHeight: 1.3 };
+const cardBody: React.CSSProperties = { fontFamily: 'var(--font-body)', fontSize: '0.88rem', lineHeight: 1.7, color: 'var(--text-secondary)' };
+const monoTag: React.CSSProperties = { fontFamily: 'var(--font-mono)', fontSize: '0.62rem', fontWeight: 500, textTransform: 'uppercase' as const, letterSpacing: '0.1em' };
+
+/* ─── Sections ────────────────────────────────────────────────────────── */
+
+function Hero() {
+  const ref = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
+  const o1 = useTransform(scrollYProgress, [0, 1], [0, -80]);
+  const o2 = useTransform(scrollYProgress, [0, 1], [0, 60]);
 
   return (
-    <>
-      <style>{SHIMMER_CSS}</style>
+    <section ref={ref} style={{ position: 'relative', minHeight: '100vh', display: 'flex', alignItems: 'center', background: 'var(--bg)', overflow: 'hidden', paddingTop: 80 }}>
+      <AnimatedGrid />
+      <motion.div aria-hidden="true" style={{ position: 'absolute', width: 700, height: 700, borderRadius: '50%', background: 'radial-gradient(circle, var(--navy), transparent 70%)', top: '-15%', left: '-10%', opacity: 'var(--glow-opacity)' as React.CSSProperties['opacity'], filter: 'blur(80px)', y: o1 }} />
+      <motion.div aria-hidden="true" style={{ position: 'absolute', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, var(--teal), transparent 70%)', bottom: '-10%', right: '-5%', opacity: 'var(--glow-opacity)' as React.CSSProperties['opacity'], filter: 'blur(80px)', y: o2 }} />
 
-      {/* ═══════════════════════════════════════════════════════════════════
-          HERO
-      ═══════════════════════════════════════════════════════════════════ */}
-      <section
-        ref={heroRef}
-        style={{
-          position: 'relative',
-          minHeight: '100vh',
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
-          background: 'var(--bg)',
-        }}
-      >
-        <AnimatedGrid />
+      <Container wide style={{ position: 'relative', zIndex: 2, paddingTop: 48, paddingBottom: 64 }}>
+        <motion.div initial={{ opacity: 0, y: 32 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }} style={{ maxWidth: 780 }}>
+          <Badge>AI-Powered Software Development</Badge>
 
-        {/* Parallax orbs */}
-        <motion.div
-          aria-hidden="true"
-          style={{
-            position: 'absolute', width: 700, height: 700, borderRadius: '50%',
-            background: 'radial-gradient(circle, var(--navy) 0%, transparent 70%)',
-            top: '-15%', left: '-8%',
-            opacity: 'var(--glow-opacity)', filter: 'blur(60px)',
-            y: orb1Y,
-          }}
-        />
-        <motion.div
-          aria-hidden="true"
-          style={{
-            position: 'absolute', width: 600, height: 600, borderRadius: '50%',
-            background: 'radial-gradient(circle, var(--teal) 0%, transparent 70%)',
-            bottom: '-20%', right: '-5%',
-            opacity: 'var(--glow-opacity)', filter: 'blur(60px)',
-            y: orb2Y,
-          }}
-        />
-        <motion.div
-          aria-hidden="true"
-          style={{
-            position: 'absolute', width: 380, height: 380, borderRadius: '50%',
-            background: 'radial-gradient(circle, #7B6FE8 0%, transparent 70%)',
-            top: '35%', right: '18%',
-            opacity: 'var(--glow-opacity)', filter: 'blur(60px)',
-            y: orb3Y,
-          }}
-        />
+          <h1 style={{
+            fontFamily: 'var(--font-headline)', fontSize: 'clamp(2.6rem, 5.5vw, 4.4rem)',
+            fontWeight: 600, letterSpacing: '-0.03em', lineHeight: 1.08,
+            marginBottom: 24, color: 'var(--text-primary)',
+          }}>
+            Ship production software{' '}
+            <span className="hp-shimmer">in weeks, not months.</span>
+          </h1>
 
-        {/* Noise texture */}
-        <div
-          aria-hidden="true"
-          style={{
-            position: 'absolute', inset: 0, pointerEvents: 'none',
-            opacity: 'var(--noise-opacity)',
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-          }}
-        />
+          <P style={{ maxWidth: 520, marginBottom: 36, fontSize: '1.05rem' }}>
+            AI writes the code. Our engineers make sure it actually works.
+            Architecture, deployment, security, maintenance — handled.
+          </P>
 
-        {/* Floating glassmorphic cards */}
-        {FLOATING_CARDS.map((card, i) => (
-          <motion.div
-            key={i}
-            aria-hidden="true"
-            style={{
-              position: 'absolute', zIndex: 1, display: 'none',
-              top: card.top, bottom: card.bottom, left: card.left, right: card.right,
-            }}
-            className="lg:block"
-            animate={{ y: i % 2 === 0 ? [0, -12, 0] : [-6, 6, -6] }}
-            transition={{ duration: 3 + i * 0.5, repeat: Infinity, ease: 'easeInOut', delay: i * 0.4 }}
-          >
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 8,
-              padding: '10px 16px',
-              background: 'var(--glass-bg)',
-              border: '1px solid var(--glass-border)',
-              borderRadius: 'var(--radius-md)',
-              backdropFilter: 'blur(12px)',
-              fontFamily: 'var(--font-mono)',
-              fontSize: '0.68rem', fontWeight: 500,
-              color: 'var(--text-secondary)', whiteSpace: 'nowrap',
-            }}>
-              <span style={{ color: 'var(--teal-light)' }}>{card.icon}</span>
-              {card.label}
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 32 }}>
+            <Button href="/contact" variant="primary" size="lg">Start a Project</Button>
+            <Button href="/studio/portfolio" variant="ghost" size="lg">See Our Work</Button>
+          </div>
+
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {[
+              { label: 'Custom software', url: '/studio', color: C.studio },
+              { label: 'AI agents', url: '/agents', color: C.agents },
+              { label: 'Maintenance', url: '/services', color: C.services },
+            ].map(r => (
+              <Link key={r.label} href={r.url} className="pill" style={{ borderColor: r.color + '40', color: r.color }}>{r.label}</Link>
+            ))}
+          </div>
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4, duration: 0.6 }}
+          style={{ display: 'flex', gap: 48, flexWrap: 'wrap', marginTop: 72, paddingTop: 32, borderTop: '1px solid var(--border)' }}>
+          {[
+            { n: '45+', l: 'Production Agents' },
+            { n: '3', l: 'Live Platforms' },
+            { n: '2–6 wk', l: 'Avg. Delivery' },
+            { n: '8', l: 'Divisions' },
+          ].map(m => (
+            <div key={m.l}>
+              <div style={{ fontFamily: 'var(--font-headline)', fontSize: '1.8rem', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>{m.n}</div>
+              <div style={{ fontFamily: 'var(--font-body)', fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: 2 }}>{m.l}</div>
             </div>
-          </motion.div>
+          ))}
+        </motion.div>
+      </Container>
+    </section>
+  );
+}
+
+function Problem() {
+  const cards = [
+    { tag: 'Agencies', body: '$50K–200K. 3–6 months. Twelve people, half invisible. Another contract just to keep it running.' },
+    { tag: 'DIY / AI tools', body: 'You built a prototype. Then deployment, databases, auth, and security happened.', link: { label: 'We rescue stuck projects', url: '/studio/services/rescue-ship' } },
+    { tag: 'Freelancers', body: 'Cheaper — until they disappear. Now you\'re managing code you don\'t understand.' },
+  ];
+  return (
+    <section className="hp-s hp-alt">
+      <Container>
+        <Fade>
+          <Badge>The Problem</Badge>
+          <H2 style={{ maxWidth: 560, marginBottom: 40 }}>Traditional options don&apos;t work for how software gets built today.</H2>
+        </Fade>
+        <div className="g3">
+          {cards.map((c, i) => (
+            <Fade key={c.tag} d={i * 0.08}>
+              <Card style={{ height: '100%' }}>
+                <div style={{ ...monoTag, color: 'var(--text-muted)', marginBottom: 10 }}>{c.tag}</div>
+                <p style={cardBody}>{c.body}</p>
+                {c.link && <Link href={c.link.url} style={{ ...cardBody, color: C.studio, textDecoration: 'none', display: 'block', marginTop: 12, fontSize: '0.84rem' }}>{c.link.label} →</Link>}
+              </Card>
+            </Fade>
+          ))}
+        </div>
+      </Container>
+    </section>
+  );
+}
+
+function Solution() {
+  return (
+    <section className="hp-s" style={{ background: 'var(--bg)' }}>
+      <Container>
+        <Fade>
+          <Badge>Our Approach</Badge>
+          <H2 style={{ maxWidth: 560, marginBottom: 40 }}>
+            AI generates code fast.{' '}
+            <span className="grad-text">We make it production-ready.</span>
+          </H2>
+        </Fade>
+        <div className="g2" style={{ marginBottom: 32 }}>
+          <Fade>
+            <Card accent={C.studio} style={{ borderTop: `2px solid ${C.studio}` }}>
+              <div style={{ ...monoTag, color: C.studio, marginBottom: 16 }}>What AI handles</div>
+              {['Initial codebase in hours', 'Tests, docs, and boilerplate', 'Repetitive development tasks', 'Powering deployed AI agents'].map(t => (
+                <div key={t} style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
+                  <span style={{ color: C.studio, fontSize: '0.65rem', marginTop: 5 }}>▸</span>
+                  <span style={cardBody}>{t}</span>
+                </div>
+              ))}
+            </Card>
+          </Fade>
+          <Fade d={0.1}>
+            <Card accent={C.navy} style={{ borderTop: `2px solid var(--teal-light)` }}>
+              <div style={{ ...monoTag, color: 'var(--teal-light)', marginBottom: 16 }}>What our engineers handle</div>
+              {['Architecture that scales', 'Code review before anything ships', 'Deployment, databases, security', 'Debugging and ongoing maintenance'].map(t => (
+                <div key={t} style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
+                  <span style={{ color: 'var(--teal-light)', fontSize: '0.65rem', marginTop: 5 }}>▸</span>
+                  <span style={cardBody}>{t}</span>
+                </div>
+              ))}
+            </Card>
+          </Fade>
+        </div>
+        <Fade d={0.15}>
+          <Glass accent={C.studio}>
+            <P style={{ marginBottom: 8 }}>Every line of code is reviewed by a human engineer before it ships. Not spot-checked — reviewed.</P>
+            <Link href="/studio/process" style={{ fontFamily: 'var(--font-body)', fontSize: '0.84rem', color: C.studio, textDecoration: 'none' }}>See our process →</Link>
+          </Glass>
+        </Fade>
+      </Container>
+    </section>
+  );
+}
+
+function Process() {
+  const steps = [
+    { n: '01', t: 'You tell us what you need', sub: 'In business terms. 30 min. Free.', link: { l: 'Book a call', u: '/contact' } },
+    { n: '02', t: 'We plan and price it', sub: 'Plain-English proposal. Fixed cost. You approve first.' },
+    { n: '03', t: 'We build it', sub: 'AI generates, engineers review. Weekly updates.', link: { l: 'Studio', u: '/studio' } },
+    { n: '04', t: 'You launch', sub: 'Deployed to production. Real hosting, real monitoring.', link: { l: 'Cloud', u: '/cloud' } },
+    { n: '05', t: 'We maintain it', sub: 'Same team. Bug fixes, features, security. Ongoing.', link: { l: 'Services', u: '/services' } },
+  ];
+  return (
+    <section className="hp-s hp-alt">
+      <Container>
+        <Fade>
+          <Badge>How It Works</Badge>
+          <H2 style={{ maxWidth: 480, marginBottom: 48 }}>Idea to production in five steps.</H2>
+        </Fade>
+        {steps.map((s, i) => (
+          <Fade key={s.n} d={i * 0.06}>
+            <div style={{ display: 'grid', gridTemplateColumns: '56px 1fr', gap: 24, paddingBottom: 28, marginBottom: 28, borderBottom: i < steps.length - 1 ? '1px solid var(--border)' : 'none', alignItems: 'start' }}>
+              <div style={{ fontFamily: 'var(--font-headline)', fontSize: '2rem', fontWeight: 600, color: 'var(--border-hover)', letterSpacing: '-0.03em' }}>{s.n}</div>
+              <div>
+                <h3 style={{ ...cardTitle, fontSize: '1.1rem', marginBottom: 4 }}>{s.t}</h3>
+                <P style={{ fontSize: '0.88rem', maxWidth: 520 }}>{s.sub}</P>
+                {s.link && <Link href={s.link.u} style={{ fontFamily: 'var(--font-body)', fontSize: '0.82rem', color: C.studio, textDecoration: 'none', marginTop: 6, display: 'inline-block' }}>{s.link.l} →</Link>}
+              </div>
+            </div>
+          </Fade>
         ))}
+        <Fade>
+          <div className="flow-bar" style={{ marginTop: 8 }}>
+            {['Studio', 'Cloud', 'Services'].map((n, i, a) => (
+              <React.Fragment key={n}>
+                <Link href={`/${n.toLowerCase()}`} style={{ color: C[n.toLowerCase() as keyof typeof C], textDecoration: 'none', fontFamily: 'var(--font-mono)', fontSize: '0.72rem' }}>[{n}]</Link>
+                {i < a.length - 1 && <span style={{ color: 'var(--text-muted)' }}>→</span>}
+              </React.Fragment>
+            ))}
+            <span style={{ fontFamily: 'var(--font-body)', fontSize: '0.8rem', color: 'var(--text-muted)' }}>— One team, start to finish.</span>
+          </div>
+        </Fade>
+      </Container>
+    </section>
+  );
+}
 
-        {/* Hero content — centered, vertically */}
-        <div
-          style={{
-            position: 'relative', zIndex: 2, flex: 1,
-            display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
-            textAlign: 'center',
-            paddingTop: 'calc(var(--space-section) + 60px)',
-            paddingBottom: 'var(--space-4xl)',
-          }}
-        >
-          <Container>
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            >
-              {/* Badge pill */}
-              <div style={{
-                display: 'inline-flex', alignItems: 'center', gap: 8,
-                padding: '6px 16px',
-                background: 'var(--glass-bg)',
-                border: '1px solid var(--glass-border)',
-                borderRadius: 'var(--radius-full)',
-                fontFamily: 'var(--font-mono)',
-                fontSize: '0.68rem', fontWeight: 500,
-                color: 'var(--teal-light)',
-                textTransform: 'uppercase', letterSpacing: '0.12em',
-                marginBottom: 36,
-              }}>
-                <span style={{
-                  width: 6, height: 6, borderRadius: '50%',
-                  background: 'var(--teal-light)', display: 'inline-block',
-                }} />
-                Agent-as-a-Service · AaaS
-              </div>
-
-              {/* H1 */}
-              <h1 style={{
-                fontFamily: 'var(--font-headline)',
-                fontSize: 'clamp(2.8rem, 6vw, 5rem)',
-                fontWeight: 400,
-                letterSpacing: '-0.035em',
-                lineHeight: 1.06,
-                marginBottom: 28,
-              }}>
-                <span style={{ display: 'block', color: 'var(--text-primary)' }}>
-                  Intelligent Systems.
-                </span>
-                <span className="hero-shimmer">
-                  Autonomous Results.
-                </span>
-              </h1>
-
-              {/* Description */}
-              <p style={{
-                fontFamily: 'var(--font-body)',
-                fontSize: 'clamp(1rem, 1.5vw, 1.15rem)',
-                lineHeight: 1.75,
-                color: 'var(--text-secondary)',
-                maxWidth: 560,
-                marginInline: 'auto',
-                marginBottom: 44,
-              }}>
-                The world is moving from SaaS to AaaS — software that doesn't just store data, it acts on it. Seven specialized divisions. One mission: build intelligent agent systems your business actually runs on.
-              </p>
-
-              {/* Buttons */}
-              <div style={{
-                display: 'flex', gap: 12, justifyContent: 'center',
-                flexWrap: 'wrap', marginBottom: 0,
-              }}>
-                <Button href="#divisions" variant="primary" size="lg">
-                  Explore Our Divisions
-                </Button>
-                <Button href="/contact" variant="ghost" size="lg">
-                  Book a Free Call
-                </Button>
-              </div>
-            </motion.div>
-          </Container>
+function WhatWeBuild() {
+  const items = [
+    { name: 'Custom Software', url: '/studio', accent: C.studio, desc: 'Web apps, SaaS, portals — idea to launch in 2–6 weeks.' },
+    { name: 'AI Agents', url: '/agents', accent: C.agents, desc: 'Purpose-built agents for reports, email, data entry, support. From $199/mo.', featured: true, sub: { l: 'Browse catalog', u: '/agents/catalog' } },
+    { name: 'Internal Tools', url: '/studio/services/internal-tools', accent: C.studio, desc: 'Dashboards, admin panels, reporting — replacing your spreadsheets.' },
+    { name: 'Automation', url: '/studio/services/automation-integration', accent: C.studio, desc: 'Connect tools. Automate workflows. Stop copying data.' },
+    { name: 'Rescue & Ship', url: '/studio/services/rescue-ship', accent: C.studio, desc: 'AI prototype stuck? We take over and ship it.' },
+    { name: 'Hosting', url: '/cloud', accent: C.cloud, desc: 'Managed servers, databases, SSL, CDN. At cost.' },
+    { name: 'Maintenance', url: '/services', accent: C.services, desc: 'Bugs, security, features, monitoring. Same team.' },
+  ];
+  return (
+    <section className="hp-s" style={{ background: 'var(--bg)' }}>
+      <Container>
+        <Fade>
+          <Badge>What We Build</Badge>
+          <H2 style={{ maxWidth: 480, marginBottom: 40 }}>
+            Whatever your business needs.{' '}
+            <span className="grad-text">We&apos;ve built it before.</span>
+          </H2>
+        </Fade>
+        <div className="build-grid">
+          {items.map((it, i) => (
+            <Fade key={it.name} d={i * 0.05} style={{ display: 'contents' }}>
+              <Link href={it.url} style={{ textDecoration: 'none', display: 'contents' }}>
+                <Card accent={it.accent} featured={it.featured} style={it.featured ? { gridColumn: 'span 2' } : {}}>
+                  {it.featured && <span style={{ ...monoTag, display: 'inline-block', padding: '2px 8px', background: `${it.accent}15`, border: `1px solid ${it.accent}30`, borderRadius: 100, color: it.accent, marginBottom: 10 }}>Featured</span>}
+                  <h3 style={{ ...cardTitle, fontSize: it.featured ? '1.2rem' : '1.05rem' }}>{it.name}</h3>
+                  <p style={cardBody}>{it.desc}</p>
+                  {'sub' in it && it.sub && <span style={{ ...cardBody, color: it.accent, display: 'block', marginTop: 10, fontSize: '0.82rem' }}>{it.sub.l} →</span>}
+                  <div style={{ ...monoTag, color: it.accent, marginTop: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ width: 10, height: 1, background: it.accent }} aria-hidden="true" />
+                    {it.url.split('/')[1]}
+                  </div>
+                </Card>
+              </Link>
+            </Fade>
+          ))}
         </div>
+        <Fade d={0.2}>
+          <div style={{ textAlign: 'center', marginTop: 40 }}>
+            <Button href="/contact" variant="ghost" size="md">Not sure? Let&apos;s talk</Button>
+          </div>
+        </Fade>
+      </Container>
+    </section>
+  );
+}
 
-        {/* MetricBar pinned at hero bottom */}
-        <div style={{ position: 'relative', zIndex: 2 }}>
-          <MetricBar
-            metrics={[
-              { numeric: 50, suffix: '+', label: 'Projects Shipped' },
-              { numeric: 7,  label: 'Specialist Divisions' },
-              { numeric: 5,  suffix: '×', label: 'Faster Than Traditional Dev' },
-              { numeric: 100, suffix: '%', label: 'Code Ownership' },
-            ]}
-          />
+function Numbers() {
+  const rows = [
+    { l: 'Timeline', a: '3–6 mo', f: '2–4 mo', h: 'Ongoing', s: '2–6 weeks' },
+    { l: 'Cost', a: '$50K–200K', f: '$10K–40K', h: '$80K–150K/yr', s: '$3K–20K' },
+    { l: 'After launch', a: 'New contract', f: 'Hope they respond', h: 'You manage', s: 'Same team' },
+    { l: 'AI-powered', a: 'Rarely', f: 'Sometimes', h: 'Depends', s: 'Every project' },
+    { l: 'Code ownership', a: 'Sometimes', f: 'Usually', h: 'Yes', s: 'Always — 100%' },
+  ];
+  return (
+    <section className="hp-s hp-alt">
+      <Container>
+        <Fade>
+          <Badge>The Math</Badge>
+          <H2 style={{ maxWidth: 480, marginBottom: 36 }}>Speed, quality, and ongoing support — <span className="grad-text">the math works differently.</span></H2>
+        </Fade>
+        <Fade>
+          <div style={{ overflowX: 'auto', borderRadius: 14, border: '1px solid var(--border)' }}>
+            <table className="cmp-table">
+              <thead><tr style={{ background: 'var(--bg-card)' }}><th>Criteria</th><th>Agency</th><th>Freelancer</th><th>In-House</th><th className="cmp-sf">SocioFi</th></tr></thead>
+              <tbody>{rows.map((r, i) => (
+                <tr key={r.l} style={{ background: i % 2 === 0 ? 'transparent' : 'var(--bg-card)' }}>
+                  <td>{r.l}</td><td>{r.a}</td><td>{r.f}</td><td>{r.h}</td><td className="cmp-sf">{r.s}</td>
+                </tr>
+              ))}</tbody>
+            </table>
+          </div>
+        </Fade>
+      </Container>
+    </section>
+  );
+}
+
+function Products() {
+  const items = [
+    { name: 'FabricxAI', url: '/products/fabricxai', sub: '22 agents', desc: 'Manufacturing intelligence. Quality control, supply chain, analytics.' },
+    { name: 'NEXUS ARIA', url: '/products/nexus-aria', sub: '12 agents', desc: 'Enterprise data analysis. Role-personalized reports, anomaly detection.' },
+    { name: 'DevBridge OS', url: '/products/devbridge', sub: 'Internal', desc: 'Our dev platform. Why we deliver in weeks. Coming soon externally.' },
+  ];
+  return (
+    <section className="hp-s" style={{ background: 'var(--bg)' }}>
+      <Container>
+        <Fade>
+          <Badge color={C.products}>Our Products</Badge>
+          <H2 style={{ maxWidth: 560, marginBottom: 36 }}>
+            We run our own platforms in production.{' '}
+            <span style={{ color: C.products }}>Every day.</span>
+          </H2>
+        </Fade>
+        <div className="g3" style={{ marginBottom: 36 }}>
+          {items.map((p, i) => (
+            <Fade key={p.name} d={i * 0.08}>
+              <Link href={p.url} style={{ textDecoration: 'none', display: 'block', height: '100%' }}>
+                <Card accent={C.products} style={{ height: '100%' }}>
+                  <div style={{ ...monoTag, color: C.products, marginBottom: 10 }}>{p.sub}</div>
+                  <h3 style={cardTitle}>{p.name}</h3>
+                  <p style={cardBody}>{p.desc}</p>
+                </Card>
+              </Link>
+            </Fade>
+          ))}
         </div>
-      </section>
+        <Fade>
+          <div style={{ display: 'flex', gap: 36, padding: '24px 32px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 14, alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+            {[{ n: '45+', l: 'Agents' }, { n: '3', l: 'Platforms' }].map(m => (
+              <div key={m.l} style={{ textAlign: 'center' }}>
+                <div style={{ fontFamily: 'var(--font-headline)', fontSize: '1.6rem', fontWeight: 600, color: C.products }}>{m.n}</div>
+                <div style={{ fontFamily: 'var(--font-body)', fontSize: '0.78rem', color: 'var(--text-muted)' }}>{m.l}</div>
+              </div>
+            ))}
+            <Button href="/products" variant="ghost" size="sm" accentColor={C.products}>View all</Button>
+          </div>
+        </Fade>
+      </Container>
+    </section>
+  );
+}
 
-      {/* ═══════════════════════════════════════════════════════════════════
-          DIVISION CARDS
-      ═══════════════════════════════════════════════════════════════════ */}
-      <section
-        id="divisions"
-        style={{ paddingBlock: 'var(--space-section)', background: 'var(--bg-2)', scrollMarginTop: 80 }}
-      >
-        <Container>
-          <ScrollReveal>
-            <SectionHeader
-              label="Seven divisions"
-              title={<>One company. <span className="gradient-text">Complete coverage.</span></>}
-              subtitle="Whether you need custom software, ongoing maintenance, AI products, training, or cloud infrastructure — SocioFi Technology has a division for you."
-              centered
-              className="mb-14"
-            />
-          </ScrollReveal>
+function Divisions() {
+  const divs = [
+    { name: 'Studio', url: '/studio', accent: C.studio, desc: 'Custom software, idea to production.' },
+    { name: 'Agents', url: '/agents', accent: C.agents, desc: 'AI agents for your workflows.' },
+    { name: 'Services', url: '/services', accent: C.services, desc: 'Maintenance, monitoring, support.' },
+    { name: 'Cloud', url: '/cloud', accent: C.cloud, desc: 'Managed hosting and infrastructure.' },
+    { name: 'Labs', url: '/labs', accent: C.labs, desc: 'Research and open source.' },
+    { name: 'Products', url: '/products', accent: C.products, desc: 'Our own platforms.' },
+    { name: 'Academy', url: '/academy', accent: C.academy, desc: 'Courses and workshops.' },
+    { name: 'Ventures', url: '/ventures', accent: C.ventures, desc: 'Co-build for equity.' },
+  ];
+  return (
+    <section className="hp-s hp-alt">
+      <Container>
+        <Fade>
+          <Badge>Eight Divisions</Badge>
+          <H2 style={{ maxWidth: 560, marginBottom: 36 }}>
+            Build, run, and scale —{' '}
+            <span className="grad-text">under one roof.</span>
+          </H2>
+        </Fade>
+        <div className="g4" style={{ marginBottom: 32 }}>
+          {divs.map((d, i) => (
+            <Fade key={d.name} d={i * 0.04}>
+              <Link href={d.url} style={{ textDecoration: 'none', display: 'block', height: '100%' }}>
+                <Card accent={d.accent} style={{ height: '100%', padding: '22px 24px' }}>
+                  <div style={{ width: 32, height: 32, borderRadius: 8, background: `${d.accent}18`, border: `1px solid ${d.accent}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
+                    <span style={{ fontFamily: 'var(--font-headline)', fontSize: '0.75rem', fontWeight: 600, color: d.accent }}>{d.name[0]}</span>
+                  </div>
+                  <h3 style={{ ...cardTitle, fontSize: '0.95rem', marginBottom: 4 }}>{d.name}</h3>
+                  <p style={{ ...cardBody, fontSize: '0.82rem' }}>{d.desc}</p>
+                </Card>
+              </Link>
+            </Fade>
+          ))}
+        </div>
+      </Container>
+    </section>
+  );
+}
 
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(4, 1fr)',
-              gap: 20,
-            }}
-            className="grid-cols-1 md:!grid-cols-2 lg:!grid-cols-4"
-          >
-            {divisionList.map((div, i) => (
-              <div key={div.slug} style={{ gridColumn: i === 0 ? 'span 2' : undefined }}>
-                <ScrollReveal delay={i * 0.07}>
-                  <MagneticCard>
-                    <Link href={div.url} style={{ display: 'block', textDecoration: 'none', height: '100%' }}>
-                      <article
-                        className="card"
-                        style={{
-                          padding: i === 0 ? '40px 36px' : '28px 24px',
-                          height: '100%',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          position: 'relative',
-                          overflow: 'hidden',
-                        }}
-                      >
-                        {/* Accent top strip */}
-                        <div style={{
-                          position: 'absolute', top: 0, left: 0, right: 0, height: 2,
-                          background: div.accent,
-                        }} />
-
-                        {/* Corner glow */}
-                        <div aria-hidden="true" style={{
-                          position: 'absolute', top: '-30%', right: '-10%',
-                          width: 180, height: 180, borderRadius: '50%',
-                          background: `radial-gradient(circle, ${div.accent}22 0%, transparent 70%)`,
-                          pointerEvents: 'none',
-                        }} />
-
-                        {/* Division logo mark */}
-                        <div style={{ marginBottom: 20 }}>
-                          <DivisionLogoMark
-                            modifier={div.modifier}
-                            accent={div.accent}
-                            size={i === 0 ? 64 : 52}
-                          />
-                        </div>
-
-                        {/* Division name */}
-                        <div style={{
-                          fontFamily: 'var(--font-mono)',
-                          fontSize: '0.66rem', fontWeight: 500,
-                          color: div.accent,
-                          textTransform: 'uppercase', letterSpacing: '0.12em',
-                          marginBottom: 8,
-                        }}>
-                          {div.name}
-                        </div>
-
-                        {/* Subtitle */}
-                        <h3 style={{
-                          fontFamily: 'var(--font-headline)',
-                          fontSize: i === 0 ? '1.3rem' : '1.05rem',
-                          fontWeight: 600, letterSpacing: '-0.01em',
-                          color: 'var(--text-primary)', lineHeight: 1.25,
-                          marginBottom: 10,
-                        }}>
-                          {div.subtitle}
-                        </h3>
-
-                        {/* One-liner */}
-                        <p style={{
-                          fontFamily: 'var(--font-body)',
-                          fontSize: '0.84rem', lineHeight: 1.65,
-                          color: 'var(--text-secondary)',
-                          margin: '0 0 20px',
-                          flex: 1,
-                        }}>
-                          {DIVISION_COPY[div.slug]}
-                        </p>
-
-                        {/* Explore link */}
-                        <div style={{
-                          display: 'flex', alignItems: 'center', gap: 6,
-                          fontFamily: 'var(--font-headline)',
-                          fontSize: '0.82rem', fontWeight: 600,
-                          color: div.accent, marginTop: 'auto',
-                        }}>
-                          Explore {div.name.replace('SocioFi ', '')}
-                          <ArrowRight size={14} aria-hidden="true" />
-                        </div>
-                      </article>
-                    </Link>
-                  </MagneticCard>
-                </ScrollReveal>
+function Trust() {
+  const items = [
+    'You own 100% of everything we build.',
+    'No jargon — updates written for humans.',
+    'Fixed pricing. No surprises.',
+    'Honest about what AI can\'t do.',
+    'Same team builds and maintains.',
+    '3 platforms, 45+ agents in production.',
+  ];
+  return (
+    <section className="hp-s-sm" style={{ background: 'var(--bg)' }}>
+      <Container>
+        <Fade>
+          <Badge>Why Us</Badge>
+          <div className="g3">
+            {items.map((t, i) => (
+              <div key={i} style={{ padding: '20px 24px', background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14 }}>
+                <p style={{ ...cardBody, color: 'var(--text-primary)', fontWeight: 500, fontSize: '0.9rem' }}>{t}</p>
               </div>
             ))}
           </div>
-        </Container>
-      </section>
+        </Fade>
+      </Container>
+    </section>
+  );
+}
 
-      {/* ═══════════════════════════════════════════════════════════════════
-          AAAS — THE SHIFT
-      ═══════════════════════════════════════════════════════════════════ */}
-      <section style={{ paddingBlock: 'var(--space-section)', background: 'var(--bg)' }}>
-        <Container>
-          <ScrollReveal>
-            <SectionHeader
-              label="The Shift"
-              title={<>Software is becoming AaaS.<br /><span className="gradient-text">Are you ready?</span></>}
-              subtitle="SaaS gave businesses software to use. AaaS gives businesses agents that work. The shift is happening now — and it changes everything about how companies operate."
-              centered
-              className="mb-16"
-            />
-          </ScrollReveal>
-
-          {/* SaaS vs AaaS comparison */}
-          <ScrollReveal>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr auto 1fr',
-              gap: 0,
-              maxWidth: 860,
-              marginInline: 'auto',
-              marginBottom: 64,
-              background: 'var(--bg-card)',
-              border: '1px solid var(--border)',
-              borderRadius: 'var(--radius-lg)',
-              overflow: 'hidden',
-            }}
-            className="aaas-compare-grid"
-            >
-              {/* SaaS column */}
-              <div style={{ padding: '32px 28px' }}>
-                <div style={{
-                  fontFamily: 'var(--font-mono)', fontSize: '0.66rem', fontWeight: 500,
-                  color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.12em',
-                  marginBottom: 16,
-                }}>
-                  SaaS Era
-                </div>
-                {[
-                  'Software you log into',
-                  'You do the work, software stores it',
-                  'Notifications you have to act on',
-                  'Dashboards you have to read',
-                  'Automations you have to trigger',
-                  'Updates you have to apply',
-                ].map((item) => (
-                  <div key={item} style={{
-                    display: 'flex', alignItems: 'flex-start', gap: 10,
-                    padding: '10px 0',
-                    borderBottom: '1px solid var(--border)',
-                    fontFamily: 'var(--font-body)', fontSize: '0.88rem',
-                    color: 'var(--text-muted)', lineHeight: 1.5,
-                  }}>
-                    <span style={{ color: 'var(--text-muted)', marginTop: 2, flexShrink: 0 }}>—</span>
-                    {item}
-                  </div>
-                ))}
-              </div>
-
-              {/* Divider */}
-              <div style={{
-                width: 1,
-                background: 'linear-gradient(180deg, transparent 0%, var(--border-hover) 20%, var(--teal) 50%, var(--border-hover) 80%, transparent 100%)',
-                position: 'relative',
-              }}>
-                <div style={{
-                  position: 'absolute', top: '50%', left: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  width: 32, height: 32, borderRadius: '50%',
-                  background: 'var(--bg-card)',
-                  border: '1px solid var(--teal)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontFamily: 'var(--font-mono)', fontSize: '0.6rem',
-                  color: 'var(--teal)', fontWeight: 600,
-                  zIndex: 1,
-                }}>
-                  vs
-                </div>
-              </div>
-
-              {/* AaaS column */}
-              <div style={{ padding: '32px 28px' }}>
-                <div style={{
-                  fontFamily: 'var(--font-mono)', fontSize: '0.66rem', fontWeight: 500,
-                  color: 'var(--teal-light)', textTransform: 'uppercase', letterSpacing: '0.12em',
-                  marginBottom: 16,
-                }}>
-                  AaaS Era
-                </div>
-                {[
-                  'Agent systems that act for you',
-                  'Agents do the work, humans review',
-                  'Agents take action on triggers automatically',
-                  'Agents generate insights and act on them',
-                  'Agents that execute workflows end-to-end',
-                  'Agents that self-update and self-correct',
-                ].map((item) => (
-                  <div key={item} style={{
-                    display: 'flex', alignItems: 'flex-start', gap: 10,
-                    padding: '10px 0',
-                    borderBottom: '1px solid var(--border)',
-                    fontFamily: 'var(--font-body)', fontSize: '0.88rem',
-                    color: 'var(--text-primary)', lineHeight: 1.5,
-                  }}>
-                    <span style={{ color: 'var(--teal)', marginTop: 2, flexShrink: 0 }}>›</span>
-                    {item}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </ScrollReveal>
-
-          {/* 3 proof cards */}
-          <StaggerChildren className="grid grid-cols-1 md:grid-cols-3 gap-6">
+function CTA() {
+  return (
+    <section className="hp-s" style={{ background: 'var(--bg)', position: 'relative', overflow: 'hidden' }}>
+      <div aria-hidden="true" style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 80% 60% at 50% 50%, color-mix(in srgb, var(--navy) 12%, transparent), transparent)', pointerEvents: 'none' }} />
+      <Container narrow style={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
+        <Fade>
+          <H2 style={{ marginBottom: 16, fontSize: 'clamp(2rem, 3.5vw, 2.8rem)' }}>
+            Let&apos;s talk about{' '}
+            <span className="grad-text">what you&apos;re building.</span>
+          </H2>
+          <P style={{ maxWidth: 440, marginInline: 'auto', marginBottom: 32 }}>
+            30-minute call. Honest assessment. No pitch deck, no pressure.
+          </P>
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 16 }}>
+            <Button href="/contact" variant="primary" size="lg">Book a Free Call</Button>
+            <Button href="/contact#form" variant="ghost" size="lg">Send a Message</Button>
+          </div>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: 32 }}>
+            We respond within 4 hours. Confidential.
+          </p>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
             {[
-              {
-                label: 'FabricxAI',
-                accent: '#E8916F',
-                agentCount: 22,
-                stat: '22 agents',
-                title: 'Workflow automation, end-to-end',
-                desc: 'FabricxAI runs 22 coordinated agents that ingest, classify, route, process, and report — without a human in the loop for routine work.',
-              },
-              {
-                label: 'NEXARA',
-                accent: '#7B6FE8',
-                agentCount: 13,
-                stat: '13 agents',
-                title: 'Conversational intelligence layer',
-                desc: 'NEXARA deploys 13 specialized agents handling intent classification, context retrieval, response generation, escalation, and follow-up.',
-              },
-              {
-                label: 'Dev Pipeline',
-                accent: '#72C4B2',
-                agentCount: 10,
-                stat: '10 agents',
-                title: 'Our own build system, agentified',
-                desc: 'The pipeline we use to build client software runs 10 agents: spec parsing, code generation, review, testing, security scan, and deploy.',
-              },
-            ].map((card) => (
-              <StaggerItem key={card.label}>
-                <article className="card" style={{
-                  padding: '28px 24px', height: '100%',
-                  display: 'flex', flexDirection: 'column',
-                  position: 'relative', overflow: 'hidden',
-                }}>
-                  <div style={{
-                    position: 'absolute', top: 0, left: 0, right: 0, height: 2,
-                    background: card.accent,
-                  }} />
-                  <div style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    marginBottom: 16,
-                  }}>
-                    <div style={{
-                      fontFamily: 'var(--font-mono)', fontSize: '0.66rem', fontWeight: 500,
-                      color: card.accent, textTransform: 'uppercase', letterSpacing: '0.12em',
-                    }}>
-                      {card.label}
-                    </div>
-                    <div style={{
-                      fontFamily: 'var(--font-display)', fontSize: '1.4rem', fontWeight: 800,
-                      color: card.accent, letterSpacing: '-0.02em',
-                    }}>
-                      {card.stat}
-                    </div>
-                  </div>
-                  <h3 style={{
-                    fontFamily: 'var(--font-headline)', fontSize: '1rem', fontWeight: 600,
-                    color: 'var(--text-primary)', lineHeight: 1.3, marginBottom: 10,
-                  }}>
-                    {card.title}
-                  </h3>
-                  <p style={{
-                    fontFamily: 'var(--font-body)', fontSize: '0.84rem', lineHeight: 1.65,
-                    color: 'var(--text-secondary)', flex: 1,
-                  }}>
-                    {card.desc}
-                  </p>
-                </article>
-              </StaggerItem>
-            ))}
-          </StaggerChildren>
+              { l: 'Build software', u: '/studio/start-project', c: C.studio },
+              { l: 'Deploy agents', u: '/agents', c: C.agents },
+              { l: 'Get maintenance', u: '/services/get-protected', c: C.services },
+              { l: 'Host with us', u: '/cloud/get-hosted', c: C.cloud },
+            ].map(r => <Link key={r.l} href={r.u} className="pill" style={{ borderColor: r.c + '40', color: r.c }}>{r.l}</Link>)}
+          </div>
+        </Fade>
+      </Container>
+    </section>
+  );
+}
 
-          <ScrollReveal>
-            <div style={{ textAlign: 'center', marginTop: 48 }}>
-              <Button href="/aaas" variant="ghost" size="md">
-                Learn about AaaS
-                <ArrowRight size={16} aria-hidden="true" />
-              </Button>
-            </div>
-          </ScrollReveal>
-        </Container>
-      </section>
+/* ─── Export ───────────────────────────────────────────────────────────── */
 
-      {/* ═══════════════════════════════════════════════════════════════════
-          SOCIAL PROOF
-      ═══════════════════════════════════════════════════════════════════ */}
-      <section style={{ paddingBlock: 'var(--space-section)', background: 'var(--bg-2)' }}>
-        <Container>
-          <ScrollReveal>
-            <SectionHeader
-              label="Trusted by builders"
-              title="What our customers say"
-              centered
-              className="mb-12"
-            />
-          </ScrollReveal>
-
-          <StaggerChildren className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-            {TESTIMONIALS.map((t, i) => (
-              <StaggerItem key={i}>
-                <TestimonialCard
-                  quote={t.quote}
-                  author={t.author}
-                  role={t.role}
-                  company={t.company}
-                />
-              </StaggerItem>
-            ))}
-          </StaggerChildren>
-
-          <ScrollReveal>
-            <LogoMarquee />
-          </ScrollReveal>
-        </Container>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════════════════
-          LATEST FROM SOCIOFI TECHNOLOGY
-      ═══════════════════════════════════════════════════════════════════ */}
-      <section style={{ paddingBlock: 'var(--space-section)', background: 'var(--bg)' }}>
-        <Container>
-          <ScrollReveal>
-            <SectionHeader
-              label="Latest"
-              title="From SocioFi Technology"
-              centered
-              className="mb-12"
-            />
-          </ScrollReveal>
-
-          <StaggerChildren className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {LATEST.map((item, i) => (
-              <StaggerItem key={i}>
-                <Link href={item.href} style={{ display: 'block', textDecoration: 'none', height: '100%' }}>
-                  <article
-                    className="card"
-                    style={{ padding: 28, height: '100%', display: 'flex', flexDirection: 'column' }}
-                  >
-                    <div style={{
-                      fontFamily: 'var(--font-mono)',
-                      fontSize: '0.66rem', fontWeight: 500,
-                      color: item.accent, textTransform: 'uppercase', letterSpacing: '0.1em',
-                      marginBottom: 12,
-                    }}>
-                      {item.type}
-                    </div>
-                    <h3 style={{
-                      fontFamily: 'var(--font-headline)',
-                      fontSize: '1rem', fontWeight: 600, letterSpacing: '-0.01em',
-                      lineHeight: 1.35, color: 'var(--text-primary)',
-                      marginBottom: 10, flex: 1,
-                    }}>
-                      {item.title}
-                    </h3>
-                    <p style={{
-                      fontFamily: 'var(--font-body)',
-                      fontSize: '0.84rem', lineHeight: 1.65,
-                      color: 'var(--text-secondary)',
-                      margin: '0 0 20px',
-                    }}>
-                      {item.excerpt}
-                    </p>
-                    <div style={{
-                      display: 'flex', alignItems: 'center', gap: 6,
-                      fontFamily: 'var(--font-headline)',
-                      fontSize: '0.8rem', fontWeight: 600,
-                      color: item.accent, marginTop: 'auto',
-                    }}>
-                      {item.cta}
-                      <ArrowRight size={13} aria-hidden="true" />
-                    </div>
-                  </article>
-                </Link>
-              </StaggerItem>
-            ))}
-          </StaggerChildren>
-        </Container>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════════════════
-          CTA
-      ═══════════════════════════════════════════════════════════════════ */}
-      <CTASection
-        title="Ready to Build Something Intelligent?"
-        subtitle="Book a free 30-minute call. Tell us what you need. We'll point you to the right division."
-        primaryCTA={{ label: 'Book Your Free Call', href: '/contact' }}
-        ghostCTA={{ label: 'Explore Divisions', href: '#divisions' }}
-        note="No obligation. Response within 24 hours."
-      />
+export default function HomePageClient() {
+  return (
+    <>
+      <style>{STYLES}</style>
+      <Hero />
+      <Problem />
+      <Solution />
+      <Process />
+      <WhatWeBuild />
+      <Numbers />
+      <Products />
+      <Divisions />
+      <Trust />
+      <CTA />
     </>
   );
 }

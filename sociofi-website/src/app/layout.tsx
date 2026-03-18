@@ -1,22 +1,22 @@
 import type { Metadata } from 'next';
-import { Syne, Outfit, Fira_Code } from 'next/font/google';
+import { Plus_Jakarta_Sans, Inter, Fira_Code } from 'next/font/google';
 import { ThemeProvider } from 'next-themes';
 import { OrganizationJsonLd, WebsiteJsonLd } from '@/components/shared/JsonLd';
 import '../styles/globals.css';
 import '../styles/animations.css';
 import '../styles/responsive.css';
 
-const syne = Syne({
+const plusJakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800'],
-  variable: '--font-syne',
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-jakarta',
   display: 'swap',
 });
 
-const outfit = Outfit({
+const inter = Inter({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
-  variable: '--font-outfit',
+  weight: ['400', '500', '600'],
+  variable: '--font-inter',
   display: 'swap',
 });
 
@@ -61,7 +61,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${syne.variable} ${outfit.variable} ${firaCode.variable}`}>
+      <body className={`${plusJakarta.variable} ${inter.variable} ${firaCode.variable}`}>
         <OrganizationJsonLd />
         <WebsiteJsonLd />
         <ThemeProvider
