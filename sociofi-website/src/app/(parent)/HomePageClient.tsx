@@ -105,13 +105,17 @@ function P({ children, style }: { children: React.ReactNode; style?: React.CSSPr
   return <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.95rem', lineHeight: 1.75, color: 'var(--text-secondary)', ...style }}>{children}</p>;
 }
 
-function Card({ children, accent, featured, style }: { children: React.ReactNode; accent?: string; featured?: boolean; style?: React.CSSProperties }) {
+function Card({ children, accent, featured, style, topAccent }: { children: React.ReactNode; accent?: string; featured?: boolean; style?: React.CSSProperties; topAccent?: string }) {
   const [h, setH] = useState(false);
   const a = accent ?? C.studio;
+  const bc = h ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.06)';
   return (
     <div onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)} style={{
       background: featured ? `radial-gradient(ellipse at top left, color-mix(in srgb, ${a} 8%, var(--bg-card)), var(--bg-card) 60%)` : 'var(--bg-card)',
-      border: `1px solid ${h ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.06)'}`,
+      borderTop: topAccent ? `2px solid ${topAccent}` : `1px solid ${bc}`,
+      borderRight: `1px solid ${bc}`,
+      borderBottom: `1px solid ${bc}`,
+      borderLeft: `1px solid ${bc}`,
       borderRadius: 18, padding: '28px 32px', position: 'relative', overflow: 'hidden',
       transition: 'border-color 0.25s, box-shadow 0.25s, transform 0.25s',
       transform: h ? 'translateY(-2px)' : 'none',
@@ -128,7 +132,10 @@ function Glass({ children, accent, style }: { children: React.ReactNode; accent?
   return (
     <div style={{
       background: `radial-gradient(ellipse at top left, color-mix(in srgb, ${a} 6%, var(--bg-card)), var(--bg-card) 70%)`,
-      border: '1px solid rgba(255,255,255,0.07)', borderLeft: `2px solid ${a}60`,
+      borderTop: '1px solid rgba(255,255,255,0.07)',
+      borderRight: '1px solid rgba(255,255,255,0.07)',
+      borderBottom: '1px solid rgba(255,255,255,0.07)',
+      borderLeft: `2px solid ${a}60`,
       borderRadius: 14, padding: '28px 32px', ...style,
     }}>
       {children}
@@ -249,7 +256,7 @@ function Solution() {
         </Fade>
         <div className="g2" style={{ marginBottom: 32 }}>
           <Fade>
-            <Card accent={C.studio} style={{ borderTop: `2px solid ${C.studio}` }}>
+            <Card accent={C.studio} topAccent={C.studio}>
               <div style={{ ...monoTag, color: C.studio, marginBottom: 16 }}>What AI handles</div>
               {['Initial codebase in hours', 'Tests, docs, and boilerplate', 'Repetitive development tasks', 'Powering deployed AI agents'].map(t => (
                 <div key={t} style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
@@ -260,7 +267,7 @@ function Solution() {
             </Card>
           </Fade>
           <Fade d={0.1}>
-            <Card accent={C.navy} style={{ borderTop: `2px solid var(--teal-light)` }}>
+            <Card accent={C.navy} topAccent="var(--teal-light)">
               <div style={{ ...monoTag, color: 'var(--teal-light)', marginBottom: 16 }}>What our engineers handle</div>
               {['Architecture that scales', 'Code review before anything ships', 'Deployment, databases, security', 'Debugging and ongoing maintenance'].map(t => (
                 <div key={t} style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
