@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Plus_Jakarta_Sans, Inter, Fira_Code, Manrope, DM_Sans, JetBrains_Mono } from 'next/font/google';
+import { Plus_Jakarta_Sans, Inter, Fira_Code, Manrope, DM_Sans, JetBrains_Mono, Syne, Outfit, Space_Grotesk } from 'next/font/google';
 import { ThemeProvider } from 'next-themes';
 import { OrganizationJsonLd, WebsiteJsonLd } from '@/components/shared/JsonLd';
 import '../styles/globals.css';
@@ -48,6 +48,27 @@ const jetbrainsMono = JetBrains_Mono({
   display: 'swap',
 });
 
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-display',
+  display: 'swap',
+});
+
+const syne = Syne({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-syne',
+  display: 'swap',
+});
+
+const outfit = Outfit({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600'],
+  variable: '--font-outfit',
+  display: 'swap',
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL('https://sociofi.tech'),
   title: {
@@ -82,7 +103,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${plusJakarta.variable} ${inter.variable} ${firaCode.variable} ${manrope.variable} ${dmSans.variable} ${jetbrainsMono.variable}`}>
+      <body className={`${plusJakarta.variable} ${inter.variable} ${firaCode.variable} ${manrope.variable} ${dmSans.variable} ${jetbrainsMono.variable} ${syne.variable} ${outfit.variable} ${spaceGrotesk.variable}`}>
         <OrganizationJsonLd />
         <WebsiteJsonLd />
         <ThemeProvider

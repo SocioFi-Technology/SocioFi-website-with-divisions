@@ -326,7 +326,7 @@ export default function Logo({
         <span style={{ display: 'flex', flexDirection: 'column', gap: 1, lineHeight: 1 }}>
           <Link href="/" style={{ textDecoration: 'none' }} aria-label="SocioFi Technology — Home">
             <span style={{
-              fontFamily: 'var(--font-display, Syne, sans-serif)',
+              fontFamily: 'var(--font-syne, "Syne"), sans-serif',
               fontWeight: 800,
               fontSize: dims.wordmark,
               color: 'var(--text-primary)',
@@ -339,7 +339,7 @@ export default function Logo({
           </Link>
           <Link href={href} style={{ textDecoration: 'none' }} aria-label={config.name}>
             <span style={{
-              fontFamily: 'var(--font-display, Syne, sans-serif)',
+              fontFamily: 'var(--font-syne, "Syne"), sans-serif',
               fontWeight: 800,
               fontSize: dims.sub,
               color: accent,
@@ -367,7 +367,7 @@ export default function Logo({
     >
       <span
         style={{
-          fontFamily: 'var(--font-display, Syne, sans-serif)',
+          fontFamily: 'var(--font-syne, "Syne"), sans-serif',
           fontWeight: 800,
           fontSize: dims.wordmark,
           color: 'var(--text-primary)',
@@ -380,7 +380,7 @@ export default function Logo({
       {divisionLabel && (
         <span
           style={{
-            fontFamily: 'var(--font-display, Syne, sans-serif)',
+            fontFamily: 'var(--font-syne, "Syne"), sans-serif',
             fontWeight: 800,
             fontSize: dims.sub,
             color: accent,
