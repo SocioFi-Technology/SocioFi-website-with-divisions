@@ -227,6 +227,68 @@ const STYLES = `
   @media (prefers-reduced-motion: reduce) {
     .hp-wm, .hp-wm-drift { animation: none !important; }
   }
+
+  /* ── Section colored orbs ── */
+  @keyframes hp-orb-da {
+    0%,100%{transform:translate(0,0);}
+    25%{transform:translate(45px,-35px);}
+    50%{transform:translate(-25px,-55px);}
+    75%{transform:translate(-45px,25px);}
+  }
+  @keyframes hp-orb-db {
+    0%,100%{transform:translate(0,0);}
+    33%{transform:translate(-55px,45px);}
+    66%{transform:translate(40px,60px);}
+  }
+  @keyframes hp-orb-dc {
+    0%,100%{transform:translate(0,0);}
+    40%{transform:translate(30px,-40px);}
+    80%{transform:translate(-20px,28px);}
+  }
+  .hp-orb-da { animation: hp-orb-da 32s ease-in-out infinite; }
+  .hp-orb-db { animation: hp-orb-db 40s ease-in-out infinite; }
+  .hp-orb-dc { animation: hp-orb-dc 26s ease-in-out infinite; }
+
+  /* ── Running gradient strip ── */
+  @keyframes hp-rg { 0%{background-position:0% 50%;} 100%{background-position:200% 50%;} }
+  .hp-rg { animation: hp-rg 8s linear infinite; opacity:0.55; }
+  .hp-rg-slow { animation: hp-rg 14s linear infinite; opacity:0.45; }
+
+  /* ── Diagonal sweep beam ── */
+  @keyframes hp-beam {
+    0%  { transform:translateX(-110%) skewX(-18deg); opacity:0; }
+    6%  { opacity:1; }
+    94% { opacity:1; }
+    100%{ transform:translateX(220%) skewX(-18deg); opacity:0; }
+  }
+  .hp-beam-a { animation: hp-beam 16s linear infinite; }
+  .hp-beam-b { animation: hp-beam 22s linear infinite 8s; }
+
+  /* ── Hero aurora ── */
+  @keyframes hp-aurora-a {
+    0%,100%{transform:translate(0,0) scale(1);}
+    33%{transform:translate(65px,-45px) scale(1.12);}
+    66%{transform:translate(-45px,55px) scale(0.91);}
+  }
+  @keyframes hp-aurora-b {
+    0%,100%{transform:translate(0,0) scale(1);}
+    33%{transform:translate(-75px,55px) scale(1.09);}
+    66%{transform:translate(55px,-40px) scale(0.94);}
+  }
+  @keyframes hp-aurora-c {
+    0%,100%{transform:translate(0,0) scale(1);}
+    50%{transform:translate(35px,65px) scale(1.07);}
+  }
+  .hp-aurora-a { animation: hp-aurora-a 22s ease-in-out infinite; }
+  .hp-aurora-b { animation: hp-aurora-b 28s ease-in-out infinite 4s; }
+  .hp-aurora-c { animation: hp-aurora-c 18s ease-in-out infinite 8s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hp-orb-da,.hp-orb-db,.hp-orb-dc { animation: none !important; }
+    .hp-rg,.hp-rg-slow { animation: none !important; opacity:0.25 !important; }
+    .hp-beam-a,.hp-beam-b { display:none !important; }
+    .hp-aurora-a,.hp-aurora-b,.hp-aurora-c { animation: none !important; }
+  }
 `;
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -626,6 +688,59 @@ function GeometricBg({ variant, accent = 'var(--teal-light)' }: { variant: GeoVa
   return null;
 }
 
+/* ── Section Orbs — colored floating blobs per section ── */
+function SectionOrbs({ c1, c2, c3, op1 = 0.07, op2 = 0.08, op3 = 0.04 }: {
+  c1: string; c2: string; c3?: string; op1?: number; op2?: number; op3?: number;
+}) {
+  return (
+    <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, overflow: 'hidden' }} aria-hidden="true">
+      <div className="hp-orb-da" style={{ position: 'absolute', width: 'clamp(260px,36vw,540px)', height: 'clamp(260px,36vw,540px)', borderRadius: '50%', background: `radial-gradient(circle, ${c1}, transparent 70%)`, top: '-8%', left: '-6%', filter: 'blur(90px)', opacity: op1 }} />
+      <div className="hp-orb-db" style={{ position: 'absolute', width: 'clamp(200px,28vw,420px)', height: 'clamp(200px,28vw,420px)', borderRadius: '50%', background: `radial-gradient(circle, ${c2}, transparent 70%)`, bottom: '-10%', right: '-4%', filter: 'blur(80px)', opacity: op2 }} />
+      {c3 && <div className="hp-orb-dc" style={{ position: 'absolute', width: 'clamp(120px,16vw,240px)', height: 'clamp(120px,16vw,240px)', borderRadius: '50%', background: `radial-gradient(circle, ${c3}, transparent 70%)`, top: '40%', left: '50%', filter: 'blur(60px)', opacity: op3 }} />}
+    </div>
+  );
+}
+
+/* ── Running Gradient — animated color strip at section bottom ── */
+function RunningGradient({ c1, c2, c3, slow }: { c1: string; c2: string; c3?: string; slow?: boolean }) {
+  const stops = c3 ? `${c1}, ${c2}, ${c3}, ${c1}` : `${c1}, ${c2}, ${c1}`;
+  return (
+    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, zIndex: 2, pointerEvents: 'none' }} aria-hidden="true">
+      <div
+        className={slow ? 'hp-rg-slow' : 'hp-rg'}
+        style={{ height: '100%', background: `linear-gradient(90deg, ${stops})`, backgroundSize: '200% 100%' }}
+      />
+    </div>
+  );
+}
+
+/* ── Sweep Beam — diagonal light beam sweeping across section ── */
+function SweepBeam({ c1, c2, delay = '0s' }: { c1: string; c2: string; delay?: string }) {
+  return (
+    <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, overflow: 'hidden' }} aria-hidden="true">
+      <div
+        className="hp-beam-a"
+        style={{ position: 'absolute', top: '-20%', left: '-30%', width: '30%', height: '140%', background: `linear-gradient(90deg, transparent 0%, ${c1}14 40%, ${c2}20 50%, ${c1}14 60%, transparent 100%)`, filter: 'blur(32px)', animationDelay: delay }}
+      />
+      <div
+        className="hp-beam-b"
+        style={{ position: 'absolute', top: '-20%', left: '-30%', width: '20%', height: '140%', background: `linear-gradient(90deg, transparent 0%, ${c2}10 40%, ${c1}16 50%, ${c2}10 60%, transparent 100%)`, filter: 'blur(22px)', animationDelay: delay }}
+      />
+    </div>
+  );
+}
+
+/* ── Hero Aurora — multi-color animated aurora backdrop ── */
+function HeroAurora({ rm }: { rm: boolean }) {
+  return (
+    <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, overflow: 'hidden' }} aria-hidden="true">
+      <div className={rm ? undefined : 'hp-aurora-a'} style={{ position: 'absolute', width: 'clamp(380px,52vw,760px)', height: 'clamp(380px,52vw,760px)', borderRadius: '50%', background: 'radial-gradient(circle, #3A589E 0%, #59A392 45%, transparent 70%)', top: '-25%', left: '-5%', filter: 'blur(120px)', opacity: 0.16 }} />
+      <div className={rm ? undefined : 'hp-aurora-b'} style={{ position: 'absolute', width: 'clamp(300px,42vw,620px)', height: 'clamp(300px,42vw,620px)', borderRadius: '50%', background: 'radial-gradient(circle, #72C4B2 0%, #4A6CB8 50%, transparent 70%)', bottom: '-20%', right: '-5%', filter: 'blur(100px)', opacity: 0.13 }} />
+      <div className={rm ? undefined : 'hp-aurora-c'} style={{ position: 'absolute', width: 'clamp(180px,26vw,400px)', height: 'clamp(180px,26vw,400px)', borderRadius: '50%', background: 'radial-gradient(circle, #8B5CF6 0%, #3A589E 55%, transparent 70%)', top: '30%', right: '8%', filter: 'blur(80px)', opacity: 0.08 }} />
+    </div>
+  );
+}
+
 function makeGradStyle(colors?: string): React.CSSProperties {
   return {
     background: colors ?? 'linear-gradient(135deg, var(--navy-bright) 0%, var(--teal-light) 60%, var(--teal-pale) 100%)',
@@ -924,6 +1039,7 @@ function Hero() {
       <motion.div className="hp-orb-1" aria-hidden="true" style={{ position: 'absolute', width: 900, height: 900, borderRadius: '50%', background: 'radial-gradient(circle, var(--navy), transparent 70%)', top: '-20%', left: '-15%', opacity: 'var(--glow-opacity)', filter: 'blur(100px)', y: orbY1 }} />
       <motion.div className="hp-orb-2" aria-hidden="true" style={{ position: 'absolute', width: 700, height: 700, borderRadius: '50%', background: 'radial-gradient(circle, var(--teal), transparent 70%)', bottom: '-15%', right: '-10%', opacity: 'var(--glow-opacity)', filter: 'blur(100px)', y: orbY2 }} />
       <HeroWatermark reducedMotion={reducedMotion} />
+      <HeroAurora rm={reducedMotion} />
 
       {/* ── Main content area: fills space between nav and bottom bar ── */}
       <div style={{ flex: 1, display: 'flex', alignItems: 'center', paddingTop: 80, position: 'relative', zIndex: 2 }}>
@@ -1051,8 +1167,11 @@ function Problem() {
   return (
     <section className="hp-sec hp-bg2">
       <DotsBg />
+      <SectionOrbs c1="#DC6464" c2="#E8916F" op1={0.06} op2={0.07} />
+      <SweepBeam c1="#DC6464" c2="#E8916F" />
       <GeometricBg variant="diamonds" accent="rgba(220,100,100,0.4)" />
       <SectionWatermark word="REALITY" side="right" />
+      <RunningGradient c1="#DC6464" c2="#E8916F" c3="#F0B49A" />
       <div className="hp-con hp-center">
         <Fade>
           <SLabel color="rgba(220,100,100,0.6)" center>The Reality</SLabel>
@@ -1090,8 +1209,11 @@ function Solution() {
   return (
     <section className="hp-sec hp-bg1">
       <ConstellationBg />
+      <SectionOrbs c1="#59A392" c2="#4A6CB8" c3="#72C4B2" op1={0.07} op2={0.06} op3={0.04} />
+      <SweepBeam c1="#59A392" c2="#72C4B2" delay="4s" />
       <GeometricBg variant="hexagons" accent="var(--teal-light)" />
       <SectionWatermark word="BUILD" side="left" />
+      <RunningGradient c1="#59A392" c2="#72C4B2" c3="#4A6CB8" slow />
       <div className="hp-con hp-center">
         <Fade>
           <SLabel center>A Different Approach</SLabel>
@@ -1145,8 +1267,11 @@ function HowItWorks() {
 
   return (
     <section className="hp-sec hp-bg2">
+      <SectionOrbs c1="#3A589E" c2="#4A6CB8" c3="#5BB5E0" op1={0.07} op2={0.06} op3={0.04} />
+      <SweepBeam c1="#3A589E" c2="#5BB5E0" />
       <GeometricBg variant="brackets" accent="var(--navy-bright)" />
       <SectionWatermark word="PROCESS" side="right" />
+      <RunningGradient c1="#3A589E" c2="#5BB5E0" c3="#4A6CB8" />
       <div className="hp-con hp-center">
         <Fade>
           <SLabel center>How It Works</SLabel>
@@ -1201,8 +1326,11 @@ function WhatWeBuild() {
   return (
     <section className="hp-sec hp-bg1">
       <DotsBg />
+      <SectionOrbs c1="#72C4B2" c2="#8B5CF6" op1={0.07} op2={0.06} />
+      <SweepBeam c1="#72C4B2" c2="#8B5CF6" delay="6s" />
       <GeometricBg variant="triangles" accent="var(--teal-light)" />
       <SectionWatermark word="SYSTEMS" side="left" />
+      <RunningGradient c1="#72C4B2" c2="#8B5CF6" slow />
       <div className="hp-con hp-center">
         <Fade>
           <SLabel center>What We Build</SLabel>
@@ -1247,9 +1375,11 @@ function AgentsSection() {
 
   return (
     <section className="hp-sec hp-bg2" style={{ position: 'relative' }}>
-      <div aria-hidden="true" style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 800, height: 600, borderRadius: '50%', background: 'radial-gradient(circle, rgba(139,92,246,0.04), transparent 70%)', pointerEvents: 'none' }} />
+      <SectionOrbs c1="#8B5CF6" c2="#7C3AED" c3="#6BA3E8" op1={0.09} op2={0.08} op3={0.04} />
+      <SweepBeam c1="#8B5CF6" c2="#6BA3E8" />
       <GeometricBg variant="nodes" accent="#8B5CF6" />
       <SectionWatermark word="AGENTS" side="right" />
+      <RunningGradient c1="#8B5CF6" c2="#7C3AED" c3="#6BA3E8" />
       <div className="hp-con hp-center">
         <Fade><SLabel color={C.agents} center>Agent-as-a-Service</SLabel></Fade>
         <Fade d={0.08}>
@@ -1309,8 +1439,11 @@ function Numbers() {
   return (
     <section className="hp-sec hp-bg1">
       <ConstellationBg />
+      <SectionOrbs c1="#3A589E" c2="#59A392" op1={0.06} op2={0.07} />
+      <SweepBeam c1="#3A589E" c2="#59A392" delay="3s" />
       <GeometricBg variant="rings" accent="var(--navy-bright)" />
       <SectionWatermark word="COMPARE" side="left" />
+      <RunningGradient c1="#3A589E" c2="#59A392" slow />
       <div className="hp-con hp-center">
         <Fade>
           <SLabel center>The Math</SLabel>
@@ -1349,8 +1482,11 @@ function ProductsSection() {
   return (
     <section className="hp-sec hp-bg2">
       <DotsBg />
+      <SectionOrbs c1="#E8916F" c2="#3A589E" c3="#E8B84D" op1={0.08} op2={0.06} op3={0.03} />
+      <SweepBeam c1="#E8916F" c2="#3A589E" delay="8s" />
       <GeometricBg variant="diamonds" accent="#E8916F" />
       <SectionWatermark word="PROOF" side="right" />
+      <RunningGradient c1="#E8916F" c2="#E8B84D" c3="#3A589E" />
       <div className="hp-con hp-center">
         <Fade><SLabel color={C.products} center>Built by SocioFi</SLabel></Fade>
         <Fade d={0.08}><H2 style={{ maxWidth: 520, marginInline: 'auto', marginBottom: 36 }}>Our Platforms. Running in Production.</H2></Fade>
@@ -1389,8 +1525,11 @@ function BiggerPicture() {
   return (
     <section className="hp-sec hp-bg1">
       <ConstellationBg />
+      <SectionOrbs c1="#3A589E" c2="#72C4B2" c3="#8B5CF6" op1={0.06} op2={0.07} op3={0.03} />
+      <SweepBeam c1="#3A589E" c2="#72C4B2" />
       <GeometricBg variant="triangles" accent="var(--navy-bright)" />
       <SectionWatermark word="FUTURE" side="left" />
+      <RunningGradient c1="#3A589E" c2="#72C4B2" c3="#8B5CF6" slow />
       <div className="hp-con hp-center">
         <Fade><SLabel center>Where This Is Heading</SLabel></Fade>
         <Fade d={0.08}>
@@ -1428,8 +1567,11 @@ function DivisionsSection() {
 
   return (
     <section className="hp-sec hp-bg2">
+      <SectionOrbs c1="#72C4B2" c2="#8B5CF6" c3="#E8B84D" op1={0.07} op2={0.06} op3={0.03} />
+      <SweepBeam c1="#72C4B2" c2="#8B5CF6" delay="5s" />
       <GeometricBg variant="hexagons" accent="var(--teal-light)" />
       <SectionWatermark word="TOGETHER" side="right" />
+      <RunningGradient c1="#72C4B2" c2="#8B5CF6" c3="#E8B84D" />
       <div className="hp-con hp-center">
         <Fade>
           <SLabel center>One Company. Eight Divisions.</SLabel>
@@ -1484,8 +1626,11 @@ function TrustSignals() {
   return (
     <section className="hp-sec hp-bg1">
       <DotsBg />
+      <SectionOrbs c1="#72C4B2" c2="#4A6CB8" op1={0.07} op2={0.06} />
+      <SweepBeam c1="#72C4B2" c2="#4A6CB8" delay="2s" />
       <GeometricBg variant="brackets" accent="var(--teal-light)" />
       <SectionWatermark word="TRUST" side="left" />
+      <RunningGradient c1="#72C4B2" c2="#4A6CB8" slow />
       <div className="hp-con hp-center">
         <Fade><SLabel center>Why People Work With Us</SLabel></Fade>
         <div className="hp-g3" style={{ marginBottom: 32, textAlign: 'left' }}>
@@ -1514,8 +1659,11 @@ function CTASection() {
   return (
     <section className="hp-sec hp-bg2" style={{ position: 'relative', overflow: 'hidden' }}>
       <div aria-hidden="true" style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '120%', height: '60%', background: 'radial-gradient(ellipse at 50% 100%, color-mix(in srgb, var(--teal) 6%, transparent), transparent 60%)', pointerEvents: 'none' }} />
+      <SectionOrbs c1="#3A589E" c2="#72C4B2" op1={0.10} op2={0.11} />
+      <SweepBeam c1="#3A589E" c2="#72C4B2" />
       <GeometricBg variant="rings" accent="var(--teal-light)" />
       <SectionWatermark word="START" side="right" />
+      <RunningGradient c1="#3A589E" c2="#72C4B2" c3="#59A392" />
       <div className="hp-con hp-center" style={{ position: 'relative', zIndex: 1 }}>
         <Fade>
           <SLabel center>Ready?</SLabel>
