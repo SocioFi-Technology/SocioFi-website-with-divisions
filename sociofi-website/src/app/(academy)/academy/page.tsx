@@ -1,4 +1,5 @@
 import DivisionOverview, { type DivisionOverviewContent } from '@/templates/DivisionOverview';
+import AcademyHeroVisual from '@/components/visual/AcademyHeroVisual';
 import type { Metadata } from 'next';
 import { Play, Calendar, Building, Star, Rocket, Brain, Users } from '@/lib/icons';
 
@@ -24,6 +25,7 @@ const content: DivisionOverviewContent = {
       { label: 'Browse courses', href: '/academy/courses', variant: 'primary' },
       { label: 'Free resources', href: '/academy/free', variant: 'ghost' },
     ],
+    rightContent: <AcademyHeroVisual />,
   },
   metrics: [
     { numeric: 12, label: 'Courses available' },
@@ -119,6 +121,7 @@ const content: DivisionOverviewContent = {
     primaryCTA: { label: 'Browse all courses', href: '/academy/courses' },
     ghostCTA: { label: 'Free resources', href: '/academy/free' },
   },
+  divisionVariant: 'academy',
 };
 
 export default function AcademyPage() {

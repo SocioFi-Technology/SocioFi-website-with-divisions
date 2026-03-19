@@ -41,9 +41,6 @@ export default function ConversionForm({ content }: { content: ConversionFormCon
 
   return (
     <>
-      {/* TrustBar above fold */}
-      {trustItems && trustItems.length > 0 && <TrustBar items={trustItems} />}
-
       <section style={{
         position: 'relative',
         paddingBlock: 'var(--space-section)',
@@ -195,6 +192,11 @@ export default function ConversionForm({ content }: { content: ConversionFormCon
           </div>
         </Container>
       </section>
+
+      {/* TrustBar — before footer */}
+      {trustItems && trustItems.length > 0 && (
+        <TrustBar items={trustItems} />
+      )}
     </>
   );
 }

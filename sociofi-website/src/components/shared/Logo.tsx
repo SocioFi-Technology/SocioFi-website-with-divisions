@@ -5,14 +5,15 @@ import { getDivision, type DivisionSlug, type LogoModifier } from '@/lib/divisio
 
 interface LogoProps {
   division?: DivisionSlug | string;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'xs' | 'sm' | 'md' | 'lg';
   showWordmark?: boolean;
   href?: string;
   className?: string;
 }
 
 const sizeMap = {
-  sm: { mark: 28, wordmark: 14, sub: 10, gap: 8 },
+  xs: { mark: 18, wordmark: 12, sub: 9,  gap: 6  },
+  sm: { mark: 28, wordmark: 14, sub: 10, gap: 8  },
   md: { mark: 40, wordmark: 18, sub: 11, gap: 10 },
   lg: { mark: 56, wordmark: 24, sub: 13, gap: 12 },
 };
@@ -223,6 +224,40 @@ function modifierElements(modifier: LogoModifier, accent: string) {
   }
 }
 
+// ── LogoMark — SVG only, no Link wrapper ─────────────────────────────────────
+// Use this when embedding the mark inside an existing interactive element (e.g. <a>)
+
+export function LogoMark({
+  division = 'technology',
+  size = 'md',
+}: {
+  division?: DivisionSlug | string;
+  size?: 'xs' | 'sm' | 'md' | 'lg';
+}) {
+  const config = getDivision(division);
+  const dims = sizeMap[size];
+  const accent = config.accent;
+  const isParent = division === 'technology';
+  const leftChevron  = isParent ? 'M11 12 L23 24 L11 36' : 'M10 12 L22 24 L10 36';
+  const rightChevron = isParent ? 'M23 12 L35 24 L23 36' : 'M20 12 L32 24 L20 36';
+  const rightChevronColor = isParent ? '#72C4B2' : accent;
+
+  return (
+    <svg
+      viewBox="0 0 48 48"
+      fill="none"
+      width={dims.mark}
+      height={dims.mark}
+      aria-hidden="true"
+      style={{ flexShrink: 0 }}
+    >
+      <path d={leftChevron} stroke="#4A6CB8" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+      <path d={rightChevron} stroke={rightChevronColor} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+      {!isParent && modifierElements(config.modifier, accent)}
+    </svg>
+  );
+}
+
 // ── Main Logo ────────────────────────────────────────────────────────────────
 
 export default function Logo({
@@ -241,6 +276,8 @@ export default function Logo({
   // Division logos shift the right chevron left to make room for the modifier
   const leftChevron  = isParent ? 'M11 12 L23 24 L11 36' : 'M10 12 L22 24 L10 36';
   const rightChevron = isParent ? 'M23 12 L35 24 L23 36' : 'M20 12 L32 24 L20 36';
+  // Parent logo: right chevron uses teal-light to create the two-tone brand mark
+  const rightChevronColor = isParent ? '#72C4B2' : accent;
 
   const mark = (
     <svg
@@ -259,10 +296,10 @@ export default function Logo({
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      {/* Right chevron — division accent */}
+      {/* Right chevron — teal for parent, division accent for divisions */}
       <path
         d={rightChevron}
-        stroke={accent}
+        stroke={rightChevronColor}
         strokeWidth="3"
         strokeLinecap="round"
         strokeLinejoin="round"

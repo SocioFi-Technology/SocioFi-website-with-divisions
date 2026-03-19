@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import DivisionOverview, { type DivisionOverviewContent } from '@/templates/DivisionOverview';
+import CloudHeroVisual from '@/components/visual/CloudHeroVisual';
 import {
   CloudIcon,
   Lightning,
@@ -31,6 +32,7 @@ const content: DivisionOverviewContent = {
       { label: 'Get hosted', href: '/cloud/get-hosted', variant: 'primary' },
       { label: 'See plans', href: '/cloud/plans', variant: 'ghost' },
     ],
+    rightContent: <CloudHeroVisual />,
   },
 
   metrics: [
@@ -120,6 +122,7 @@ const content: DivisionOverviewContent = {
     ghostCTA: { label: 'See plans', href: '/cloud/plans' },
     note: 'Setup in 24 hours. No DevOps required.',
   },
+  divisionVariant: 'cloud',
 };
 
 export default function CloudPage() {

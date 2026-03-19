@@ -19,6 +19,8 @@ const content: PricingPlansContent = {
     ],
   },
 
+  showConfigurator: true,
+
   plans: [
     {
       name: 'Starter',

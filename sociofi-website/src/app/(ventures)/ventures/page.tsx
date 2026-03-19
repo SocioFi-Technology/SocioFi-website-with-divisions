@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import DivisionOverview from '@/templates/DivisionOverview';
 import type { DivisionOverviewContent } from '@/templates/DivisionOverview';
+import VenturesHeroVisual from '@/components/visual/VenturesHeroVisual';
 import { Briefcase, Chart, Layers, Code, Brain, Shield } from '@/lib/icons';
 
 export const metadata: Metadata = {
@@ -25,6 +26,7 @@ const content: DivisionOverviewContent = {
       { label: 'Apply to co-build', href: '/ventures/apply', variant: 'primary' },
       { label: 'See how it works', href: '/ventures/how-it-works', variant: 'ghost' },
     ],
+    rightContent: <VenturesHeroVisual />,
   },
 
   metrics: [
@@ -122,6 +124,7 @@ const content: DivisionOverviewContent = {
     ghostCTA: { label: 'See what we look for', href: '/ventures/what-we-look-for' },
     note: 'Response within 5 business days.',
   },
+  divisionVariant: 'ventures',
 };
 
 export default function VenturesPage() {

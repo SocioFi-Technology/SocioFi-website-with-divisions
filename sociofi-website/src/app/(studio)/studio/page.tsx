@@ -1,4 +1,5 @@
 import DivisionOverview, { type DivisionOverviewContent } from '@/templates/DivisionOverview';
+import StudioHeroVisual from '@/components/visual/StudioHeroVisual';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -22,6 +23,7 @@ const content: DivisionOverviewContent = {
       { label: 'Start a project', href: '/studio/start-project', variant: 'primary' },
       { label: 'See our work', href: '/studio/portfolio', variant: 'ghost' },
     ],
+    rightContent: <StudioHeroVisual />,
   },
 
   metrics: [
@@ -154,6 +156,7 @@ const content: DivisionOverviewContent = {
     ghostCTA: { label: 'Browse our work', href: '/studio/portfolio' },
     note: 'Free scoping call. No commitment.',
   },
+  divisionVariant: 'studio',
 };
 
 export default function StudioPage() {

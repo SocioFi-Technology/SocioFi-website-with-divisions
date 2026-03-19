@@ -1,5 +1,6 @@
 import DivisionOverview, { type DivisionOverviewContent } from '@/templates/DivisionOverview';
 import ParticleField from '@/components/visual/ParticleField';
+import LabsResearchVisual from '@/components/visual/LabsResearchVisual';
 import { Brain, Code, Zap, Target, GitBranch, Globe } from '@/lib/icons';
 import type { Metadata } from 'next';
 
@@ -105,6 +106,7 @@ const content: DivisionOverviewContent = {
       'NEXUS ARIA emerged from our research into multi-agent coordination. It started as an experiment: could we build a reliable orchestration layer for AI agents that handles tool use, retries, and observability without requiring custom infrastructure for every deployment? The answer is shipping.',
     href: '/labs/projects',
     cta: 'See active projects',
+    visual: <LabsResearchVisual />,
   },
 
   testimonials: [
@@ -132,6 +134,7 @@ const content: DivisionOverviewContent = {
     ghostCTA: { label: 'Browse open source', href: '/labs/open-source' },
     note: 'No cadence commitment. Published when it is ready.',
   },
+  divisionVariant: 'labs',
 };
 
 export default function LabsPage() {
