@@ -289,6 +289,43 @@ const STYLES = `
     .hp-beam-a,.hp-beam-b { display:none !important; }
     .hp-aurora-a,.hp-aurora-b,.hp-aurora-c { animation: none !important; }
   }
+
+  /* ── Floating dots ── */
+  @keyframes hp-dot-0 {
+    0%,100%{transform:translate(0,0);}
+    25%{transform:translate(14px,-20px);}
+    50%{transform:translate(-10px,-30px);}
+    75%{transform:translate(-18px,10px);}
+  }
+  @keyframes hp-dot-1 {
+    0%,100%{transform:translate(0,0);}
+    33%{transform:translate(-22px,18px);}
+    66%{transform:translate(20px,24px);}
+  }
+  @keyframes hp-dot-2 {
+    0%,100%{transform:translate(0,0);}
+    20%{transform:translate(16px,12px);}
+    40%{transform:translate(22px,-18px);}
+    60%{transform:translate(-12px,-22px);}
+    80%{transform:translate(-20px,10px);}
+  }
+  @keyframes hp-dot-3 {
+    0%,100%{transform:translate(0,0);}
+    50%{transform:translate(-24px,-16px);}
+  }
+  @keyframes hp-dot-4 {
+    0%,100%{transform:translate(0,0);}
+    30%{transform:translate(12px,22px);}
+    70%{transform:translate(-16px,-14px);}
+  }
+  .hp-dot-a0{animation-name:hp-dot-0;animation-timing-function:ease-in-out;animation-iteration-count:infinite;}
+  .hp-dot-a1{animation-name:hp-dot-1;animation-timing-function:ease-in-out;animation-iteration-count:infinite;}
+  .hp-dot-a2{animation-name:hp-dot-2;animation-timing-function:ease-in-out;animation-iteration-count:infinite;}
+  .hp-dot-a3{animation-name:hp-dot-3;animation-timing-function:ease-in-out;animation-iteration-count:infinite;}
+  .hp-dot-a4{animation-name:hp-dot-4;animation-timing-function:ease-in-out;animation-iteration-count:infinite;}
+  @media(prefers-reduced-motion:reduce){
+    .hp-dot-a0,.hp-dot-a1,.hp-dot-a2,.hp-dot-a3,.hp-dot-a4{animation:none!important;opacity:0!important;}
+  }
 `;
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -741,6 +778,45 @@ function HeroAurora({ rm }: { rm: boolean }) {
   );
 }
 
+/* ── Floating Dots — non-uniform colored moving particles per section ── */
+function FloatingDots({ colors, count = 20 }: { colors: string[]; count?: number }) {
+  const dots = Array.from({ length: count }, (_, i) => {
+    const h = ((i + 1) * 2654435761) >>> 0;
+    return {
+      top: h % 94,
+      left: (h >> 7) % 96,
+      size: 2 + (h >> 14) % 4,
+      dur: 10 + (h >> 3) % 18,
+      delay: -((h >> 19) % 22),
+      variant: (h >> 1) % 5,
+      colorIdx: (h >> 5) % colors.length,
+      opacity: 0.15 + ((h >> 10) % 18) * 0.012,
+    };
+  });
+  return (
+    <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, overflow: 'hidden' }} aria-hidden="true">
+      {dots.map((d, i) => (
+        <div
+          key={i}
+          className={`hp-dot-a${d.variant}`}
+          style={{
+            position: 'absolute',
+            top: `${d.top}%`,
+            left: `${d.left}%`,
+            width: d.size,
+            height: d.size,
+            borderRadius: '50%',
+            background: colors[d.colorIdx],
+            opacity: d.opacity,
+            animationDuration: `${d.dur}s`,
+            animationDelay: `${d.delay}s`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 function makeGradStyle(colors?: string): React.CSSProperties {
   return {
     background: colors ?? 'linear-gradient(135deg, var(--navy-bright) 0%, var(--teal-light) 60%, var(--teal-pale) 100%)',
@@ -1036,6 +1112,7 @@ function Hero() {
       aria-label="Homepage hero"
     >
       <GridBg />
+      <FloatingDots colors={['#72C4B2', '#4A6CB8', '#A3DFD2', '#8B5CF6']} count={22} />
       <motion.div className="hp-orb-1" aria-hidden="true" style={{ position: 'absolute', width: 900, height: 900, borderRadius: '50%', background: 'radial-gradient(circle, var(--navy), transparent 70%)', top: '-20%', left: '-15%', opacity: 'var(--glow-opacity)', filter: 'blur(100px)', y: orbY1 }} />
       <motion.div className="hp-orb-2" aria-hidden="true" style={{ position: 'absolute', width: 700, height: 700, borderRadius: '50%', background: 'radial-gradient(circle, var(--teal), transparent 70%)', bottom: '-15%', right: '-10%', opacity: 'var(--glow-opacity)', filter: 'blur(100px)', y: orbY2 }} />
       <HeroWatermark reducedMotion={reducedMotion} />
@@ -1167,6 +1244,7 @@ function Problem() {
   return (
     <section className="hp-sec hp-bg2">
       <DotsBg />
+      <FloatingDots colors={['#DC6464', '#E8916F', '#F0B49A']} count={18} />
       <SectionOrbs c1="#DC6464" c2="#E8916F" op1={0.06} op2={0.07} />
       <SweepBeam c1="#DC6464" c2="#E8916F" />
       <GeometricBg variant="diamonds" accent="rgba(220,100,100,0.4)" />
@@ -1209,6 +1287,7 @@ function Solution() {
   return (
     <section className="hp-sec hp-bg1">
       <ConstellationBg />
+      <FloatingDots colors={['#59A392', '#72C4B2', '#4A6CB8', '#A3DFD2']} count={20} />
       <SectionOrbs c1="#59A392" c2="#4A6CB8" c3="#72C4B2" op1={0.07} op2={0.06} op3={0.04} />
       <SweepBeam c1="#59A392" c2="#72C4B2" delay="4s" />
       <GeometricBg variant="hexagons" accent="var(--teal-light)" />
@@ -1267,6 +1346,7 @@ function HowItWorks() {
 
   return (
     <section className="hp-sec hp-bg2">
+      <FloatingDots colors={['#3A589E', '#4A6CB8', '#5BB5E0']} count={16} />
       <SectionOrbs c1="#3A589E" c2="#4A6CB8" c3="#5BB5E0" op1={0.07} op2={0.06} op3={0.04} />
       <SweepBeam c1="#3A589E" c2="#5BB5E0" />
       <GeometricBg variant="brackets" accent="var(--navy-bright)" />
@@ -1326,6 +1406,7 @@ function WhatWeBuild() {
   return (
     <section className="hp-sec hp-bg1">
       <DotsBg />
+      <FloatingDots colors={['#72C4B2', '#8B5CF6', '#A3DFD2', '#E8916F']} count={20} />
       <SectionOrbs c1="#72C4B2" c2="#8B5CF6" op1={0.07} op2={0.06} />
       <SweepBeam c1="#72C4B2" c2="#8B5CF6" delay="6s" />
       <GeometricBg variant="triangles" accent="var(--teal-light)" />
@@ -1375,6 +1456,7 @@ function AgentsSection() {
 
   return (
     <section className="hp-sec hp-bg2" style={{ position: 'relative' }}>
+      <FloatingDots colors={['#8B5CF6', '#A78BFA', '#6BA3E8', '#C4B5FD']} count={22} />
       <SectionOrbs c1="#8B5CF6" c2="#7C3AED" c3="#6BA3E8" op1={0.09} op2={0.08} op3={0.04} />
       <SweepBeam c1="#8B5CF6" c2="#6BA3E8" />
       <GeometricBg variant="nodes" accent="#8B5CF6" />
@@ -1439,6 +1521,7 @@ function Numbers() {
   return (
     <section className="hp-sec hp-bg1">
       <ConstellationBg />
+      <FloatingDots colors={['#3A589E', '#59A392', '#72C4B2', '#4A6CB8']} count={16} />
       <SectionOrbs c1="#3A589E" c2="#59A392" op1={0.06} op2={0.07} />
       <SweepBeam c1="#3A589E" c2="#59A392" delay="3s" />
       <GeometricBg variant="rings" accent="var(--navy-bright)" />
@@ -1482,6 +1565,7 @@ function ProductsSection() {
   return (
     <section className="hp-sec hp-bg2">
       <DotsBg />
+      <FloatingDots colors={['#E8916F', '#E8B84D', '#F0B49A', '#3A589E']} count={18} />
       <SectionOrbs c1="#E8916F" c2="#3A589E" c3="#E8B84D" op1={0.08} op2={0.06} op3={0.03} />
       <SweepBeam c1="#E8916F" c2="#3A589E" delay="8s" />
       <GeometricBg variant="diamonds" accent="#E8916F" />
@@ -1525,6 +1609,7 @@ function BiggerPicture() {
   return (
     <section className="hp-sec hp-bg1">
       <ConstellationBg />
+      <FloatingDots colors={['#3A589E', '#72C4B2', '#8B5CF6', '#4A6CB8']} count={18} />
       <SectionOrbs c1="#3A589E" c2="#72C4B2" c3="#8B5CF6" op1={0.06} op2={0.07} op3={0.03} />
       <SweepBeam c1="#3A589E" c2="#72C4B2" />
       <GeometricBg variant="triangles" accent="var(--navy-bright)" />
@@ -1567,6 +1652,7 @@ function DivisionsSection() {
 
   return (
     <section className="hp-sec hp-bg2">
+      <FloatingDots colors={['#72C4B2', '#8B5CF6', '#E8B84D', '#6BA3E8', '#E8916F']} count={24} />
       <SectionOrbs c1="#72C4B2" c2="#8B5CF6" c3="#E8B84D" op1={0.07} op2={0.06} op3={0.03} />
       <SweepBeam c1="#72C4B2" c2="#8B5CF6" delay="5s" />
       <GeometricBg variant="hexagons" accent="var(--teal-light)" />
@@ -1626,6 +1712,7 @@ function TrustSignals() {
   return (
     <section className="hp-sec hp-bg1">
       <DotsBg />
+      <FloatingDots colors={['#72C4B2', '#4A6CB8', '#A3DFD2']} count={16} />
       <SectionOrbs c1="#72C4B2" c2="#4A6CB8" op1={0.07} op2={0.06} />
       <SweepBeam c1="#72C4B2" c2="#4A6CB8" delay="2s" />
       <GeometricBg variant="brackets" accent="var(--teal-light)" />
@@ -1659,6 +1746,7 @@ function CTASection() {
   return (
     <section className="hp-sec hp-bg2" style={{ position: 'relative', overflow: 'hidden' }}>
       <div aria-hidden="true" style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '120%', height: '60%', background: 'radial-gradient(ellipse at 50% 100%, color-mix(in srgb, var(--teal) 6%, transparent), transparent 60%)', pointerEvents: 'none' }} />
+      <FloatingDots colors={['#3A589E', '#72C4B2', '#4A6CB8', '#A3DFD2']} count={20} />
       <SectionOrbs c1="#3A589E" c2="#72C4B2" op1={0.10} op2={0.11} />
       <SweepBeam c1="#3A589E" c2="#72C4B2" />
       <GeometricBg variant="rings" accent="var(--teal-light)" />
