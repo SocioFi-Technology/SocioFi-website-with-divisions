@@ -10,6 +10,13 @@ const F = {
   m: "var(--font-jb-mono,'JetBrains Mono'),monospace",
 };
 
+
+const ICONS: Record<string, React.ReactElement> = {
+  dollarSign: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>,
+  clipboard:  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>,
+  user:       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
+  lock:       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
+};
 const STYLES = `
   .ent-hero { padding:140px 0 72px; background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(139,92,246,0.07) 0%,transparent 70%); }
   .ent-container { max-width:1200px; margin:0 auto; padding:0 32px; }
@@ -24,7 +31,7 @@ const STYLES = `
   .ent-features { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
   @media(max-width:768px) { .ent-features { grid-template-columns:1fr; } }
   .ent-feature { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:32px; border-left:3px solid ${A}; }
-  .ent-feature-icon { font-size:1.8rem; margin-bottom:12px; }
+  .ent-feature-icon { display:flex; align-items:center; color:#8B5CF6; margin-bottom:12px; }
   .ent-feature-title { font-family:${F.h}; font-size:1rem; font-weight:700; color:var(--text-primary); margin-bottom:8px; }
   .ent-feature-desc { font-family:${F.b}; font-size:0.88rem; color:var(--text-secondary); line-height:1.6; }
   .ent-integrations { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
@@ -62,10 +69,10 @@ function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
 }
 
 const FEATURES = [
-  { icon: '💰', title: 'Volume pricing', desc: 'Deploy 10+ agents with 25% discount applied automatically. Custom pricing available for 20+ agent deployments. Multi-year agreements unlock additional savings and locked-in rates.' },
-  { icon: '📋', title: 'SLA guarantees', desc: '99.9% uptime SLA with financial credits for breach. Dedicated status page. Incident escalation within 1 hour. Monthly SLA reports with root cause analysis.' },
-  { icon: '👤', title: 'Dedicated support', desc: 'Assigned customer engineer on Slack. Weekly check-in calls during onboarding. Monthly strategy reviews. Direct escalation path to CTO for critical issues.' },
-  { icon: '🔒', title: 'Security compliance', desc: 'SOC 2 Type II roadmap. GDPR-ready data processing agreements. Custom data retention policies. Private cloud deployment options. Full audit logs for compliance.' },
+  { icon: 'dollarSign', title: 'Volume pricing', desc: 'Deploy 10+ agents with 25% discount applied automatically. Custom pricing available for 20+ agent deployments. Multi-year agreements unlock additional savings and locked-in rates.' },
+  { icon: 'clipboard', title: 'SLA guarantees', desc: '99.9% uptime SLA with financial credits for breach. Dedicated status page. Incident escalation within 1 hour. Monthly SLA reports with root cause analysis.' },
+  { icon: 'user', title: 'Dedicated support', desc: 'Assigned customer engineer on Slack. Weekly check-in calls during onboarding. Monthly strategy reviews. Direct escalation path to CTO for critical issues.' },
+  { icon: 'lock', title: 'Security compliance', desc: 'SOC 2 Type II roadmap. GDPR-ready data processing agreements. Custom data retention policies. Private cloud deployment options. Full audit logs for compliance.' },
 ];
 
 const CUSTOM_INTEGRATIONS = [
@@ -118,7 +125,7 @@ export default function EnterprisePage() {
             {FEATURES.map((f, i) => (
               <Reveal key={f.title} delay={i * 0.1}>
                 <div className="ent-feature">
-                  <div className="ent-feature-icon">{f.icon}</div>
+                  <div className="ent-feature-icon">{ICONS[f.icon]}</div>
                   <div className="ent-feature-title">{f.title}</div>
                   <div className="ent-feature-desc">{f.desc}</div>
                 </div>
@@ -211,7 +218,7 @@ export default function EnterprisePage() {
                 </form>
               ) : (
                 <div className="ent-thanks">
-                  <div style={{ fontSize: '2rem', marginBottom: 16 }}>✓</div>
+                  <div style={{color:"#8B5CF6",marginBottom:16,display:"flex"}}><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
                   <div className="ent-thanks-title">Request received.</div>
                   <div className="ent-thanks-desc">We&apos;ll email {form.email} within 2 business days to schedule your enterprise consultation. We look forward to it.</div>
                 </div>

@@ -42,7 +42,7 @@ const STYLES = `
   .dp-btn:disabled { opacity:0.5; cursor:not-allowed; }
   .dp-selected-list { font-family:${F.m}; font-size:0.72rem; color:${A}; margin-bottom:16px; }
   .dp-thanks { text-align:center; padding:40px 0; }
-  .dp-thanks-icon { font-size:2.4rem; margin-bottom:16px; }
+  .dp-thanks-icon { display:flex; align-items:center; justify-content:center; margin-bottom:16px; color:#8B5CF6; }
   .dp-thanks-title { font-family:${F.h}; font-size:1.3rem; font-weight:800; color:var(--text-primary); margin-bottom:8px; }
   .dp-thanks-desc { font-family:${F.b}; font-size:0.9rem; color:var(--text-secondary); line-height:1.7; max-width:380px; margin:0 auto; }
   .dp-trust { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; padding:0 0 80px; }
@@ -157,7 +157,7 @@ export default function DeployPage() {
                 </form>
               ) : (
                 <div className="dp-thanks">
-                  <div className="dp-thanks-icon">✓</div>
+                  <div className="dp-thanks-icon"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
                   <div className="dp-thanks-title">Request received.</div>
                   <div className="dp-thanks-desc">We&apos;ll send a setup plan to {formA.email} within 1 business day. Your selected agents: {selectedAgents.join(', ')}.</div>
                 </div>
@@ -196,7 +196,7 @@ export default function DeployPage() {
                 </form>
               ) : (
                 <div className="dp-thanks">
-                  <div className="dp-thanks-icon">✓</div>
+                  <div className="dp-thanks-icon"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
                   <div className="dp-thanks-title">We&apos;ll be in touch.</div>
                   <div className="dp-thanks-desc">We&apos;ll email {formB.email} within 4 business hours to book your 30-minute call. No sales pitch — just an honest recommendation.</div>
                 </div>

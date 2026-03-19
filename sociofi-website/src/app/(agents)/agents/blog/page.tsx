@@ -10,6 +10,15 @@ const F = {
   m: "var(--font-jb-mono,'JetBrains Mono'),monospace",
 };
 
+
+const ICONS: Record<string, React.ReactElement> = {
+  cpu:        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>,
+  dollarSign: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>,
+  mail:       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>,
+  zap:        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
+  tool:       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>,
+  lock:       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
+};
 const STYLES = `
   .bl-hero { padding:140px 0 72px; background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(139,92,246,0.07) 0%,transparent 70%); }
   .bl-container { max-width:1200px; margin:0 auto; padding:0 32px; }
@@ -28,7 +37,7 @@ const STYLES = `
   .bl-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,${A},#C4B5FD); opacity:0; transition:opacity 0.3s; }
   .bl-card:hover { transform:translateY(-4px); border-color:rgba(139,92,246,0.3); }
   .bl-card:hover::before { opacity:1; }
-  .bl-card-img { height:160px; background:linear-gradient(135deg,rgba(139,92,246,0.15) 0%,rgba(139,92,246,0.05) 100%); display:flex; align-items:center; justify-content:center; font-size:2.4rem; }
+  .bl-card-img { height:120px; background:linear-gradient(135deg,rgba(139,92,246,0.15) 0%,rgba(139,92,246,0.05) 100%); display:flex; align-items:center; justify-content:center; color:#8B5CF6; }
   .bl-card-body { padding:24px; flex:1; display:flex; flex-direction:column; }
   .bl-card-cat { font-family:${F.m}; font-size:0.66rem; color:${A}; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:8px; }
   .bl-card-title { font-family:${F.h}; font-size:1rem; font-weight:700; color:var(--text-primary); margin-bottom:8px; line-height:1.3; }
@@ -62,12 +71,12 @@ function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
 }
 
 const ARTICLES = [
-  { slug: 'what-is-an-ai-agent', icon: '🤖', cat: 'Explainer', title: 'What is an AI Agent? (And how is it different from automation?)', desc: 'A plain-English explanation of what agents actually do, how they reason, and why the difference from automation matters for real business workflows.', date: 'March 2026', readTime: '6 min' },
-  { slug: 'agent-roi-calculator', icon: '💰', cat: 'Guide', title: 'How to calculate ROI before deploying an agent', desc: 'A practical framework for estimating how much time and money an agent will save before you commit. Includes a step-by-step worksheet.', date: 'March 2026', readTime: '8 min' },
-  { slug: 'email-triage-guide', icon: '📧', cat: 'Use Case', title: 'Inbox zero for your team\'s shared inbox — with an AI agent', desc: 'How three teams reduced shared inbox response time from 6 hours to under 20 minutes using the Email Triage Agent.', date: 'Feb 2026', readTime: '5 min' },
-  { slug: 'agents-vs-automation', icon: '⚡', cat: 'Comparison', title: 'AI Agents vs. Zapier: which one does your business need?', desc: 'An honest comparison of when agents outperform automation tools — and when you should stick with Zapier.', date: 'Feb 2026', readTime: '7 min' },
-  { slug: 'custom-agent-guide', icon: '🔧', cat: 'Guide', title: 'When to build a custom agent (vs. use a catalog agent)', desc: 'How to decide whether your workflow fits a pre-built agent or needs something purpose-built. Decision framework included.', date: 'Jan 2026', readTime: '6 min' },
-  { slug: 'agent-security', icon: '🔒', cat: 'Technical', title: 'How we secure agent data — and what you should ask any vendor', desc: 'A detailed look at the security architecture behind SocioFi agents, plus 12 questions to ask any AI agent provider before connecting your business data.', date: 'Jan 2026', readTime: '9 min' },
+  { slug: 'what-is-an-ai-agent', icon: 'cpu', cat: 'Explainer', title: 'What is an AI Agent? (And how is it different from automation?)', desc: 'A plain-English explanation of what agents actually do, how they reason, and why the difference from automation matters for real business workflows.', date: 'March 2026', readTime: '6 min' },
+  { slug: 'agent-roi-calculator', icon: 'dollarSign', cat: 'Guide', title: 'How to calculate ROI before deploying an agent', desc: 'A practical framework for estimating how much time and money an agent will save before you commit. Includes a step-by-step worksheet.', date: 'March 2026', readTime: '8 min' },
+  { slug: 'email-triage-guide', icon: 'mail', cat: 'Use Case', title: 'Inbox zero for your team\'s shared inbox — with an AI agent', desc: 'How three teams reduced shared inbox response time from 6 hours to under 20 minutes using the Email Triage Agent.', date: 'Feb 2026', readTime: '5 min' },
+  { slug: 'agents-vs-automation', icon: 'zap', cat: 'Comparison', title: 'AI Agents vs. Zapier: which one does your business need?', desc: 'An honest comparison of when agents outperform automation tools — and when you should stick with Zapier.', date: 'Feb 2026', readTime: '7 min' },
+  { slug: 'custom-agent-guide', icon: 'tool', cat: 'Guide', title: 'When to build a custom agent (vs. use a catalog agent)', desc: 'How to decide whether your workflow fits a pre-built agent or needs something purpose-built. Decision framework included.', date: 'Jan 2026', readTime: '6 min' },
+  { slug: 'agent-security', icon: 'lock', cat: 'Technical', title: 'How we secure agent data — and what you should ask any vendor', desc: 'A detailed look at the security architecture behind SocioFi agents, plus 12 questions to ask any AI agent provider before connecting your business data.', date: 'Jan 2026', readTime: '9 min' },
 ];
 
 export default function BlogPage() {
@@ -103,7 +112,7 @@ export default function BlogPage() {
             {ARTICLES.map((article, i) => (
               <Reveal key={article.slug} delay={i * 0.08}>
                 <div className="bl-card">
-                  <div className="bl-card-img">{article.icon}</div>
+                  <div className="bl-card-img">{ICONS[article.icon]}</div>
                   <div className="bl-card-body">
                     <div className="bl-card-cat">{article.cat}</div>
                     <div className="bl-card-title">{article.title}</div>

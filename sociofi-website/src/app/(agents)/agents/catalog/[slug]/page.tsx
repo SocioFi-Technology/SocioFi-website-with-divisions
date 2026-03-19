@@ -54,7 +54,7 @@ const STYLES = `
   .ad-price-val span { font-family:${F.b}; font-size:0.9rem; font-weight:400; color:var(--text-muted); }
   .ad-price-items { list-style:none; padding:0; margin:20px 0; display:flex; flex-direction:column; gap:10px; }
   .ad-price-items li { font-family:${F.b}; font-size:0.88rem; color:var(--text-secondary); display:flex; align-items:center; gap:8px; }
-  .ad-price-items li::before { content:'✓'; color:${A}; font-weight:700; }
+  .ad-price-items li::before { content:''; display:inline-block; width:7px; height:12px; border-right:2px solid;border-bottom:2px solid; transform:rotate(40deg) translateY(-3px); color:${A}; font-weight:700; }
   .ad-faq { display:flex; flex-direction:column; gap:0; border:1px solid var(--border); border-radius:16px; overflow:hidden; }
   .ad-faq-item { border-bottom:1px solid var(--border); }
   .ad-faq-item:last-child { border-bottom:none; }

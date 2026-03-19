@@ -10,6 +10,16 @@ const F = {
   m: "var(--font-jb-mono,'JetBrains Mono'),monospace",
 };
 
+const ICONS: Record<string, React.ReactElement> = {
+  lock:          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
+  building:      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>,
+  users:         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+  clipboard:     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>,
+  alertTriangle: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
+  trash:         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>,
+  scroll:        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>,
+};
+
 const STYLES = `
   .sec-hero { padding:140px 0 72px; background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(139,92,246,0.07) 0%,transparent 70%); }
   .sec-container { max-width:1100px; margin:0 auto; padding:0 32px; }
@@ -20,7 +30,7 @@ const STYLES = `
   .sec-page { padding:80px 0; display:flex; flex-direction:column; gap:48px; }
   .sec-block { border-left:3px solid ${A}; padding-left:28px; }
   .sec-block-title { font-family:${F.h}; font-size:1.1rem; font-weight:700; color:var(--text-primary); margin-bottom:8px; display:flex; align-items:center; gap:10px; }
-  .sec-block-icon { font-size:1.2rem; }
+  .sec-block-icon { display:flex; align-items:center; color:${A}; }
   .sec-block-body { font-family:${F.b}; font-size:0.9rem; color:var(--text-secondary); line-height:1.7; }
   .sec-block-list { list-style:none; padding:0; margin:12px 0 0; display:flex; flex-direction:column; gap:8px; }
   .sec-block-list li { font-family:${F.b}; font-size:0.88rem; color:var(--text-secondary); display:flex; align-items:flex-start; gap:8px; line-height:1.6; }
@@ -50,7 +60,7 @@ function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
 
 const BLOCKS = [
   {
-    icon: '🔐',
+    icon: 'lock',
     title: 'Encryption',
     body: 'All data is encrypted in transit and at rest using industry-standard algorithms.',
     items: [
@@ -61,7 +71,7 @@ const BLOCKS = [
     ],
   },
   {
-    icon: '🏢',
+    icon: 'building',
     title: 'Infrastructure',
     body: 'Your agents run on SocioFi\'s own managed infrastructure — not shared public cloud services.',
     items: [
@@ -72,7 +82,7 @@ const BLOCKS = [
     ],
   },
   {
-    icon: '👥',
+    icon: 'users',
     title: 'Access Controls',
     body: 'Granular role-based access so only the right people see agent data and outputs.',
     items: [
@@ -83,7 +93,7 @@ const BLOCKS = [
     ],
   },
   {
-    icon: '📋',
+    icon: 'clipboard',
     title: 'Data Handling Policy',
     body: 'Clear rules for what data we process, how we store it, and how long we keep it.',
     items: [
@@ -94,7 +104,7 @@ const BLOCKS = [
     ],
   },
   {
-    icon: '⚠️',
+    icon: 'alertTriangle',
     title: 'Incident Response',
     body: 'When something goes wrong, you\'ll know fast and we\'ll act immediately.',
     items: [
@@ -105,7 +115,7 @@ const BLOCKS = [
     ],
   },
   {
-    icon: '🗑',
+    icon: 'trash',
     title: 'Data Deletion Policy',
     body: 'When you cancel, your data is fully deleted — not archived, not retained.',
     items: [
@@ -149,7 +159,7 @@ export default function SecurityPage() {
             <Reveal key={block.title} delay={i * 0.06}>
               <div className="sec-block">
                 <div className="sec-block-title">
-                  <span className="sec-block-icon">{block.icon}</span>
+                  <span className="sec-block-icon" style={{color:A}}>{ICONS[block.icon]}</span>
                   {block.title}
                 </div>
                 <div className="sec-block-body">{block.body}</div>
@@ -164,7 +174,7 @@ export default function SecurityPage() {
           <Reveal>
             <div className="sec-block">
               <div className="sec-block-title">
-                <span className="sec-block-icon">📜</span>
+                <span className="sec-block-icon" style={{color:A}}>{ICONS.scroll}</span>
                 Compliance Roadmap
               </div>
               <div className="sec-block-body">Our current compliance status and roadmap. We publish this openly — no marketing language.</div>

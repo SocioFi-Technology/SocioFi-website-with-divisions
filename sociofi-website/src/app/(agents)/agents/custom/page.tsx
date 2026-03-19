@@ -10,6 +10,13 @@ const F = {
   m: "var(--font-jb-mono,'JetBrains Mono'),monospace",
 };
 
+
+const ICONS: Record<string, React.ReactElement> = {
+  factory:     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"/><path d="M17 18h1"/><path d="M12 18h1"/><path d="M7 18h1"/></svg>,
+  gitBranch:   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>,
+  link:        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>,
+  trendingUp:  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>,
+};
 const STYLES = `
   .cu-hero { padding:140px 0 72px; background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(139,92,246,0.07) 0%,transparent 70%); }
   .cu-container { max-width:1200px; margin:0 auto; padding:0 32px; }
@@ -24,7 +31,7 @@ const STYLES = `
   .cu-scenarios { display:grid; grid-template-columns:repeat(2,1fr); gap:20px; }
   @media(max-width:768px) { .cu-scenarios { grid-template-columns:1fr; } }
   .cu-scenario { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; padding:28px; border-left:3px solid ${A}; }
-  .cu-scenario-icon { font-size:1.6rem; margin-bottom:12px; }
+  .cu-scenario-icon { display:flex; align-items:center; color:#8B5CF6; margin-bottom:12px; }
   .cu-scenario-title { font-family:${F.h}; font-size:1rem; font-weight:700; color:var(--text-primary); margin-bottom:8px; }
   .cu-scenario-desc { font-family:${F.b}; font-size:0.84rem; color:var(--text-secondary); line-height:1.6; }
   .cu-timeline { display:flex; flex-direction:column; gap:0; position:relative; }
@@ -66,10 +73,10 @@ function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
 }
 
 const SCENARIOS = [
-  { icon: '🏭', title: 'Industry-specific workflows', desc: 'Your industry has unique terminology, compliance requirements, or data formats that a generic catalog agent can\'t handle. We build it to your exact context.' },
-  { icon: '🔀', title: 'Multi-step workflows', desc: 'Your workflow crosses multiple systems, has complex branching logic, or involves orchestrating several sub-tasks in sequence. We architect the whole thing.' },
-  { icon: '🔗', title: 'Complex integrations', desc: 'You need to connect with internal systems, proprietary databases, legacy software, or APIs that have no existing connectors. We build the integration.' },
-  { icon: '📈', title: 'High-volume processing', desc: 'You process thousands of records, emails, or documents per day. You need an agent built for scale, not just for occasional tasks.' },
+  { icon: 'factory', title: 'Industry-specific workflows', desc: 'Your industry has unique terminology, compliance requirements, or data formats that a generic catalog agent can\'t handle. We build it to your exact context.' },
+  { icon: 'gitBranch', title: 'Multi-step workflows', desc: 'Your workflow crosses multiple systems, has complex branching logic, or involves orchestrating several sub-tasks in sequence. We architect the whole thing.' },
+  { icon: 'link', title: 'Complex integrations', desc: 'You need to connect with internal systems, proprietary databases, legacy software, or APIs that have no existing connectors. We build the integration.' },
+  { icon: 'trendingUp', title: 'High-volume processing', desc: 'You process thousands of records, emails, or documents per day. You need an agent built for scale, not just for occasional tasks.' },
 ];
 
 const STEPS = [
@@ -125,7 +132,7 @@ export default function CustomPage() {
             {SCENARIOS.map((s, i) => (
               <Reveal key={s.title} delay={i * 0.1}>
                 <div className="cu-scenario">
-                  <div className="cu-scenario-icon">{s.icon}</div>
+                  <div className="cu-scenario-icon">{ICONS[sc.icon]}</div>
                   <div className="cu-scenario-title">{s.title}</div>
                   <div className="cu-scenario-desc">{s.desc}</div>
                 </div>
@@ -215,7 +222,7 @@ export default function CustomPage() {
                 </form>
               ) : (
                 <div className="cu-thanks">
-                  <div style={{ fontSize: '2rem', marginBottom: 16 }}>✓</div>
+                  <div style={{color:"#8B5CF6",marginBottom:16,display:"flex"}}><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
                   <div className="cu-thanks-title">Received. We&apos;ll review and reach out.</div>
                   <div className="cu-thanks-desc">We&apos;ll email {form.email} within 1 business day to confirm we&apos;ve reviewed your scope. Scoping call typically happens within 2–3 business days.</div>
                 </div>

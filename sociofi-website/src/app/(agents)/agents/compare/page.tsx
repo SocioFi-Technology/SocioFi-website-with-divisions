@@ -60,14 +60,14 @@ function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
 const TABLE_ROWS: [string, string, string, string, string, string][] = [
   ['Monthly cost', '$3K–$8K salary+benefits', '$99–$600/month', '$149–$499/month', '$2K–$5K/month', '0 (but your time)'],
   ['Setup time', '1–3 months hiring', 'Hours–days', '3–7 business days', 'Weeks–months', 'Immediate'],
-  ['Can reason + adapt', '✓ Full judgment', '✕ Rules only', '✓ Contextual', '✕ Rules only', '✓ Human judgment'],
-  ['Handles exceptions', '✓ Yes', '✕ Often fails', '✓ Escalates', '✕ Usually fails', '✓ Yes'],
-  ['Scales with volume', '✗ Hire more', '~ Tier upgrades', '✓ Add agents', '~ Limited', '✗ Hits limits'],
-  ['Available 24/7', '✗ Business hours', '✓ If configured', '✓ Yes', '✓ Yes', '✗ You sleep'],
-  ['Human oversight built-in', '✓ Self-managed', '✗ No', '✓ Approval gates', '✗ Minimal', '✓ You are the oversight'],
+  ['Can reason + adapt', 'YES: Full judgment', 'NO: Rules only', 'YES: Contextual', 'NO: Rules only', 'YES: Human judgment'],
+  ['Handles exceptions', 'YES: Yes', 'NO: Often fails', 'YES: Escalates', 'NO: Usually fails', 'YES: Yes'],
+  ['Scales with volume', 'NO: Hire more', 'PARTIAL: Tier upgrades', 'YES: Add agents', 'PARTIAL: Limited', 'NO: Hits limits'],
+  ['Available 24/7', 'NO: Business hours', 'YES: If configured', 'YES: Yes', 'YES: Yes', 'NO: You sleep'],
+  ['Human oversight built-in', 'YES: Self-managed', 'NO: No', 'YES: Approval gates', 'NO: Minimal', 'YES: You are the oversight'],
   ['Setup complexity', 'High (HR, onboarding)', 'Medium (config)', 'Low (we do it)', 'Very high', 'None'],
-  ['Improves over time', '✓ Learning employee', '✗ Manual updates', '✓ Monthly tuning', '✗ Manual rules', '✓ You improve'],
-  ['Good for new tasks', '✓ Flexible', '✗ Needs reprogramming', '✓ Reconfigure', '✗ Hard to change', '✓ Flexible'],
+  ['Improves over time', 'YES: Learning employee', 'NO: Manual updates', 'YES: Monthly tuning', 'NO: Manual rules', 'YES: You improve'],
+  ['Good for new tasks', 'YES: Flexible', 'NO: Needs reprogramming', 'YES: Reconfigure', 'NO: Hard to change', 'YES: Flexible'],
 ];
 
 const DECISION = [
@@ -103,6 +103,20 @@ const DECISION = [
   },
 ];
 
+
+function CmpCell({ v, isHighlight }: { v: string; isHighlight?: boolean }) {
+  const yes = v.startsWith('YES:') || v.startsWith('Yes');
+  const no  = v.startsWith('NO:') || v.startsWith('No') || v.startsWith('None');
+  const partial = v.startsWith('PARTIAL:') || v.startsWith('Partial');
+  const color = yes ? (isHighlight ? '#8B5CF6' : '#22C55E') : no ? '#EF4444' : '#F59E0B';
+  const icon = yes
+    ? <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    : no
+    ? <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>;
+  const label = v.replace(/^(YES:|NO:|PARTIAL:) ?/, '');
+  return <span style={{ display:'inline-flex', alignItems:'center', gap:5 }}>{icon}<span style={{ fontSize:'0.78rem', color:'var(--text-secondary)' }}>{label}</span></span>;
+}
 export default function ComparePage() {
   return (
     <>
@@ -147,11 +161,11 @@ export default function ComparePage() {
                   {TABLE_ROWS.map(row => (
                     <tr key={row[0]}>
                       <td className="row-label">{row[0]}</td>
-                      <td dangerouslySetInnerHTML={{ __html: row[1].replace('✓', '<span class="cmp-check">✓</span>').replace('✗', '<span class="cmp-x">✗</span>').replace('~', '<span class="cmp-partial">~</span>') }} />
-                      <td dangerouslySetInnerHTML={{ __html: row[2].replace('✓', '<span class="cmp-check">✓</span>').replace('✗', '<span class="cmp-x">✗</span>').replace('~', '<span class="cmp-partial">~</span>') }} />
-                      <td className="hi" dangerouslySetInnerHTML={{ __html: row[3].replace('✓', '<span class="cmp-check">✓</span>').replace('✗', '<span class="cmp-x">✗</span>').replace('~', '<span class="cmp-partial">~</span>') }} />
-                      <td dangerouslySetInnerHTML={{ __html: row[4].replace('✓', '<span class="cmp-check">✓</span>').replace('✗', '<span class="cmp-x">✗</span>').replace('~', '<span class="cmp-partial">~</span>') }} />
-                      <td dangerouslySetInnerHTML={{ __html: row[5].replace('✓', '<span class="cmp-check">✓</span>').replace('✗', '<span class="cmp-x">✗</span>').replace('~', '<span class="cmp-partial">~</span>') }} />
+                      <td><CmpCell v={row[1]} /></td>
+                      <td><CmpCell v={row[2]} /></td>
+                      <td className="hi"><CmpCell v={row[3]} isHighlight /></td>
+                      <td><CmpCell v={row[4]} /></td>
+                      <td><CmpCell v={row[5]} /></td>
                     </tr>
                   ))}
                 </tbody>

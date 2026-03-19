@@ -92,12 +92,45 @@ const LIMITS = [
   { title: 'Legal or medical advice', desc: 'Agents can process, summarize, and flag — but they cannot provide professional advice. Any output in regulated fields needs human review.' },
 ];
 
+const Icons = {
+  Lock: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+    </svg>
+  ),
+  Database: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/>
+    </svg>
+  ),
+  Building: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/>
+    </svg>
+  ),
+  Trash: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+    </svg>
+  ),
+  Eye: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+    </svg>
+  ),
+  Zap: () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+    </svg>
+  ),
+};
+
 const SECURITY = [
-  { icon: '🔒', title: 'TLS 1.3 in transit', desc: 'All data moving between your tools and our agents is encrypted with TLS 1.3.' },
-  { icon: '💾', title: 'AES-256 at rest', desc: 'Stored data is encrypted at rest using AES-256 — industry standard for sensitive data.' },
-  { icon: '🏢', title: 'Hosted on SocioFi Cloud', desc: 'Agents run on our own managed infrastructure — not shared third-party platforms.' },
-  { icon: '🗑', title: 'Data deletion', desc: 'All your data is deleted within 30 days of cancellation. No retention, no reuse.' },
-  { icon: '👁', title: 'Access controls', desc: 'Role-based access. Only the people you designate can view agent logs and outputs.' },
+  { icon: <Icons.Lock />, title: 'TLS 1.3 in transit', desc: 'All data moving between your tools and our agents is encrypted with TLS 1.3.' },
+  { icon: <Icons.Database />, title: 'AES-256 at rest', desc: 'Stored data is encrypted at rest using AES-256 — industry standard for sensitive data.' },
+  { icon: <Icons.Building />, title: 'Hosted on SocioFi Cloud', desc: 'Agents run on our own managed infrastructure — not shared third-party platforms.' },
+  { icon: <Icons.Trash />, title: 'Data deletion', desc: 'All your data is deleted within 30 days of cancellation. No retention, no reuse.' },
+  { icon: <Icons.Eye />, title: 'Access controls', desc: 'Role-based access. Only the people you designate can view agent logs and outputs.' },
 ];
 
 export default function HowItWorksPage() {
@@ -141,9 +174,21 @@ export default function HowItWorksPage() {
               <div className="hiw-diagram">
                 <div className="hiw-diagram-title">Traditional Automation (e.g. Zapier)</div>
                 <div className="hiw-flow">
-                  {['Trigger fires', '→ Check if field = value', '→ If yes: do Action A', '→ If no: do nothing', '→ DONE'].map((step, i) => (
-                    <React.Fragment key={step}>
-                      {step.startsWith('→') ? <div className="hiw-flow-arrow">{step}</div> : <div className="hiw-flow-box">⚡ {step}</div>}
+                  {[
+                    { label: 'Trigger fires', isArrow: false },
+                    { label: 'Check if field = value', isArrow: true },
+                    { label: 'If yes: do Action A', isArrow: true },
+                    { label: 'If no: do nothing', isArrow: true },
+                    { label: 'DONE', isArrow: true },
+                  ].map((step, i) => (
+                    <React.Fragment key={step.label}>
+                      {step.isArrow
+                        ? <div className="hiw-flow-arrow" style={{ display:'flex', alignItems:'center', gap:6 }}>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                            {step.label}
+                          </div>
+                        : <div className="hiw-flow-box">{step.label}</div>
+                      }
                     </React.Fragment>
                   ))}
                 </div>
@@ -249,7 +294,7 @@ export default function HowItWorksPage() {
             {LIMITS.map((item, i) => (
               <Reveal key={item.title} delay={i * 0.1}>
                 <div className="hiw-limit">
-                  <div className="hiw-limit-x">✕</div>
+                  <div className="hiw-limit-x"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
                   <div>
                     <div className="hiw-limit-title">{item.title}</div>
                     <div className="hiw-limit-desc">{item.desc}</div>

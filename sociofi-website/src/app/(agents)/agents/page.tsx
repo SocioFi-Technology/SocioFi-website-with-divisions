@@ -163,12 +163,40 @@ function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
   );
 }
 
+const Icons = {
+  Chart: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/>
+    </svg>
+  ),
+  Target: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
+    </svg>
+  ),
+  Headset: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>
+    </svg>
+  ),
+  Database: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/>
+    </svg>
+  ),
+  FileText: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+    </svg>
+  ),
+};
+
 const CATEGORIES = [
-  { key: 'operations', icon: '📊', label: 'Operations', desc: 'Reports, inventory, compliance, meeting summaries', tasks: ['Weekly reports, auto-sent', 'Stock level monitoring', 'Compliance document review', 'Meeting notes + action items'] },
-  { key: 'sales', icon: '🎯', label: 'Sales', desc: 'Lead qualification, proposals, CRM updates', tasks: ['Score and route inbound leads', 'Draft proposals from briefs', 'Keep CRM clean automatically'] },
-  { key: 'support', icon: '🎧', label: 'Support', desc: 'Customer service, ticket triage, review responses', tasks: ['24/7 first-line responses', 'Categorize and route tickets', 'Respond to reviews on-brand'] },
-  { key: 'data', icon: '🗄️', label: 'Data', desc: 'Processing, cleaning, email triage, social monitoring', tasks: ['Clean and transform data', 'Intelligent inbox management', 'Brand mention monitoring'] },
-  { key: 'documents', icon: '📄', label: 'Documents', desc: 'Contracts, invoices, summaries, extraction', tasks: ['Extract data from any document', 'Analyze contracts for risks', 'Executive summary generation'] },
+  { key: 'operations', icon: <Icons.Chart />, label: 'Operations', desc: 'Reports, inventory, compliance, meeting summaries', tasks: ['Weekly reports, auto-sent', 'Stock level monitoring', 'Compliance document review', 'Meeting notes + action items'] },
+  { key: 'sales', icon: <Icons.Target />, label: 'Sales', desc: 'Lead qualification, proposals, CRM updates', tasks: ['Score and route inbound leads', 'Draft proposals from briefs', 'Keep CRM clean automatically'] },
+  { key: 'support', icon: <Icons.Headset />, label: 'Support', desc: 'Customer service, ticket triage, review responses', tasks: ['24/7 first-line responses', 'Categorize and route tickets', 'Respond to reviews on-brand'] },
+  { key: 'data', icon: <Icons.Database />, label: 'Data', desc: 'Processing, cleaning, email triage, social monitoring', tasks: ['Clean and transform data', 'Intelligent inbox management', 'Brand mention monitoring'] },
+  { key: 'documents', icon: <Icons.FileText />, label: 'Documents', desc: 'Contracts, invoices, summaries, extraction', tasks: ['Extract data from any document', 'Analyze contracts for risks', 'Executive summary generation'] },
 ];
 
 const FEATURED_SLUGS = ['report-generator', 'customer-service', 'lead-qualifier'];
@@ -233,7 +261,7 @@ export default function AgentsPage() {
             {CATEGORIES.map((cat, i) => (
               <Reveal key={cat.key} delay={i * 0.08}>
                 <div className="ag-cat-card">
-                  <div className="ag-cat-icon">{cat.icon}</div>
+                  <div className="ag-cat-icon" style={{ color: A }}>{cat.icon}</div>
                   <div className="ag-cat-title">{cat.label}</div>
                   <div className="ag-cat-desc">{cat.desc}</div>
                   <ul className="ag-cat-tasks">

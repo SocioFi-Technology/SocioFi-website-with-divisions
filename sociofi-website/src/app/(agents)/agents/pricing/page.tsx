@@ -34,7 +34,7 @@ const STYLES = `
   .pr-tier-saving { font-family:${F.m}; font-size:0.72rem; color:${A}; margin-bottom:20px; }
   .pr-tier-items { list-style:none; padding:0; margin:0 0 24px; display:flex; flex-direction:column; gap:10px; flex:1; }
   .pr-tier-items li { font-family:${F.b}; font-size:0.84rem; color:var(--text-secondary); display:flex; align-items:flex-start; gap:8px; line-height:1.5; }
-  .pr-tier-items li::before { content:'✓'; color:${A}; font-weight:700; flex-shrink:0; margin-top:1px; }
+  .pr-tier-items li::before { content:''; display:inline-block; width:7px; height:12px; border-right:2px solid;border-bottom:2px solid; transform:rotate(40deg) translateY(-3px); color:${A}; font-weight:700; flex-shrink:0; margin-top:1px; }
   .pr-btn-pri { display:flex; align-items:center; justify-content:center; gap:8px; padding:13px 20px; border-radius:10px; background:linear-gradient(135deg,${A} 0%,#7C3AED 100%); color:#fff; font-family:${F.h}; font-size:0.88rem; font-weight:600; text-decoration:none; margin-top:auto; }
   .pr-btn-ghost { display:flex; align-items:center; justify-content:center; gap:8px; padding:13px 20px; border-radius:10px; border:1.5px solid var(--border); color:var(--text-primary); font-family:${F.h}; font-size:0.88rem; font-weight:600; text-decoration:none; margin-top:auto; }
   .pr-btn-ghost:hover { border-color:${A}; color:${A}; }
@@ -91,15 +91,58 @@ const CUSTOM_TIERS = [
   { name: 'Enterprise', range: '$8K–$15K', mo: '+ $399/month', desc: 'Complex multi-agent systems, custom ML components, or compliance requirements. Delivery: 4–8 weeks.' },
 ];
 
+const Icons = {
+  Settings: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+    </svg>
+  ),
+  Server: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/>
+    </svg>
+  ),
+  Chart: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/>
+    </svg>
+  ),
+  Zap: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+    </svg>
+  ),
+  Users: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    </svg>
+  ),
+  Wrench: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+    </svg>
+  ),
+  FileText: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+    </svg>
+  ),
+  RefreshCw: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+    </svg>
+  ),
+};
+
 const INCLUDED = [
-  { icon: '⚙', title: 'Full Setup', desc: 'We configure everything from scratch' },
-  { icon: '🔗', title: 'All Integrations', desc: 'Connect to your existing tools' },
-  { icon: '📊', title: 'Monthly Reports', desc: 'Performance summaries every month' },
-  { icon: '🔔', title: 'Alerts', desc: 'Uptime and error notifications' },
-  { icon: '👷', title: 'Engineer Support', desc: 'Via Slack during business hours' },
-  { icon: '🛠', title: 'Bug Fixes', desc: 'We fix issues, not you' },
-  { icon: '📋', title: 'Documentation', desc: 'Clear runbooks for your team' },
-  { icon: '🔄', title: 'Free Updates', desc: 'As we improve the catalog' },
+  { icon: <Icons.Settings />, title: 'Full Setup', desc: 'We configure everything from scratch' },
+  { icon: <Icons.Server />, title: 'All Integrations', desc: 'Connect to your existing tools' },
+  { icon: <Icons.Chart />, title: 'Monthly Reports', desc: 'Performance summaries every month' },
+  { icon: <Icons.Zap />, title: 'Alerts', desc: 'Uptime and error notifications' },
+  { icon: <Icons.Users />, title: 'Engineer Support', desc: 'Via Slack during business hours' },
+  { icon: <Icons.Wrench />, title: 'Bug Fixes', desc: 'We fix issues, not you' },
+  { icon: <Icons.FileText />, title: 'Documentation', desc: 'Clear runbooks for your team' },
+  { icon: <Icons.RefreshCw />, title: 'Free Updates', desc: 'As we improve the catalog' },
 ];
 
 const COMPARE_ROWS = [
@@ -218,7 +261,7 @@ export default function PricingPage() {
             {INCLUDED.map((item, i) => (
               <Reveal key={item.title} delay={i * 0.06}>
                 <div className="pr-incl-item">
-                  <div className="pr-incl-icon">{item.icon}</div>
+                  <div className="pr-incl-icon" style={{ color: A }}>{item.icon}</div>
                   <div>
                     <div className="pr-incl-title">{item.title}</div>
                     <div className="pr-incl-desc">{item.desc}</div>
