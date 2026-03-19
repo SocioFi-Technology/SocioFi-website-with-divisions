@@ -49,9 +49,9 @@
   --division-accent-light: var(--teal-light);
 
   /* Font stacks (populated by next/font CSS vars in layout.tsx) */
-  --font-display:  var(--font-syne, 'Syne'), sans-serif;   /* logo + brand marks only */
-  --font-headline: 'General Sans', system-ui, sans-serif;  /* all headings */
-  --font-body:     var(--font-outfit, 'Outfit'), sans-serif;
+  --font-display:  var(--font-jakarta, 'Plus Jakarta Sans'), sans-serif; /* logo + nav */
+  --font-headline: var(--font-jakarta, 'Plus Jakarta Sans'), sans-serif; /* all headings */
+  --font-body:     var(--font-inter, 'Inter'), sans-serif;               /* all body text */
   --font-mono:     var(--font-fira, 'Fira Code'), monospace;
 
   /* Motion curves */

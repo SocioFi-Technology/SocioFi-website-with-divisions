@@ -240,6 +240,7 @@ export function LogoMark({
   const isParent = division === 'technology';
   const leftChevron  = isParent ? 'M11 12 L23 24 L11 36' : 'M10 12 L22 24 L10 36';
   const rightChevron = isParent ? 'M23 12 L35 24 L23 36' : 'M20 12 L32 24 L20 36';
+  const rightChevronColor = isParent ? '#72C4B2' : accent;
 
   return (
     <svg
@@ -251,7 +252,7 @@ export function LogoMark({
       style={{ flexShrink: 0 }}
     >
       <path d={leftChevron} stroke="#4A6CB8" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-      <path d={rightChevron} stroke={accent} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+      <path d={rightChevron} stroke={rightChevronColor} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
       {!isParent && modifierElements(config.modifier, accent)}
     </svg>
   );
@@ -275,6 +276,8 @@ export default function Logo({
   // Division logos shift the right chevron left to make room for the modifier
   const leftChevron  = isParent ? 'M11 12 L23 24 L11 36' : 'M10 12 L22 24 L10 36';
   const rightChevron = isParent ? 'M23 12 L35 24 L23 36' : 'M20 12 L32 24 L20 36';
+  // Parent logo: right chevron uses teal-light to create the two-tone brand mark
+  const rightChevronColor = isParent ? '#72C4B2' : accent;
 
   const mark = (
     <svg
@@ -293,10 +296,10 @@ export default function Logo({
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      {/* Right chevron — division accent */}
+      {/* Right chevron — teal for parent, division accent for divisions */}
       <path
         d={rightChevron}
-        stroke={accent}
+        stroke={rightChevronColor}
         strokeWidth="3"
         strokeLinecap="round"
         strokeLinejoin="round"
