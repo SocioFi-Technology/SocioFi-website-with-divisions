@@ -953,9 +953,14 @@ function Hero() {
                 <motion.div
                   key={current}
                   custom={directionRef.current}
-                  initial={(dir: number) => ({ opacity: 0, x: dir * 60 })}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={(dir: number) => ({ opacity: 0, x: dir * -60 })}
+                  variants={{
+                    enter: (dir: number) => ({ opacity: 0, x: dir * 60 }),
+                    center: { opacity: 1, x: 0 },
+                    exit: (dir: number) => ({ opacity: 0, x: dir * -60 }),
+                  }}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
                   transition={{ duration: 0.55, ease: HERO_EASE }}
                   role="tabpanel"
                   aria-live="polite"
