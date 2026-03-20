@@ -1277,7 +1277,11 @@ pre code {
   }
   /* All buttons get touch-action regardless */
   button { touch-action: manipulation; }
-  a {
+  /* Only standalone nav/action links get enforced touch targets,
+     not inline text links or logo stacked links */
+  nav a.nav-link,
+  .mobile-nav-link,
+  .bottom-action-bar a {
     min-height: 44px;
     display: inline-flex;
     align-items: center;
