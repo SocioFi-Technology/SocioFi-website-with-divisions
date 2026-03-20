@@ -1147,9 +1147,9 @@ function Hero() {
                   key={current}
                   custom={directionRef.current}
                   variants={{
-                    enter: (dir: number) => ({ opacity: 0, x: dir * 60 }),
+                    enter: (dir: any) => ({ opacity: 0, x: (dir as number) * 60 }),
                     center: { opacity: 1, x: 0 },
-                    exit: (dir: number) => ({ opacity: 0, x: dir * -60 }),
+                    exit: (dir: any) => ({ opacity: 0, x: (dir as number) * -60 }),
                   }}
                   initial="enter"
                   animate="center"
