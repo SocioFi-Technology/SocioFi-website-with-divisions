@@ -840,7 +840,7 @@ function StreamHeadline({ lines, gradientLine, gradientColors, rm }: {
       i++;
       setCount(i);
       if (i >= totalChars) clearInterval(id);
-    }, 28);
+    }, 90);
     return () => clearInterval(id);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -1080,7 +1080,7 @@ function Hero() {
 
       {/* Subtext — streams word-by-word after headline */}
       <p style={{ fontFamily: F.b, fontSize: '1rem', lineHeight: 1.7, color: 'var(--text-secondary)', maxWidth: 560, marginInline: 'auto', marginBottom: 28 }}>
-        <StreamSubtext text={s.subtext} highlights={s.subtextHighlights ?? []} rm={rm} startDelay={0.6} />
+        <StreamSubtext text={s.subtext} highlights={s.subtextHighlights ?? []} rm={rm} startDelay={3.8} />
       </p>
 
       {/* CTAs */}
@@ -1088,7 +1088,7 @@ function Hero() {
         className="hp-hero-ctas"
         initial={rm ? false : { opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.5, ease: HERO_EASE, delay: 1.4 }}
+        transition={{ duration: 0.6, ease: HERO_EASE, delay: 6.0 }}
         style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}
       >
         <Link href={s.primaryCta.href} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '13px 26px', borderRadius: 14, background: 'var(--gradient-brand)', color: '#fff', fontFamily: F.h, fontSize: '0.88rem', fontWeight: 700, textDecoration: 'none', boxShadow: '0 4px 24px rgba(58,88,158,0.35)', transition: 'transform 0.2s, box-shadow 0.2s' }}>
