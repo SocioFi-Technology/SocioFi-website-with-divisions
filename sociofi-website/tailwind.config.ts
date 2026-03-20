@@ -3,6 +3,14 @@ const config: Config = {
   content: ["./src/**/*.{ts,tsx,mdx}"],
   darkMode: "class",
   theme: {
+    screens: {
+      'xs': '480px',
+      'sm': '640px',
+      'md': '768px',
+      'lg': '1024px',
+      'xl': '1280px',
+      '2xl': '1440px',
+    },
     extend: {
       colors: {
         navy: { DEFAULT: "#3A589E", deep: "#2C4478", bright: "#4A6CB8" },
