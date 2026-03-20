@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { LogoMark } from '@/components/shared/Logo';
 import type { Division } from '@/lib/divisions';
 
 interface MobileNavProps {
@@ -14,14 +15,14 @@ interface MobileNavProps {
 
 // Division pills data
 const DIVISION_PILLS = [
-  { name: 'Studio', href: '/studio', color: '#72C4B2' },
-  { name: 'Agents', href: '/agents', color: '#8B5CF6' },
-  { name: 'Services', href: '/services', color: '#4DBFA8' },
-  { name: 'Cloud', href: '/cloud', color: '#5BB5E0' },
-  { name: 'Labs', href: '/labs', color: '#7B6FE8' },
-  { name: 'Products', href: '/products', color: '#E8916F' },
-  { name: 'Academy', href: '/academy', color: '#E8B84D' },
-  { name: 'Ventures', href: '/ventures', color: '#6BA3E8' },
+  { name: 'Studio',   href: '/studio',   slug: 'studio'   },
+  { name: 'Agents',   href: '/agents',   slug: 'agents'   },
+  { name: 'Services', href: '/services', slug: 'services' },
+  { name: 'Cloud',    href: '/cloud',    slug: 'cloud'    },
+  { name: 'Labs',     href: '/labs',     slug: 'labs'     },
+  { name: 'Products', href: '/products', slug: 'products' },
+  { name: 'Academy',  href: '/academy',  slug: 'academy'  },
+  { name: 'Ventures', href: '/ventures', slug: 'ventures' },
 ];
 
 // Parent nav links (used when no division context)
@@ -123,9 +124,6 @@ const STYLES = `
     transition: border-color 0.2s;
   }
   .mnav-pill:active { border-color: var(--border-hover); }
-  .mnav-pill-dot {
-    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
-  }
   .mnav-footer {
     padding: 20px; border-top: 1px solid var(--border);
     margin-top: 24px; flex-shrink: 0;
@@ -312,7 +310,7 @@ export default function MobileNav({ open, onClose, division, currentPath = '' }:
                     exit="exit"
                   >
                     <Link href={pill.href} className="mnav-pill" onClick={onClose}>
-                      <span className="mnav-pill-dot" style={{ background: pill.color }} />
+                      <LogoMark division={pill.slug} size="xs" />
                       {pill.name}
                     </Link>
                   </motion.div>
