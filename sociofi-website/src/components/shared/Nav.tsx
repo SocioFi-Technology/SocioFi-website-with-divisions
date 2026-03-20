@@ -7,9 +7,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Logo from '@/components/shared/Logo';
 import ThemeToggle from '@/components/shared/ThemeToggle';
 import Button from '@/components/shared/Button';
+import MobileNav from '@/components/mobile/MobileNav';
 import { divisions } from '@/lib/divisions';
 import type { Division, NavLink } from '@/lib/divisions';
-import { ChevronDown, Menu, X } from '@/lib/icons';
+import { ChevronDown, Menu } from '@/lib/icons';
+import { useScrollDirection } from '@/hooks/useScrollDirection';
 
 interface NavProps {
   division?: Division;
@@ -22,6 +24,7 @@ export default function Nav({ division }: NavProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { navVisible } = useScrollDirection();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -49,8 +52,9 @@ export default function Nav({ division }: NavProps) {
       className={`nav${scrolled ? ' scrolled' : ''}`}
       role="banner"
       initial={{ y: -20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.4, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+      animate={{ y: navVisible ? 0 : -100, opacity: 1 }}
+      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+      style={{ transition: 'transform 0.3s cubic-bezier(0.16,1,0.3,1)' }}
     >
       <div className="container">
         <div style={{
@@ -71,7 +75,7 @@ export default function Nav({ division }: NavProps) {
           {/* Desktop nav links */}
           <nav
             aria-label="Main navigation"
-            className="show-desktop"
+            className="show-desktop nav-links-desktop"
             style={{ alignItems: 'center', gap: 2, flex: 1, justifyContent: 'center' }}
           >
             {ctx.navLinks.map((link) => (
@@ -106,80 +110,26 @@ export default function Nav({ division }: NavProps) {
             )}
 
             {/* Mobile hamburger */}
-            <div className="hide-desktop">
-              <button
-                onClick={() => setMobileOpen(!mobileOpen)}
-                aria-label={mobileOpen ? 'Close navigation' : 'Open navigation'}
-                aria-expanded={mobileOpen}
-                aria-controls="mobile-nav"
-                style={{
-                  width: 38,
-                  height: 38,
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1.5px solid var(--border)',
-                  background: 'transparent',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'var(--text-primary)',
-                  transition: 'border-color 0.2s, background 0.2s',
-                }}
-              >
-                {mobileOpen ? <X size={18} /> : <Menu size={18} />}
-              </button>
-            </div>
+            <button
+              className="nav-hamburger"
+              onClick={() => setMobileOpen(true)}
+              aria-label="Open menu"
+              aria-expanded={mobileOpen}
+              aria-controls="mobile-nav"
+            >
+              <Menu size={22} />
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Mobile nav panel */}
-      <AnimatePresence>
-        {mobileOpen && (
-          <motion.div
-            id="mobile-nav"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            style={{
-              overflow: 'hidden',
-              background: 'var(--bg-card)',
-              borderTop: '1px solid var(--border)',
-            }}
-          >
-            <div className="container" style={{ paddingBlock: 16 }}>
-              <nav aria-label="Mobile navigation">
-                {ctx.navLinks.map((link) => (
-                  <MobileNavItem
-                    key={link.label}
-                    link={link}
-                    isActive={isActive}
-                    accent={ctx.accent}
-                  />
-                ))}
-              </nav>
-
-              {ctx.cta && (
-                <div style={{
-                  marginTop: 16,
-                  paddingTop: 16,
-                  borderTop: '1px solid var(--border)',
-                }}>
-                  <Button
-                    href={ctx.cta.href}
-                    variant="primary"
-                    size="md"
-                    className="w-full justify-center"
-                  >
-                    {ctx.cta.label}
-                  </Button>
-                </div>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Full-screen mobile nav overlay */}
+      <MobileNav
+        open={mobileOpen}
+        onClose={() => setMobileOpen(false)}
+        division={division}
+        currentPath={pathname}
+      />
     </motion.header>
   );
 }
@@ -317,96 +267,3 @@ function DesktopNavItem({
   );
 }
 
-// ── Mobile nav item with collapsible sub-items ───────────────────────────────
-
-function MobileNavItem({
-  link,
-  isActive,
-  accent,
-}: {
-  link: NavLink;
-  isActive: (href: string) => boolean;
-  accent: string;
-}) {
-  const [subOpen, setSubOpen] = useState(false);
-  const active = isActive(link.href);
-
-  return (
-    <div style={{ borderBottom: '1px solid var(--border)' }}>
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <Link
-          href={link.href}
-          aria-current={active ? 'page' : undefined}
-          style={{
-            flex: 1,
-            padding: '13px 0',
-            fontFamily: 'var(--font-body)',
-            fontSize: '0.95rem',
-            fontWeight: 500,
-            color: active ? accent : 'var(--text-primary)',
-            display: 'block',
-          }}
-        >
-          {link.label}
-        </Link>
-
-        {link.dropdown && (
-          <button
-            onClick={() => setSubOpen(!subOpen)}
-            aria-expanded={subOpen}
-            aria-label={`${subOpen ? 'Collapse' : 'Expand'} ${link.label}`}
-            style={{
-              padding: '8px 4px',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              color: 'var(--text-muted)',
-              display: 'flex',
-              alignItems: 'center',
-            }}
-          >
-            <motion.span
-              animate={{ rotate: subOpen ? 180 : 0 }}
-              transition={{ duration: 0.2 }}
-              style={{ display: 'inline-flex' }}
-              aria-hidden="true"
-            >
-              <ChevronDown size={16} />
-            </motion.span>
-          </button>
-        )}
-      </div>
-
-      <AnimatePresence>
-        {link.dropdown && subOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            style={{ overflow: 'hidden' }}
-          >
-            <div style={{ paddingLeft: 16, paddingBottom: 8 }}>
-              {link.dropdown.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  style={{
-                    display: 'block',
-                    padding: '10px 0',
-                    fontFamily: 'var(--font-body)',
-                    fontSize: '0.88rem',
-                    color: 'var(--text-secondary)',
-                    borderTop: '1px solid var(--border)',
-                  }}
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}

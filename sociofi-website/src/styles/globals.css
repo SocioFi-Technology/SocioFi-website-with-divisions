@@ -1152,6 +1152,22 @@ pre code {
   .hide-desktop-block { display: none !important; }
 }
 
+/* ── Nav hamburger / desktop nav links ──────────────────────────────── */
+.nav-hamburger {
+  display: none;
+  width: 44px; height: 44px;
+  align-items: center; justify-content: center;
+  background: transparent; border: none; cursor: pointer;
+  color: var(--text-primary); border-radius: 8px;
+  transition: background 0.15s;
+}
+.nav-hamburger:active { background: var(--bg-2); }
+
+@media (max-width: 1024px) {
+  .nav-hamburger { display: flex; }
+  .nav-links-desktop { display: none !important; }
+}
+
 /* ── Footer responsive grid ──────────────────────────────────────────── */
 @media (max-width: 1023px) {
   .footer-grid {
@@ -1184,3 +1200,244 @@ pre code {
     grid-template-columns: repeat(2, 1fr) !important;
   }
 }
+
+/* ═══════════════════════════════════════
+   MOBILE TYPOGRAPHY SCALE
+   ═══════════════════════════════════════ */
+
+/* Prevent iOS input zoom */
+@media (max-width: 768px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Hero H1 */
+@media (max-width: 768px) {
+  .hero-h1, h1.hero { font-size: 2.2rem !important; }
+}
+@media (max-width: 480px) {
+  .hero-h1, h1.hero { font-size: 1.9rem !important; }
+}
+
+/* Page H1 */
+@media (max-width: 768px) {
+  h1:not(.hero-h1) { font-size: 1.8rem; }
+}
+@media (max-width: 480px) {
+  h1:not(.hero-h1) { font-size: 1.6rem; }
+}
+
+/* Section H2 */
+@media (max-width: 768px) {
+  h2 { font-size: 1.5rem; }
+}
+@media (max-width: 480px) {
+  h2 { font-size: 1.35rem; }
+}
+
+/* ═══════════════════════════════════════
+   MOBILE SPACING SCALE
+   ═══════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  /* Section vertical padding */
+  .section-pad { padding-top: 80px; padding-bottom: 80px; }
+  /* Container horizontal padding */
+  .container, [class*="-container"] { padding-left: 20px; padding-right: 20px; }
+  /* Card padding */
+  .card { padding: 24px !important; }
+  /* Grid gap */
+  .card-grid { gap: 12px !important; }
+  /* Buttons */
+  .btn, button[class*="btn"] {
+    min-height: 48px;
+    padding: 12px 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-pad { padding-top: 64px; padding-bottom: 64px; }
+  .container, [class*="-container"] { padding-left: 16px; padding-right: 16px; }
+  .card { padding: 20px !important; }
+  .card-grid { gap: 10px !important; }
+}
+
+/* ═══════════════════════════════════════
+   TOUCH TARGETS
+   ═══════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .btn, button, [role="button"] {
+    min-height: 48px;
+    min-width: 48px;
+    touch-action: manipulation;
+  }
+  a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+/* ═══════════════════════════════════════
+   HOVER → ACTIVE (touch devices)
+   ═══════════════════════════════════════ */
+
+@media (hover: none) {
+  /* Remove hover transforms on touch — use active instead */
+  .card:hover {
+    transform: none !important;
+    box-shadow: var(--card-shadow) !important;
+  }
+  .card:active {
+    transform: scale(0.98);
+    transition: transform 0.1s;
+  }
+  /* Remove parallax */
+  .parallax-element {
+    transform: none !important;
+  }
+}
+
+/* ═══════════════════════════════════════
+   GRID TRANSFORMATIONS
+   ═══════════════════════════════════════ */
+
+@media (max-width: 1024px) {
+  .grid-4 { grid-template-columns: repeat(2, 1fr) !important; }
+  .grid-3 { grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+@media (max-width: 768px) {
+  .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr !important; }
+  /* Full-width cards */
+  .card-full-mobile { width: 100% !important; max-width: 100% !important; }
+}
+
+/* ═══════════════════════════════════════
+   100DVH (iOS Safari fix)
+   ═══════════════════════════════════════ */
+
+.hero-full {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* ═══════════════════════════════════════
+   SAFE AREA (Notch / Dynamic Island)
+   ═══════════════════════════════════════ */
+
+@supports (padding-top: env(safe-area-inset-top)) {
+  .nav-safe { padding-top: env(safe-area-inset-top); }
+  .bottom-safe { padding-bottom: env(safe-area-inset-bottom); }
+}
+
+/* ═══════════════════════════════════════
+   HORIZONTAL SCROLL CONTAINERS
+   ═══════════════════════════════════════ */
+
+.scroll-x {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.scroll-x::-webkit-scrollbar { display: none; }
+.scroll-x-item {
+  scroll-snap-align: start;
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════
+   PREFERS-REDUCED-MOTION
+   ═══════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .particle-field,
+  .gradient-orb,
+  .animated-grid,
+  .typing-animation {
+    display: none !important;
+  }
+}
+
+/* ═══════════════════════════════════════
+   MOBILE FILTER BAR (horizontal scroll)
+   ═══════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .filter-bar {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+    /* Fade indicator on right edge */
+    -webkit-mask-image: linear-gradient(to right, black 80%, transparent 100%);
+    mask-image: linear-gradient(to right, black 80%, transparent 100%);
+  }
+  .filter-bar::-webkit-scrollbar { display: none; }
+  .filter-tab {
+    scroll-snap-align: center;
+    flex-shrink: 0;
+    min-height: 44px;
+    white-space: nowrap;
+  }
+}
+
+/* ═══════════════════════════════════════
+   BOTTOM ACTION BAR
+   ═══════════════════════════════════════ */
+
+.bottom-action-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 20px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  z-index: 900;
+  transform: translateY(100%);
+  animation: slideUpBar 0.4s cubic-bezier(0.16, 1, 0.3, 1) 2s forwards;
+  display: none; /* shown only on mobile via JS component */
+}
+
+@media (max-width: 768px) {
+  .bottom-action-bar { display: block; }
+}
+
+@keyframes slideUpBar {
+  to { transform: translateY(0); }
+}
+
+/* ═══════════════════════════════════════
+   MOBILE CODE BLOCKS
+   ═══════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  pre, code[class*="language-"] {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    font-size: 0.78rem;
+    border-radius: 10px;
+  }
+}
+
+/* ═══════════════════════════════════════
+   SCROLLBAR HIDE UTILITY
+   ═══════════════════════════════════════ */
+
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-hide::-webkit-scrollbar { display: none; }
