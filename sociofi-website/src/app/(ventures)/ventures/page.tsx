@@ -250,36 +250,29 @@ const STYLES = `
   font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;
 }
 
-/* ── Timeline ── */
-.vt-timeline { display: flex; align-items: flex-start; gap: 0; margin-top: 56px; position: relative; }
-@media (max-width: 768px) { .vt-timeline { flex-direction: column; gap: 0; } }
-.vt-timeline::before {
-  content: ''; position: absolute; top: 28px; left: 0; right: 0; height: 1.5px;
-  background: linear-gradient(90deg, ${A}40, ${A}20);
-}
-@media (max-width: 768px) { .vt-timeline::before { display: none; } }
-.vt-timeline-step { flex: 1; text-align: center; padding: 0 12px; position: relative; }
-@media (max-width: 768px) { .vt-timeline-step { display: flex; gap: 20px; text-align: left; padding: 0 0 32px 0; } }
-.vt-timeline-dot {
+/* ── Process Timeline ── */
+.vt-proc-wrap { position: relative; margin-top: 60px; }
+.vt-proc-line-track { position: absolute; top: 28px; left: calc(10% + 28px); right: calc(10% + 28px); height: 2px; background: var(--border); overflow: hidden; border-radius: 2px; }
+.vt-proc-line-fill { height: 100%; background: linear-gradient(90deg, ${A}, #4A85CC); transform-origin: left center; }
+@media (max-width: 768px) { .vt-proc-line-track { display: none; } }
+.vt-proc-steps { display: flex; align-items: flex-start; justify-content: center; gap: 0; }
+@media (max-width: 768px) { .vt-proc-steps { flex-direction: column; align-items: flex-start; max-width: 360px; margin: 0 auto; } }
+.vt-proc-step { flex: 1; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 8px; position: relative; }
+@media (max-width: 768px) { .vt-proc-step { flex-direction: row; gap: 20px; align-items: center; text-align: left; padding: 0 0 36px 0; flex: none; width: 100%; } }
+.vt-proc-dot {
   width: 56px; height: 56px; border-radius: 50%;
   background: linear-gradient(135deg, #4A85CC, ${A});
   display: flex; align-items: center; justify-content: center;
-  margin: 0 auto 16px; position: relative; z-index: 1;
-  font-family: ${F.m}; font-size: 0.72rem; color: #fff;
-  font-weight: 600; letter-spacing: 0.04em;
-  flex-shrink: 0;
+  font-family: ${F.m}; font-size: 0.72rem; color: #fff; font-weight: 700;
+  letter-spacing: 0.04em; position: relative; z-index: 1;
+  flex-shrink: 0; margin-bottom: 16px;
+  box-shadow: 0 4px 24px ${A}40;
 }
-@media (max-width: 768px) { .vt-timeline-dot { margin: 0; } }
-.vt-timeline-step-body { flex: 1; }
-.vt-timeline-label {
-  font-family: ${F.h}; font-size: 0.95rem; font-weight: 700;
-  color: var(--text-primary); margin-bottom: 4px;
-}
-.vt-timeline-day {
-  font-family: ${F.m}; font-size: 0.7rem; color: ${A};
-  letter-spacing: 0.06em;
-}
-.vt-timeline-note { margin-top: 28px; text-align: center; font-size: 0.9rem; color: var(--text-muted); }
+@media (max-width: 768px) { .vt-proc-dot { margin-bottom: 0; } }
+.vt-proc-body { flex: 1; }
+.vt-proc-label { font-family: ${F.h}; font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 5px; }
+.vt-proc-day { font-family: ${F.m}; font-size: 0.7rem; color: ${A}; letter-spacing: 0.06em; }
+.vt-timeline-note { margin-top: 40px; text-align: center; font-size: 0.9rem; color: var(--text-muted); }
 
 /* ── What You Get checklist ── */
 .vt-checklist { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 48px; }
@@ -522,6 +515,58 @@ const IconBook = () => (
     <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
   </svg>
 );
+
+// ── Process Timeline component ────────────────────────────────────────────
+const PROC_STEPS = [
+  { num: '01', label: 'Apply', day: 'Day 0' },
+  { num: '02', label: 'Review', day: 'Days 1–7' },
+  { num: '03', label: 'Call', day: 'Days 8–10' },
+  { num: '04', label: 'Terms', day: 'Days 10–14' },
+  { num: '05', label: 'Build', day: 'Day 14–21' },
+];
+
+function ProcessTimeline() {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: '-80px' });
+  return (
+    <div ref={ref} className="vt-proc-wrap">
+      {/* Animated connector line */}
+      <div className="vt-proc-line-track">
+        <motion.div
+          className="vt-proc-line-fill"
+          initial={{ scaleX: 0 }}
+          animate={inView ? { scaleX: 1 } : {}}
+          transition={{ duration: 1.4, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+        />
+      </div>
+
+      {/* Steps */}
+      <div className="vt-proc-steps">
+        {PROC_STEPS.map((step, i) => (
+          <div key={step.num} className="vt-proc-step">
+            <motion.div
+              className="vt-proc-dot"
+              initial={{ scale: 0, opacity: 0 }}
+              animate={inView ? { scale: 1, opacity: 1 } : {}}
+              transition={{ duration: 0.5, delay: 0.1 + i * 0.18, ease: [0.34, 1.56, 0.64, 1] }}
+            >
+              {step.num}
+            </motion.div>
+            <motion.div
+              className="vt-proc-body"
+              initial={{ opacity: 0, y: 16 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.55, delay: 0.3 + i * 0.18, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <div className="vt-proc-label">{step.label}</div>
+              <div className="vt-proc-day">{step.day}</div>
+            </motion.div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 // ── Page component ────────────────────────────────────────────────────────
 export default function VenturesPage() {
@@ -769,27 +814,9 @@ export default function VenturesPage() {
             </div>
           </Reveal>
 
-          <div className="vt-timeline">
-            {[
-              { label: 'Apply', day: 'Day 0', dot: '01' },
-              { label: 'Review', day: 'Days 1-7', dot: '02' },
-              { label: 'Call', day: 'Days 8-10', dot: '03' },
-              { label: 'Terms', day: 'Days 10-14', dot: '04' },
-              { label: 'Build', day: 'Day 14-21', dot: '05' },
-            ].map((step, i) => (
-              <Reveal key={step.label} delay={i * 0.1}>
-                <div className="vt-timeline-step">
-                  <div className="vt-timeline-dot">{step.dot}</div>
-                  <div className="vt-timeline-step-body">
-                    <div className="vt-timeline-label">{step.label}</div>
-                    <div className="vt-timeline-day">{step.day}</div>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
+          <ProcessTimeline />
 
-          <Reveal delay={0.5}>
+          <Reveal delay={0.8}>
             <p className="vt-timeline-note">
               Every applicant hears back within 7 business days. If we say no, we tell you why.
             </p>
