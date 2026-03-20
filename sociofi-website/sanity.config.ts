@@ -9,7 +9,7 @@ export default defineConfig({
   title: 'SocioFi Technology',
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
-  basePath: '/admin',
+  basePath: '/cms',
   plugins: [
     structureTool({
       structure: (S: StructureBuilder) =>
