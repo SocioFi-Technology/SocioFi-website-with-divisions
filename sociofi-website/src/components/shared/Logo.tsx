@@ -323,8 +323,8 @@ export default function Logo({
         </Link>
 
         {/* Stacked wordmark: SocioFi → /, DIVISION → division root */}
-        <span style={{ display: 'flex', flexDirection: 'column', gap: 2, lineHeight: 1 }}>
-          <Link href="/" style={{ textDecoration: 'none', display: 'block', minHeight: 'unset', lineHeight: 1 }} aria-label="SocioFi Technology — Home">
+        <span style={{ display: 'flex', flexDirection: 'column', gap: 0, lineHeight: 1 }}>
+          <Link href="/" style={{ textDecoration: 'none', display: 'block', minHeight: 'unset', lineHeight: 1, margin: 0, padding: 0 }} aria-label="SocioFi Technology — Home">
             <span style={{
               fontFamily: 'var(--font-syne, "Syne"), sans-serif',
               fontWeight: 800,
@@ -337,7 +337,7 @@ export default function Logo({
               SocioFi
             </span>
           </Link>
-          <Link href={href} style={{ textDecoration: 'none', display: 'block', minHeight: 'unset', lineHeight: 1 }} aria-label={config.name}>
+          <Link href={href} style={{ textDecoration: 'none', display: 'block', minHeight: 'unset', lineHeight: 1, margin: 0, padding: 0 }} aria-label={config.name}>
             <span style={{
               fontFamily: 'var(--font-syne, "Syne"), sans-serif',
               fontWeight: 800,
