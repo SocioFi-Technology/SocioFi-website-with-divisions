@@ -80,6 +80,9 @@ const STYLES = `
   /* canvas inside layer-mid */
   .cl-layer-mid canvas { position: absolute; inset: 0; pointer-events: none; width: 100%; height: 100%; }
 
+  /* Mobile layer arrows — hidden by default, shown on mobile */
+  .cl-layer-arrow-down { display: none; }
+
   /* ── Capabilities Grid ── */
   .cl-caps-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 56px; }
   @media(max-width: 700px) { .cl-caps-grid { grid-template-columns: 1fr; } }
@@ -155,6 +158,81 @@ const STYLES = `
   .cl-cta-sub { font-size: 1.05rem; color: var(--text-secondary, #7C8DB0); max-width: 480px; margin: 0 auto 36px; line-height: 1.7; }
 
   .cl-founder-quote { margin-top: 56px; max-width: 560px; margin-left: auto; margin-right: auto; padding: 28px 32px; border-radius: 14px; background: var(--bg-card, #13132B); border: 1px solid ${A}14; }
+
+  /* ── Prompt 7: Mobile adaptations ── */
+  @media (max-width: 768px) {
+    /* Section headers: center align */
+    .cl-label { justify-content: center; }
+    .cl-centered .cl-label { justify-content: center; }
+    .cl-h2 { text-align: center; }
+    .cl-desc { text-align: center; }
+
+    /* 3-layer diagram: vertical stack, full-width cards with downward arrows */
+    .cl-layers-wrap { max-width: 100%; margin: 40px 0 0; }
+    .cl-layer { padding: 24px 20px; width: 100%; box-sizing: border-box; }
+    .cl-layer-top { border-radius: 16px 16px 0 0; }
+    .cl-layer-bot { border-radius: 0 0 16px 16px; }
+    .cl-layer-inner { flex-direction: column; gap: 12px; }
+    .cl-layer-tags-wrap { flex-wrap: wrap; }
+    /* Hide the thin dividers and add arrow markers between layers */
+    .cl-layer-divider { display: none; }
+    .cl-layer-arrow-down {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 8px 0;
+      color: ${A};
+      opacity: 0.7;
+    }
+
+    /* Infrastructure/feature capability cards: 1 column */
+    .cl-caps-grid { grid-template-columns: 1fr; }
+
+    /* Provider cards: horizontal scroll row */
+    .cl-provs-row {
+      display: flex !important;
+      flex-direction: row !important;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x mandatory;
+      gap: 12px;
+      padding-bottom: 12px;
+      /* hide scrollbar visually */
+      scrollbar-width: thin;
+      scrollbar-color: ${A}40 transparent;
+    }
+    .cl-prov {
+      min-width: 260px;
+      flex-shrink: 0;
+      scroll-snap-align: start;
+    }
+
+    /* Pricing invoice: stacked line items, full-width */
+    .cl-invoice { max-width: 100%; padding: 24px 20px; }
+    .cl-invoice-row { flex-direction: column; align-items: flex-start; gap: 4px; }
+    .cl-invoice-row span:last-child { color: ${A}; font-weight: 700; }
+
+    /* Plan tier cards: stack vertically, "Most Popular" (Professional) goes first */
+    .cl-tiers { grid-template-columns: 1fr !important; }
+    .cl-tier.popular { order: -1; }
+
+    /* Flow diagram (Studio → Cloud → Services): vertical */
+    .cl-flow { flex-direction: column; align-items: center; gap: 0; }
+    .cl-flow-arrow { transform: rotate(90deg); padding: 4px 0; margin-bottom: 0; }
+    .cl-flow-block { width: 100%; max-width: 320px; }
+
+    /* Trust cards: already 1 column via existing rule — ensure */
+    .cl-trust-row { grid-template-columns: 1fr; }
+
+    /* Hero canvas: reduce visual weight on mobile */
+    .cl-hero { padding: 120px 20px 80px; }
+    .cl-hero-inner { max-width: 100%; }
+    .cl-sub { font-size: 1rem; }
+
+    /* CTA section padding */
+    .cl-cta-section { padding: 80px 20px; }
+    .cl-section { padding: 80px 20px; }
+  }
 `;
 
 // ── Reveal utility ──
@@ -185,8 +263,10 @@ function HeroCanvas() {
     const resize = () => { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; };
     resize();
     window.addEventListener('resize', resize);
+    const isMobile = window.innerWidth <= 768;
+    const dotCount = isMobile ? 16 : 40;
     const dots: { x: number; y: number; speed: number; opacity: number; size: number }[] = [];
-    for (let i = 0; i < 40; i++) {
+    for (let i = 0; i < dotCount; i++) {
       dots.push({
         x: Math.random() * (canvas.width || 1200),
         y: Math.random() * (canvas.height || 700),
@@ -199,8 +279,11 @@ function HeroCanvas() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       const h = canvas.height;
       const w = canvas.width;
-      // 3 horizontal band fills
-      const bands = [
+      // 2 horizontal band fills on mobile, 3 on desktop
+      const bands = isMobile ? [
+        { y: 0, h: h * 0.5, opacity: 0.045 },
+        { y: h * 0.5, h: h * 0.5, opacity: 0.02 },
+      ] : [
         { y: 0, h: h * 0.34, opacity: 0.045 },
         { y: h * 0.33, h: h * 0.34, opacity: 0.025 },
         { y: h * 0.66, h: h * 0.34, opacity: 0.015 },
@@ -238,8 +321,10 @@ function LayerMidCanvas() {
     const resize = () => { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; };
     resize();
     window.addEventListener('resize', resize);
+    const isMobileMid = window.innerWidth <= 768;
+    const midDotCount = isMobileMid ? 12 : 30;
     const dots: { x: number; y: number; speed: number; opacity: number; size: number }[] = [];
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < midDotCount; i++) {
       dots.push({
         x: Math.random() * (canvas.width || 860),
         y: Math.random() * (canvas.height || 120),
@@ -462,7 +547,13 @@ export default function CloudPage() {
               </div>
             </Reveal>
 
+            {/* Divider / mobile arrow */}
             <div className="cl-layer-divider" />
+            <div className="cl-layer-arrow-down" aria-hidden="true">
+              <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19" /><polyline points="19 12 12 19 5 12" />
+              </svg>
+            </div>
 
             {/* MIDDLE — SocioFi Cloud */}
             <Reveal delay={0.1}>
@@ -483,7 +574,13 @@ export default function CloudPage() {
               </div>
             </Reveal>
 
+            {/* Divider / mobile arrow */}
             <div className="cl-layer-divider" />
+            <div className="cl-layer-arrow-down" aria-hidden="true">
+              <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19" /><polyline points="19 12 12 19 5 12" />
+              </svg>
+            </div>
 
             {/* BOTTOM — Cloud Provider */}
             <Reveal delay={0.15}>

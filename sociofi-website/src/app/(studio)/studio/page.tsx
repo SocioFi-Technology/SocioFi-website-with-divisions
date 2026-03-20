@@ -165,19 +165,43 @@ const STYLES = `
 }
 .audience-card:hover { border-color: ${A}; transform: translateY(-4px); }
 
+/* Mobile code editor block — hidden on desktop, shown on mobile */
+.st-hero-code-mobile { display: none; }
+.st-hero-code-desktop { display: block; }
+
 /* Responsive */
 @media (max-width: 768px) {
   .port-grid { grid-template-columns: 1fr; }
   .port-card-featured { grid-column: span 1; }
-  .process-row { flex-direction: column; }
+  .port-card { min-height: unset; }
+  .process-row { flex-direction: column; align-items: center; }
+  .process-step { width: 100%; max-width: 360px; align-items: flex-start; text-align: left; }
   .process-step::after { display: none; }
   .hero-split { flex-direction: column; }
   .hero-visual { display: none; }
   .split-2col { flex-direction: column; }
+  .st-hero-code-mobile { display: block; }
+  .st-hero-code-desktop { display: none; }
+  .sec-label { justify-content: center !important; }
+  .svc-grid { grid-template-columns: 1fr !important; }
+  .price-grid { grid-template-columns: 1fr !important; }
+  .test-grid { grid-template-columns: 1fr !important; }
+  .audience-grid { grid-template-columns: 1fr !important; }
+  .flow-row { flex-direction: column !important; }
+  .flow-row > div { border-right: none !important; border-bottom: 1px solid var(--border); }
+  .flow-row > div:last-child { border-bottom: none; }
+  .hero-text-col { text-align: center !important; }
+  .hero-ctas { justify-content: center !important; }
+  .hero-quote { text-align: left; }
+  .section-header { text-align: center !important; }
+  .portfolio-header { flex-direction: column !important; align-items: flex-start !important; }
 }
 @media (max-width: 1024px) {
   .port-grid { grid-template-columns: repeat(2, 1fr); }
   .port-card-featured { grid-column: span 2; }
+  .svc-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .test-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .audience-grid { grid-template-columns: repeat(2, 1fr) !important; }
 }
 `;
 
@@ -333,6 +357,45 @@ function CodeEditorVisual() {
   );
 }
 
+// ── Mobile Code Snippet (compact, no terminal chrome) ───────────────────────
+const MOBILE_CODE_LINES = [
+  [{ t: 'const ', c: '#79B8FF' }, { t: 'agent', c: '#E1E4E8' }, { t: ' = new ', c: '#79B8FF' }, { t: 'AgentConfig', c: '#B392F0' }, { t: '({', c: '#E1E4E8' }],
+  [{ t: '  model', c: '#9ECBFF' }, { t: ': ', c: '#E1E4E8' }, { t: '"advanced-ai-model"', c: '#9ECBFF' }, { t: ',', c: '#E1E4E8' }],
+  [{ t: '  tools', c: '#9ECBFF' }, { t: ': [', c: '#E1E4E8' }, { t: 'searchWeb', c: '#B392F0' }, { t: ', ', c: '#E1E4E8' }, { t: 'editCode', c: '#B392F0' }, { t: '],', c: '#E1E4E8' }],
+  [{ t: '});', c: '#E1E4E8' }],
+  [{ t: '// Reviewed. Deployed. Yours.', c: '#6A737D' }],
+];
+
+function MobileCodeSnippet() {
+  return (
+    <div
+      className="st-hero-code-mobile"
+      role="img"
+      aria-label="Code snippet showing AI agent configuration"
+      style={{
+        background: 'rgba(13,13,30,0.97)',
+        border: `1px solid ${A}30`,
+        borderRadius: 12,
+        overflow: 'hidden',
+        fontFamily: '"JetBrains Mono", monospace',
+        fontSize: '0.75rem',
+        lineHeight: 1.7,
+        boxShadow: `0 12px 40px rgba(0,0,0,0.35), 0 0 0 1px ${A}10`,
+        marginBottom: 28,
+      }}
+    >
+      <div style={{ padding: '12px 16px' }}>
+        {MOBILE_CODE_LINES.map((line, li) => (
+          <div key={li} style={{ whiteSpace: 'pre', minHeight: '1.4em', display: 'flex', alignItems: 'center' }}>
+            <span style={{ color: 'rgba(255,255,255,0.12)', fontSize: '0.62rem', width: 18, flexShrink: 0, textAlign: 'right', marginRight: 10, userSelect: 'none' }}>{li + 1}</span>
+            {line.length === 0 ? <span>&nbsp;</span> : line.map((tok, ti_) => <span key={ti_} style={{ color: tok.c }}>{tok.t}</span>)}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ── Service card data ───────────────────────────────────────────────────────
 const SERVICES = [
   { icon: <IconTerminal />, title: 'Product Development', tagline: 'Idea → live product in weeks', body: 'Full-stack web and mobile apps. SaaS platforms. Customer portals. Architecture, frontend, backend, database, auth, payments, deployment — the whole thing.', time: '2–6 weeks', href: '/studio/services/product-development' },
@@ -428,9 +491,11 @@ export default function StudioPage() {
                   <h1 style={{ fontFamily: F.h, fontSize: 'clamp(2.4rem,5vw,3.4rem)', fontWeight: 800, letterSpacing: '-0.035em', lineHeight: 1.06, color: 'var(--text-primary)', margin: '0 0 20px' }}>
                     We Build Software That <span className="gradient-text">Actually Works.</span>
                   </h1>
-                  <p style={{ fontFamily: F.b, fontSize: '1.05rem', lineHeight: 1.75, color: 'var(--text-secondary)', margin: '0 0 32px', maxWidth: 520 }}>
+                  <p style={{ fontFamily: F.b, fontSize: '1.05rem', lineHeight: 1.75, color: 'var(--text-secondary)', margin: '0 0 28px', maxWidth: 520 }}>
                     From broken AI prototypes to scaled production systems. AI handles the code generation. Our engineers handle everything else — architecture, security, deployment, and ongoing maintenance.
                   </p>
+                  {/* Mobile code snippet — visible only ≤768px */}
+                  <MobileCodeSnippet />
                   {/* CTAs */}
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 32 }}>
                     <Link href="/studio/start-project" className="btn-primary">
@@ -449,9 +514,9 @@ export default function StudioPage() {
                   </blockquote>
                 </motion.div>
               </div>
-              {/* Right column — code editor */}
+              {/* Right column — code editor (desktop only, hidden ≤768px via .hero-visual + .st-hero-code-desktop) */}
               <motion.div
-                className="hero-visual"
+                className="hero-visual st-hero-code-desktop"
                 style={{ flex: '1 1 46%', minWidth: 0 }}
                 initial={{ opacity: 0, x: 32 }}
                 animate={{ opacity: 1, x: 0 }}

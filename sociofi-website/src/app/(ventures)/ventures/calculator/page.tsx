@@ -247,6 +247,14 @@ const STYLES = `
     .calc-inputs { padding: 32px 24px; }
     .calc-outputs { padding: 32px 24px; }
     .calc-cta { padding: 50px 20px; }
+    /* ── Mobile: section header centering ── */
+    .calc-hero-label { justify-content: center; }
+    .calc-hero-title { text-align: center; }
+    .calc-hero-sub { text-align: center; }
+    /* ── Mobile: full-width inputs and select ── */
+    .calc-input, .calc-select { width: 100%; box-sizing: border-box; }
+    /* ── Mobile: output cards stack 1-column (already flex-col, enforce width) ── */
+    .calc-model-card { width: 100%; box-sizing: border-box; }
   }
   @media (max-width: 480px) {
     .calc-radio-grid { grid-template-columns: 1fr; }

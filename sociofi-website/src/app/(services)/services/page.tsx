@@ -569,6 +569,43 @@ const STYLES = `
     .srv-metric-item:last-child { border-bottom: none; }
     .srv-resp-table { font-size: 0.78rem; }
     .srv-resp-table th, .srv-resp-table td { padding: 8px 10px; }
+
+    /* ── Prompt 7: Mobile adaptations ── */
+
+    /* Dashboard: hide rows 4 and 5, hide uptime bar */
+    .srv-dashboard-row:nth-child(n+5) { display: none; }
+    .srv-uptime-bar-wrap { display: none; }
+
+    /* Incident response pipeline: vertical layout with downward arrows */
+    .srv-incident-flow { flex-direction: column; align-items: center; gap: 0; }
+    .srv-incident-arrow {
+      width: 2px;
+      height: 20px;
+      margin: 2px 0;
+      margin-bottom: 0;
+      transform: none;
+    }
+
+    /* SLA table: hide table, show stacked priority cards */
+    .srv-resp-table-wrap { display: none; }
+    .srv-sla-mobile-cards { display: flex !important; }
+
+    /* Card grids: 1 column */
+    .srv-problem-grid { grid-template-columns: 1fr !important; }
+    .srv-cap-grid { grid-template-columns: 1fr !important; }
+
+    /* Section headers: center align */
+    .srv-sec-label { justify-content: center; }
+
+    /* Same-team comparison: stack columns */
+    .srv-compare-cols { grid-template-columns: 1fr !important; gap: 24px !important; }
+
+    /* Testimonials grid: 1 column */
+    .srv-testimonials-grid { grid-template-columns: 1fr !important; }
+
+    /* Plan cards: stack vertically, popular card first */
+    .srv-plans-grid { display: flex !important; flex-direction: column !important; gap: 20px !important; }
+    .srv-plan-card.popular { order: -1; }
   }
 `;
 
@@ -626,7 +663,7 @@ function MonitoringDashboard() {
           <span className={r.statusClass} style={{ fontSize: '0.66rem', letterSpacing: '0.06em' }}>{r.status}</span>
         </div>
       ))}
-      <div style={{ padding: '12px 16px' }}>
+      <div className="srv-uptime-bar-wrap" style={{ padding: '12px 16px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: '0.68rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', letterSpacing: '0.06em' }}>
           <span>UPTIME (30d)</span>
           <span style={{ color: A, fontWeight: 600 }}>99.97%</span>
@@ -896,7 +933,7 @@ export default function ServicesPage() {
             </blockquote>
           </motion.div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 20 }}>
+          <div className="srv-problem-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 20 }}>
             {[
               {
                 title: 'Security Vulnerabilities',
@@ -948,7 +985,7 @@ export default function ServicesPage() {
             </h2>
           </motion.div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
+          <div className="srv-cap-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
             {[
               {
                 title: '24/7 Monitoring',
@@ -1103,7 +1140,7 @@ export default function ServicesPage() {
             </div>
           </motion.div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40 }}>
+          <div className="srv-compare-cols" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40 }}>
             {/* Left — usual way */}
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger(0)} style={{ opacity: 0.55 }}>
               <h3 style={{ fontFamily: F.mono, fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.06em', marginBottom: 20, textTransform: 'uppercase' }}>How It Usually Works</h3>
@@ -1167,31 +1204,61 @@ export default function ServicesPage() {
               <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ fontFamily: F.mono, fontSize: '0.72rem', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>RESPONSE TIME SLA BY PRIORITY &amp; PLAN</span>
               </div>
-              <table className="srv-resp-table">
-                <thead>
-                  <tr>
-                    <th>Priority</th>
-                    <th>Essential</th>
-                    <th>Growth</th>
-                    <th>Scale</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[
-                    { p: 'P1 — Production Down', e: '4 hours', g: '1 hour', s: '15 min', highlight: true },
-                    { p: 'P2 — Major Feature Broken', e: '8 hours', g: '4 hours', s: '1 hour', highlight: false },
-                    { p: 'P3 — Minor Bug', e: '24 hours', g: '8 hours', s: '4 hours', highlight: false },
-                    { p: 'P4 — Cosmetic / Low', e: '72 hours', g: '24 hours', s: '8 hours', highlight: false },
-                  ].map((row) => (
-                    <tr key={row.p}>
-                      <td>{row.p}</td>
-                      <td>{row.e}</td>
-                      <td className={row.highlight ? 'fast' : ''}>{row.g}</td>
-                      <td className="fast">{row.s}</td>
+              {/* Desktop table */}
+              <div className="srv-resp-table-wrap">
+                <table className="srv-resp-table">
+                  <thead>
+                    <tr>
+                      <th>Priority</th>
+                      <th>Essential</th>
+                      <th>Growth</th>
+                      <th>Scale</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {[
+                      { p: 'P1 — Production Down', e: '4 hours', g: '1 hour', s: '15 min', highlight: true },
+                      { p: 'P2 — Major Feature Broken', e: '8 hours', g: '4 hours', s: '1 hour', highlight: false },
+                      { p: 'P3 — Minor Bug', e: '24 hours', g: '8 hours', s: '4 hours', highlight: false },
+                      { p: 'P4 — Cosmetic / Low', e: '72 hours', g: '24 hours', s: '8 hours', highlight: false },
+                    ].map((row) => (
+                      <tr key={row.p}>
+                        <td>{row.p}</td>
+                        <td>{row.e}</td>
+                        <td className={row.highlight ? 'fast' : ''}>{row.g}</td>
+                        <td className="fast">{row.s}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {/* Mobile stacked cards */}
+              <div className="srv-sla-mobile-cards" style={{ display: 'none', flexDirection: 'column', gap: 0 }}>
+                {[
+                  { p: 'P1 — Production Down', e: '4 hours', g: '1 hour', s: '15 min' },
+                  { p: 'P2 — Major Feature Broken', e: '8 hours', g: '4 hours', s: '1 hour' },
+                  { p: 'P3 — Minor Bug', e: '24 hours', g: '8 hours', s: '4 hours' },
+                  { p: 'P4 — Cosmetic / Low', e: '72 hours', g: '24 hours', s: '8 hours' },
+                ].map((row, i) => (
+                  <div key={row.p} style={{ padding: '16px 20px', borderBottom: i < 3 ? '1px solid var(--border)' : 'none' }}>
+                    <div style={{ fontFamily: F.display, fontSize: '0.92rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: 10 }}>{row.p}</div>
+                    <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                      <div style={{ flex: 1, minWidth: 80 }}>
+                        <div style={{ fontFamily: F.mono, fontSize: '0.62rem', color: 'var(--text-muted)', letterSpacing: '0.08em', marginBottom: 3 }}>ESSENTIAL</div>
+                        <div style={{ fontFamily: F.body, fontSize: '0.84rem', color: 'var(--text-secondary)' }}>{row.e}</div>
+                      </div>
+                      <div style={{ flex: 1, minWidth: 80 }}>
+                        <div style={{ fontFamily: F.mono, fontSize: '0.62rem', color: 'var(--text-muted)', letterSpacing: '0.08em', marginBottom: 3 }}>GROWTH</div>
+                        <div style={{ fontFamily: F.body, fontSize: '0.84rem', color: A, fontWeight: 600 }}>{row.g}</div>
+                      </div>
+                      <div style={{ flex: 1, minWidth: 80 }}>
+                        <div style={{ fontFamily: F.mono, fontSize: '0.62rem', color: 'var(--text-muted)', letterSpacing: '0.08em', marginBottom: 3 }}>SCALE</div>
+                        <div style={{ fontFamily: F.body, fontSize: '0.84rem', color: A, fontWeight: 700 }}>{row.s}</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </motion.div>
         </div>
@@ -1211,7 +1278,7 @@ export default function ServicesPage() {
             </p>
           </motion.div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, marginBottom: 40 }}>
+          <div className="srv-plans-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, marginBottom: 40 }}>
             {plans.map((plan, i) => (
               <motion.div key={plan.slug} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger(i)} className={`srv-plan-card${plan.badge ? ' popular' : ''}`}>
                 {plan.badge && (
@@ -1331,7 +1398,7 @@ export default function ServicesPage() {
             </h2>
           </motion.div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
+          <div className="srv-testimonials-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
             {[
               {
                 quote: 'We had a memory leak slowly killing our server every 3 days. SocioFi caught it on day two of monitoring, diagnosed it in an hour, and deployed the fix the same day. We didn\'t even know it was happening.',

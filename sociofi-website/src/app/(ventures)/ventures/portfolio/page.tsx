@@ -225,6 +225,12 @@ const STYLES = `
     .port-placeholder-grid { grid-template-columns: 1fr; gap: 14px; }
     .port-perks-section { padding: 60px 20px; }
     .port-cta { padding: 60px 20px; }
+    /* ── Mobile: section header centering ── */
+    .port-hero-label { justify-content: center; }
+    .port-hero-h1 { text-align: center; }
+    .port-hero-sub { text-align: center; }
+    /* ── Mobile: portfolio placeholder cards 1-column (already done above, reinforce) ── */
+    .port-placeholder-grid { grid-template-columns: 1fr; }
   }
   @media (max-width: 480px) {
     .port-cta-row { flex-direction: column; align-items: stretch; }

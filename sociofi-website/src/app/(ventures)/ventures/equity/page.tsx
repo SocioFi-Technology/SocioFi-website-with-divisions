@@ -427,6 +427,15 @@ const STYLES = `
     .eq-section { padding: 60px 20px; }
     .eq-step { grid-template-columns: 40px 1fr; gap: 16px; }
     .eq-table td, .eq-table th { padding: 12px 16px; }
+    /* ── Mobile: section header centering ── */
+    .eq-hero-label { justify-content: center; }
+    .eq-hero-h1 { text-align: center; }
+    .eq-hero-sub { text-align: center; }
+    /* ── Mobile: equity pie chart capped at 240px ── */
+    .eq-chart-wrap { max-width: 240px; margin: 0 auto; }
+    .eq-chart-wrap svg { width: 100%; height: auto; }
+    /* ── Mobile: comparison table scrollable ── */
+    .eq-table-wrap { overflow-x: auto; }
   }
 `;
 

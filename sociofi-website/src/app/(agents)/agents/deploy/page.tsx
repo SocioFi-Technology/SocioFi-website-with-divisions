@@ -31,6 +31,21 @@ const STYLES = `
   .dp-agent-chip-name { font-family:${F.h}; font-size:0.82rem; font-weight:600; color:var(--text-primary); margin-bottom:2px; }
   .dp-agent-chip-cat { font-family:${F.m}; font-size:0.64rem; color:var(--text-muted); }
   .dp-agent-chip.sel .dp-agent-chip-name { color:${A}; }
+  .dp-agent-chip-price { display:none; font-family:${F.m}; font-size:0.7rem; color:${A}; }
+  .dp-agent-chip-toggle { display:none; font-family:${F.h}; font-size:0.72rem; font-weight:600; padding:4px 12px; border-radius:100px; border:1.5px solid var(--border); color:var(--text-muted); background:transparent; cursor:pointer; flex-shrink:0; }
+  .dp-agent-chip.sel .dp-agent-chip-toggle { border-color:${A}; color:${A}; background:rgba(139,92,246,0.1); }
+  @media(max-width:768px) {
+    .dp-agent-grid { grid-template-columns:1fr; gap:8px; }
+    .dp-agent-chip { display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-radius:12px; }
+    .dp-agent-chip-name { margin-bottom:0; font-size:0.88rem; }
+    .dp-agent-chip-cat { display:none; }
+    .dp-agent-chip-price { display:block; }
+    .dp-agent-chip-toggle { display:block; }
+    .dp-container { padding:0 20px; }
+    .dp-hero { padding:120px 0 56px; }
+    .dp-label { justify-content:center; }
+    .dp-h1 { text-align:center; }
+  }
   .dp-field { margin-bottom:16px; }
   .dp-label-sm { font-family:${F.h}; font-size:0.82rem; font-weight:600; color:var(--text-secondary); margin-bottom:6px; display:block; }
   .dp-input { width:100%; padding:11px 14px; border-radius:8px; border:1.5px solid var(--border); background:var(--bg); color:var(--text-primary); font-family:${F.b}; font-size:0.88rem; outline:none; transition:border-color 0.2s; box-sizing:border-box; }
@@ -122,8 +137,19 @@ export default function DeployPage() {
                         className={`dp-agent-chip${selectedAgents.includes(agent.slug) ? ' sel' : ''}`}
                         onClick={() => toggleAgent(agent.slug)}
                       >
-                        <div className="dp-agent-chip-name">{agent.name}</div>
-                        <div className="dp-agent-chip-cat">{CATEGORY_META[agent.category].label} · ${agent.price}/mo</div>
+                        <div style={{ minWidth: 0 }}>
+                          <div className="dp-agent-chip-name">{agent.name}</div>
+                          <div className="dp-agent-chip-cat">{CATEGORY_META[agent.category].label} · ${agent.price}/mo</div>
+                          <div className="dp-agent-chip-price">${agent.price}/mo</div>
+                        </div>
+                        <span
+                          className="dp-agent-chip-toggle"
+                          role="switch"
+                          aria-checked={selectedAgents.includes(agent.slug)}
+                          aria-label={`${selectedAgents.includes(agent.slug) ? 'Remove' : 'Add'} ${agent.name}`}
+                        >
+                          {selectedAgents.includes(agent.slug) ? 'ON' : 'OFF'}
+                        </span>
                       </div>
                     ))}
                   </div>

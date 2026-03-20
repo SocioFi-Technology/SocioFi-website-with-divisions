@@ -21,6 +21,15 @@ const STYLES = `
   .cat-sub { font-family:${F.b}; font-size:1.05rem; line-height:1.7; color:var(--text-secondary); max-width:560px; }
   .cat-filters { position:sticky; top:0; z-index:40; background:var(--bg); border-bottom:1px solid var(--border); padding:16px 0; }
   .cat-filter-inner { max-width:1200px; margin:0 auto; padding:0 32px; display:flex; gap:8px; flex-wrap:wrap; }
+  @media(max-width:768px) {
+    .cat-filter-inner { flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch; scroll-snap-type:x mandatory; padding:0 20px; scrollbar-width:none; -ms-overflow-style:none; }
+    .cat-filter-inner::-webkit-scrollbar { display:none; }
+    .cat-tab { scroll-snap-align:start; flex-shrink:0; }
+    .cat-filters { mask-image:linear-gradient(to right, transparent 0%, black 5%, black 92%, transparent 100%); -webkit-mask-image:linear-gradient(to right, transparent 0%, black 5%, black 92%, transparent 100%); }
+    .cat-grid-section { padding:32px 0 60px; }
+    .cat-container { padding:0 20px; }
+    .cat-hero { padding:120px 0 56px; }
+  }
   .cat-tab { font-family:${F.h}; font-size:0.84rem; font-weight:600; padding:8px 18px; border-radius:100px; border:1.5px solid var(--border); color:var(--text-secondary); cursor:pointer; transition:all 0.2s; background:transparent; }
   .cat-tab:hover { border-color:${A}; color:${A}; }
   .cat-tab.active { background:${A}; border-color:${A}; color:#fff; }

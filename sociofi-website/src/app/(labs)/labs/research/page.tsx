@@ -465,6 +465,12 @@ const STYLES = `
   .exp-row { grid-template-columns: 1fr; }
   .exp-right { flex-direction: row; align-items: center; flex-wrap: wrap; }
   .scard { padding: 24px; }
+  /* ── Mobile: 1-column card grid ── */
+  .res-grid { grid-template-columns: 1fr; }
+  /* ── Mobile: center section headers ── */
+  .res-label { justify-content: center; text-align: center; }
+  .res-h1 { text-align: center; }
+  .res-subtitle { text-align: center; margin-left: auto; margin-right: auto; }
 }
 `;
 

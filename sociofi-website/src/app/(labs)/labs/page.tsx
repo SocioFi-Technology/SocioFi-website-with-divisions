@@ -190,6 +190,16 @@ const STYLES = `
     .pip-item:nth-last-child(2) { border-bottom: 1px solid var(--border); }
     .stats-bar { flex-direction: column; } .stat-divider { width: 100%; height: 1px; }
     .art-excerpt { display: none; }
+    /* ── Mobile: 1-column card grids ── */
+    .streams-grid { grid-template-columns: 1fr; }
+    .exp-grid { grid-template-columns: 1fr; }
+    /* ── Mobile: center section headers ── */
+    .lp-sec-label { justify-content: center; }
+    .lp-sec-title { text-align: center; }
+    .lp-sec-sub { text-align: center; margin-left: auto; margin-right: auto; }
+    .exp-intro { text-align: center; margin-left: auto; margin-right: auto; }
+    /* ── Mobile: blog/research cards full-width ── */
+    .stream-card { width: 100%; }
   }
   @media (max-width: 480px) {
     .lp-h1 { font-size: 2.4rem; } .oss-panel { padding: 28px 20px; }
@@ -210,8 +220,10 @@ function ParticleCanvas() {
     if (!ctx) return;
 
     let animId: number;
+    const isMobile = window.innerWidth < 768;
     const CONNECT = 120;
-    const COUNT = 65;
+    const COUNT = isMobile ? 15 : 65;
+    const SPEED_FACTOR = isMobile ? 0.5 : 1;
 
     interface Dot {
       x: number; y: number; vx: number; vy: number;
@@ -229,8 +241,8 @@ function ParticleCanvas() {
       dots = Array.from({ length: COUNT }, () => ({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: (Math.random() - 0.5) * 0.3,
+        vx: (Math.random() - 0.5) * 0.3 * SPEED_FACTOR,
+        vy: (Math.random() - 0.5) * 0.3 * SPEED_FACTOR,
         r: Math.random() * 1.6 + 0.7,
         pulse: Math.random(),
         pDir: Math.random() > 0.5 ? 1 : -1,
@@ -250,19 +262,21 @@ function ParticleCanvas() {
         if (d.y > canvas.height) d.y = 0;
       });
 
-      for (let i = 0; i < dots.length; i++) {
-        for (let j = i + 1; j < dots.length; j++) {
-          const dx = dots[i].x - dots[j].x;
-          const dy = dots[i].y - dots[j].y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < CONNECT) {
-            const alpha = (1 - dist / CONNECT) * 0.22;
-            ctx.beginPath();
-            ctx.moveTo(dots[i].x, dots[i].y);
-            ctx.lineTo(dots[j].x, dots[j].y);
-            ctx.strokeStyle = `rgba(123,111,232,${alpha})`;
-            ctx.lineWidth = 0.7;
-            ctx.stroke();
+      if (!isMobile) {
+        for (let i = 0; i < dots.length; i++) {
+          for (let j = i + 1; j < dots.length; j++) {
+            const dx = dots[i].x - dots[j].x;
+            const dy = dots[i].y - dots[j].y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < CONNECT) {
+              const alpha = (1 - dist / CONNECT) * 0.22;
+              ctx.beginPath();
+              ctx.moveTo(dots[i].x, dots[i].y);
+              ctx.lineTo(dots[j].x, dots[j].y);
+              ctx.strokeStyle = `rgba(123,111,232,${alpha})`;
+              ctx.lineWidth = 0.7;
+              ctx.stroke();
+            }
           }
         }
       }

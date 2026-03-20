@@ -279,6 +279,14 @@ const STYLES = `
     .crit-dq-section { padding: 60px 20px; }
     .crit-final-cta { padding: 60px 20px; }
     .crit-score-big { font-size: 3.5rem; }
+    /* ── Mobile: section header centering ── */
+    .crit-hero-label { justify-content: center; }
+    .crit-hero-h1 { text-align: center; }
+    .crit-hero-sub { text-align: center; }
+    /* ── Mobile: full-width sliders with larger thumb ── */
+    input[type=range] { width: 100%; }
+    input[type=range]::-webkit-slider-thumb { width: 28px; height: 28px; }
+    input[type=range]::-moz-range-thumb { width: 28px; height: 28px; }
   }
   @media (max-width: 480px) {
     .crit-score-grid { grid-template-columns: repeat(2, 1fr); }

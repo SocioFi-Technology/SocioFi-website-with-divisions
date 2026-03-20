@@ -348,6 +348,56 @@ const STYLES = `
   .vt-calc-section { padding: 60px 20px; }
   .vt-calc-inner { padding: 32px 24px; }
   .vt-ceo-quote { padding: 24px; }
+
+  /* ── Mobile: section header centering ── */
+  .vt-badge { justify-content: center; }
+  .vt-sec-label { justify-content: center; }
+  .vt-sec-h2 { text-align: center; }
+  .vt-sec-desc { text-align: center; margin-left: auto; margin-right: auto; }
+  .vt-centered .vt-sec-desc { margin: 0 auto; }
+
+  /* ── Mobile: deal model cards stack vertically (already covered by 900px rule,
+     enforce explicitly for safety) ── */
+  .vt-models-grid { grid-template-columns: 1fr; }
+
+  /* ── Mobile: portfolio placeholder cards 1-column ── */
+  .vt-portfolio-grid { grid-template-columns: 1fr; }
+
+  /* ── Mobile: criteria cards 1-column ── */
+  .vt-criteria-grid { grid-template-columns: 1fr; }
+
+  /* ── Mobile: clarify cards 1-column ── */
+  .vt-clarify-grid { grid-template-columns: 1fr; }
+
+  /* ── Mobile: CEO/CTO quote padding ── */
+  .vt-cto-quote { padding: 24px 20px; }
+
+  /* ── Mobile: revenue share chart — full-width responsive SVG ── */
+  .vt-revenue-chart { width: 100%; }
+  .vt-revenue-chart svg { width: 100%; height: auto; }
+
+  /* ── Mobile: equity pie chart — cap at 240px ── */
+  .vt-equity-chart { max-width: 240px; margin: 0 auto; }
+  .vt-equity-chart svg { width: 100%; height: auto; }
+
+  /* ── Mobile: self-assessment sliders — full-width with larger thumb ── */
+  input[type=range] { width: 100%; }
+  input[type=range]::-webkit-slider-thumb { width: 28px; height: 28px; }
+  input[type=range]::-moz-range-thumb { width: 28px; height: 28px; }
+
+  /* ── Mobile: apply form wizard — full-width inputs, sticky submit ── */
+  .vt-apply-input,
+  .vt-apply-textarea,
+  .vt-apply-select { width: 100%; box-sizing: border-box; }
+  .vt-apply-submit { width: 100%; position: sticky; bottom: 16px; }
+  .vt-apply-back { display: block; text-align: center; margin-bottom: 12px; background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 0.9rem; }
+  .vt-apply-progress-bar { display: none; }
+  .vt-apply-progress-dots { display: flex; justify-content: center; gap: 8px; margin-bottom: 24px; }
+  .vt-apply-progress-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--border); transition: background 0.25s;
+  }
+  .vt-apply-progress-dot.active { background: ${A}; }
 }
 `;
 
@@ -376,12 +426,14 @@ function RisingParticles() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     let raf: number;
+    const isMobile = window.innerWidth < 768;
+    const count = isMobile ? 15 : 35;
     const resize = () => { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; };
     resize();
     window.addEventListener('resize', resize);
     type Dot = { x: number; y: number; speed: number; opacity: number; size: number };
     const dots: Dot[] = [];
-    for (let i = 0; i < 70; i++) {
+    for (let i = 0; i < count; i++) {
       dots.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,

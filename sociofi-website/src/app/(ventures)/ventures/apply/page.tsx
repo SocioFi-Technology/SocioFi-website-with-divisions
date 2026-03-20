@@ -579,6 +579,36 @@ const STYLES = `
     .apply-hero { padding: 110px 0 60px; }
     .apply-main { padding: 40px 0 80px; }
     .apply-container { padding: 0 20px; }
+
+    /* ── Mobile: section header centering ── */
+    .apply-hero-label { justify-content: center; }
+    .apply-hero-h1 { text-align: center; }
+    .apply-hero-sub { text-align: center; }
+
+    /* ── Mobile: inputs and textarea full-width ── */
+    .apply-input, .apply-textarea, .apply-select { width: 100%; box-sizing: border-box; }
+
+    /* ── Mobile: form card padding reduced ── */
+    .apply-form-card { padding: 24px 20px; }
+
+    /* ── Mobile: submit button full-width, sticky bottom ── */
+    .apply-btn-submit { width: 100%; justify-content: center; }
+
+    /* ── Mobile: back button — text link style above form ── */
+    .apply-btn-back {
+      display: inline-block;
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 0.88rem;
+      cursor: pointer;
+      padding: 0;
+      margin-bottom: 12px;
+    }
+    .apply-btn-back:hover { color: var(--text-primary); }
+
+    /* ── Mobile: next button full-width ── */
+    .apply-btn-next { width: 100%; justify-content: center; }
   }
 `;
 

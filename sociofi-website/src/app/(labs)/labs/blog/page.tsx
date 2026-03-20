@@ -632,6 +632,14 @@ const STYLES = `
       width: 100%;
       text-align: center;
     }
+    /* ── Mobile: section header centering ── */
+    .blog-masthead-label { justify-content: center; }
+    .blog-h1 { text-align: center; }
+    .blog-subtitle { text-align: center; margin-left: auto; margin-right: auto; }
+    /* ── Mobile: featured article full-width above grid ── */
+    .featured-hero-card { grid-template-columns: 1fr; width: 100%; }
+    /* ── Mobile: code blocks horizontal scroll ── */
+    pre, code { overflow-x: auto; white-space: pre; word-break: normal; width: 100%; }
   }
 `;
 

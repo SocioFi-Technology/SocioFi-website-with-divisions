@@ -52,12 +52,30 @@ const STYLES = `
   .ag-cat-link { font-family:${F.h}; font-size:0.82rem; font-weight:600; color:${A}; text-decoration:none; display:flex; align-items:center; gap:4px; }
   .ag-cat-link:hover { text-decoration:underline; }
   .ag-steps { display:grid; grid-template-columns:repeat(3,1fr); gap:32px; }
-  @media(max-width:768px) { .ag-steps { grid-template-columns:1fr; } .ag-cat-grid { grid-template-columns:1fr 1fr; } }
+  @media(max-width:768px) {
+    .ag-steps { grid-template-columns:1fr; gap:0; }
+    .ag-cat-grid { grid-template-columns:1fr 1fr; }
+    .ag-label { justify-content:center !important; }
+    .ag-h2 { text-align:center; }
+    .ag-body { text-align:center; }
+    .ag-agent-card { padding:36px 28px; }
+    .ag-container { padding:0 20px; }
+    .ag-section { padding:72px 0; }
+    .ag-ctas { justify-content:center; }
+    .ag-quote { padding:28px 24px; }
+    .ag-quote-mark { left:20px; font-size:3.5rem; }
+    .ag-pricing-row { gap:16px; }
+  }
   @media(max-width:480px) { .ag-cat-grid { grid-template-columns:1fr; } }
   .ag-step { position:relative; }
   .ag-step-num { font-family:${F.h}; font-size:4rem; font-weight:800; color:${A}; opacity:0.15; line-height:1; margin-bottom:12px; }
   .ag-step-title { font-family:${F.h}; font-size:1.1rem; font-weight:700; color:var(--text-primary); margin-bottom:8px; }
   .ag-step-desc { font-family:${F.b}; font-size:0.9rem; color:var(--text-secondary); line-height:1.6; }
+  @media(max-width:768px) {
+    .ag-step { padding:28px 0 28px 20px; border-left:2px solid rgba(139,92,246,0.25); }
+    .ag-step:last-child { border-left-color:transparent; }
+    .ag-step-num { font-size:2.4rem; margin-bottom:8px; }
+  }
   .ag-agent-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
   @media(max-width:1024px) { .ag-agent-grid { grid-template-columns:1fr 1fr; } }
   @media(max-width:600px) { .ag-agent-grid { grid-template-columns:1fr; } }
@@ -102,7 +120,8 @@ function NeuralNetworkBg() {
     resize();
     window.addEventListener('resize', resize);
 
-    for (let i = 0; i < 40; i++) {
+    const particleCount = window.innerWidth < 768 ? 15 : 40;
+    for (let i = 0; i < particleCount; i++) {
       dots.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,

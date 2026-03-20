@@ -172,7 +172,28 @@ const STYLES = `
   .cmp-hero { padding: 120px 20px 80px; }
   .cmp-section, .cmp-section-alt { padding: 80px 20px; }
   .cmp-final-cta { padding: 80px 20px; }
+  /* ── Mobile: section header centering ── */
+  .cmp-sec-label { justify-content: center; }
+  .cmp-sec-h2 { text-align: center; }
+  /* ── Mobile: hide comparison table, show stacked metric cards ── */
+  .cmp-table-wrap { display: none; }
+  .cmp-mobile-cards { display: flex; flex-direction: column; gap: 12px; margin-top: 32px; }
+  .cmp-mobile-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 20px;
+  }
+  .cmp-mobile-card-metric {
+    font-family: ${F.h}; font-size: 0.88rem; font-weight: 700;
+    color: var(--text-primary); margin-bottom: 12px;
+    padding-bottom: 10px; border-bottom: 1px solid var(--border);
+  }
+  .cmp-mobile-card-row { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 6px; font-size: 0.82rem; }
+  .cmp-mobile-card-label { color: var(--text-muted); flex-shrink: 0; min-width: 110px; }
+  .cmp-mobile-card-val { color: var(--text-secondary); text-align: right; }
+  .cmp-mobile-card-val.highlight { color: ${A}; font-weight: 600; }
 }
+/* ── Desktop: hide mobile cards ── */
+.cmp-mobile-cards { display: none; }
 `;
 
 // ── Scroll Reveal ──────────────────────────────────────────────────────────
@@ -273,6 +294,30 @@ export default function ComparePage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+            {/* Mobile: stacked metric cards */}
+            <div className="cmp-mobile-cards" aria-hidden="false">
+              {TABLE_ROWS.map((row) => (
+                <div key={row.label} className="cmp-mobile-card">
+                  <div className="cmp-mobile-card-metric">{row.label}</div>
+                  <div className="cmp-mobile-card-row">
+                    <span className="cmp-mobile-card-label">Hire a CTO</span>
+                    <span className="cmp-mobile-card-val">{row.cto}</span>
+                  </div>
+                  <div className="cmp-mobile-card-row">
+                    <span className="cmp-mobile-card-label">VC Funding</span>
+                    <span className="cmp-mobile-card-val">{row.vc}</span>
+                  </div>
+                  <div className="cmp-mobile-card-row">
+                    <span className="cmp-mobile-card-label">Studio</span>
+                    <span className="cmp-mobile-card-val">{row.studio}</span>
+                  </div>
+                  <div className="cmp-mobile-card-row">
+                    <span className="cmp-mobile-card-label">SocioFi Ventures</span>
+                    <span className="cmp-mobile-card-val highlight">{row.ventures}</span>
+                  </div>
+                </div>
+              ))}
             </div>
           </Reveal>
         </div>

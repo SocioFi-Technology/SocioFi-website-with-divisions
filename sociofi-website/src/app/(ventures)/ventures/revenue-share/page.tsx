@@ -359,6 +359,13 @@ const STYLES = `
   @media (max-width: 768px) {
     .rs-hero { padding: 60px 20px 80px; }
     .rs-section { padding: 60px 20px; }
+    /* ── Mobile: section header centering ── */
+    .rs-hero-label { justify-content: center; }
+    .rs-hero-h1 { text-align: center; }
+    .rs-hero-sub { text-align: center; }
+    /* ── Mobile: revenue share chart — full-width responsive ── */
+    .rs-chart-wrap { width: 100%; overflow-x: auto; }
+    .rs-chart-wrap svg { width: 100%; height: auto; min-width: 320px; }
   }
 `;
 

@@ -372,7 +372,37 @@ const STYLES = `
 @media (max-width: 768px) {
   .grid-3, .grid-2 { grid-template-columns: 1fr; }
   .ws-card { flex-direction: column; }
+
+  /* ── Mobile: audience pills — full-width vertical stack ── */
+  .audience-pills { flex-direction: column; gap: 10px; }
+  .audience-pill {
+    width: 100%;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: center;
+    border-radius: 12px;
+  }
+
+  /* ── Mobile: fanned cards — show only the first, hide the others ── */
+  .hero-card-bg:nth-child(2),
+  .hero-card-bg:nth-child(3) { display: none; }
+  .hero-card-bg:nth-child(1) { transform: none; top: 0; left: 0; }
+
+  /* ── Mobile: quiz options full-width ── */
+  .quiz-panel { padding: 28px 20px; }
+  .quiz-option { width: 100%; }
+
+  /* ── Mobile: section header centering ── */
+  .sec-label { justify-content: center; }
+  .scarl-panel { padding: 32px 20px; }
+  .corporate-section { padding: 32px 20px; }
+
+  /* ── Mobile: course card grid 1-column ── */
+  .course-tile { width: 100%; }
 }
+
 `;
 
 // ── Helpers ────────────────────────────────────────────────────────────────
