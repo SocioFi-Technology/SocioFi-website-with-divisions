@@ -1197,6 +1197,7 @@ function Hero() {
           style={{ display: 'flex', gap: 5, alignItems: 'center' }}
         >
           {HERO_SLIDES.map((s, i) => (
+            /* Tap-target wrapper: 44px tall touch area, slim 3px visual bar inside */
             <button
               key={i}
               role="tab"
@@ -1205,30 +1206,39 @@ function Hero() {
               onClick={() => goTo(i)}
               style={{
                 width: i === current ? 52 : 28,
-                height: 3,
-                padding: 0,
+                height: 44,
+                padding: '20px 0',
                 border: 'none',
-                borderRadius: 2,
+                background: 'transparent',
                 cursor: 'pointer',
-                position: 'relative',
-                overflow: 'hidden',
-                background: 'rgba(255,255,255,0.1)',
+                display: 'flex',
+                alignItems: 'center',
                 transition: 'width 0.35s var(--ease)',
               }}
             >
-              {i === current && (
-                <span style={{
-                  position: 'absolute', left: 0, top: 0, bottom: 0,
-                  width: `${progress * 100}%`,
-                  background: s.accentColor,
-                  borderRadius: 2,
-                  transition: 'background-color 0.5s',
-                  display: 'block',
-                }} />
-              )}
-              {i < current && (
-                <span style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.35)', borderRadius: 2, display: 'block' }} />
-              )}
+              <span style={{
+                display: 'block',
+                width: '100%',
+                height: 3,
+                borderRadius: 2,
+                background: 'rgba(255,255,255,0.1)',
+                position: 'relative',
+                overflow: 'hidden',
+              }}>
+                {i === current && (
+                  <span style={{
+                    position: 'absolute', left: 0, top: 0, bottom: 0,
+                    width: `${progress * 100}%`,
+                    background: s.accentColor,
+                    borderRadius: 2,
+                    transition: 'background-color 0.5s',
+                    display: 'block',
+                  }} />
+                )}
+                {i < current && (
+                  <span style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.35)', borderRadius: 2, display: 'block' }} />
+                )}
+              </span>
             </button>
           ))}
         </div>

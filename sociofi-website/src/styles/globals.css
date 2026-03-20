@@ -1268,11 +1268,15 @@ pre code {
    ═══════════════════════════════════════ */
 
 @media (max-width: 768px) {
-  .btn, button, [role="button"] {
+  /* Scoped to classed buttons/roles only — bare <button> without class is excluded
+     to avoid overriding visual-only controls like hero slide indicators */
+  .btn, button[class], [role="button"] {
     min-height: 48px;
     min-width: 48px;
     touch-action: manipulation;
   }
+  /* All buttons get touch-action regardless */
+  button { touch-action: manipulation; }
   a {
     min-height: 44px;
     display: inline-flex;
