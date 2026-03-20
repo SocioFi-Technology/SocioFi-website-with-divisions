@@ -132,7 +132,7 @@ export default function CustomPage() {
             {SCENARIOS.map((s, i) => (
               <Reveal key={s.title} delay={i * 0.1}>
                 <div className="cu-scenario">
-                  <div className="cu-scenario-icon">{ICONS[sc.icon]}</div>
+                  <div className="cu-scenario-icon">{ICONS[s.icon]}</div>
                   <div className="cu-scenario-title">{s.title}</div>
                   <div className="cu-scenario-desc">{s.desc}</div>
                 </div>

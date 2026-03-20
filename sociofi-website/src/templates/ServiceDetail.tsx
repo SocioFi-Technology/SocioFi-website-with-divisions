@@ -76,7 +76,7 @@ export default function ServiceDetail({ content }: { content: ServiceDetailConte
         headline={hero.headline}
         description={hero.description}
         buttons={hero.buttons}
-        layout="minimal"
+        layout="centered"
         showGrid
         showOrbs
       />

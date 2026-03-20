@@ -1,292 +1,693 @@
-import DetailPage, { type DetailPageContent } from '@/templates/DetailPage';
-import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+'use client';
 
-// ── Portfolio item data ───────────────────────────────────────────────────────
+import { useParams, notFound } from 'next/navigation';
+import { motion } from 'framer-motion';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
-const ITEMS: Record<string, { metadata: Metadata; content: DetailPageContent }> = {
+const A = '#72C4B2';
+const F = {
+  h: "var(--font-manrope,'Manrope'),sans-serif",
+  b: "var(--font-dm-sans,'DM Sans'),sans-serif",
+  m: "var(--font-jb-mono,'JetBrains Mono'),monospace",
+};
+const EASE = [0.16, 1, 0.3, 1] as [number, number, number, number];
 
-  'rescue-to-launch': {
-    metadata: {
-      title: 'Rescue to Launch: 10,000 users in 8 weeks — SocioFi Studio',
-      description:
-        'How we took a broken AI-generated prototype, rebuilt its architecture, added proper auth and payments, and launched to 10,000 active users in 8 weeks.',
+const STYLES = `
+  .cs-page { background: var(--bg); min-height: 100vh; }
+
+  .cs-hero {
+    padding: clamp(100px,12vw,160px) 32px 60px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .cs-label {
+    font-family: ${F.m};
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: ${A};
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .cs-label::before {
+    content: '';
+    width: 20px;
+    height: 1.5px;
+    background: ${A};
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  .cs-hero-badges {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  .cs-badge {
+    font-family: ${F.m};
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 100px;
+    border: 1px solid ${A}44;
+    color: ${A};
+    background: ${A}11;
+  }
+
+  .cs-hero-title {
+    font-family: ${F.h};
+    font-size: clamp(2rem,4vw,3rem);
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.03em;
+    line-height: 1.08;
+    margin: 0 0 24px;
+    max-width: 820px;
+  }
+
+  .cs-hero-metrics {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    flex-wrap: wrap;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+    margin-top: 32px;
+  }
+  .cs-hero-metric-val {
+    font-family: ${F.m};
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: ${A};
+    display: block;
+    margin-bottom: 4px;
+  }
+  .cs-hero-metric-lab {
+    font-family: ${F.b};
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  /* Content sections */
+  .cs-body {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 32px 80px;
+  }
+  .cs-section {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 60px;
+    padding: 60px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .cs-section:last-of-type { border-bottom: none; }
+
+  .cs-section-label {
+    font-family: ${F.m};
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: ${A};
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    padding-top: 6px;
+  }
+
+  .cs-section-title {
+    font-family: ${F.h};
+    font-size: clamp(1.4rem,2.5vw,1.8rem);
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    margin: 0 0 20px;
+    line-height: 1.2;
+  }
+
+  .cs-body-text {
+    font-family: ${F.b};
+    font-size: 1rem;
+    color: var(--text-secondary);
+    line-height: 1.75;
+    margin: 0 0 16px;
+  }
+  .cs-body-text:last-child { margin-bottom: 0; }
+
+  /* Stack pills */
+  .cs-stack-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .cs-stack-pill {
+    font-family: ${F.m};
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    padding: 6px 14px;
+    border-radius: 100px;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+  }
+
+  /* Results metrics */
+  .cs-results-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-bottom: 32px;
+  }
+  .cs-result-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+  }
+  .cs-result-val {
+    font-family: ${F.h};
+    font-size: 2rem;
+    font-weight: 800;
+    color: ${A};
+    letter-spacing: -0.02em;
+    display: block;
+    margin-bottom: 6px;
+  }
+  .cs-result-lab {
+    font-family: ${F.b};
+    font-size: 0.84rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  /* Quote glass card */
+  .cs-quote-card {
+    background: ${A}08;
+    border: 1px solid ${A}22;
+    border-radius: 20px;
+    padding: 32px;
+    position: relative;
+  }
+  .cs-quote-mark {
+    font-family: ${F.h};
+    font-size: 4rem;
+    line-height: 1;
+    color: ${A};
+    opacity: 0.3;
+    position: absolute;
+    top: 16px;
+    left: 24px;
+    font-weight: 800;
+  }
+  .cs-quote-text {
+    font-family: ${F.b};
+    font-size: 1.05rem;
+    color: var(--text-primary);
+    line-height: 1.75;
+    font-style: italic;
+    margin: 0 0 20px;
+    padding-top: 24px;
+  }
+  .cs-quote-author {
+    font-family: ${F.m};
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: ${A};
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .cs-quote-role {
+    font-family: ${F.b};
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  /* Related cards */
+  .cs-related-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  .cs-related-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    text-decoration: none;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+  .cs-related-card:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-4px);
+  }
+  .cs-related-name {
+    font-family: ${F.h};
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+  }
+  .cs-related-desc {
+    font-family: ${F.b};
+    font-size: 0.84rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* CTA */
+  .cs-cta {
+    background: var(--bg-2);
+    border-top: 1px solid var(--border);
+    padding: 100px 32px;
+    text-align: center;
+  }
+  .cs-cta-inner { max-width: 600px; margin: 0 auto; }
+  .cs-cta-title {
+    font-family: ${F.h};
+    font-size: clamp(1.8rem,3vw,2.2rem);
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    margin: 0 0 16px;
+  }
+  .cs-cta-sub {
+    font-family: ${F.b};
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin: 0 0 40px;
+    line-height: 1.7;
+  }
+  .cs-cta-btns {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .btn-primary {
+    font-family: ${F.h};
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    padding: 14px 28px;
+    background: linear-gradient(135deg, #3A589E, ${A});
+    color: white;
+    border: none;
+    border-radius: 100px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 24px rgba(58,88,158,0.35);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .btn-primary:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 10px 40px rgba(58,88,158,0.5);
+  }
+  .btn-ghost {
+    font-family: ${F.h};
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    padding: 13px 28px;
+    background: transparent;
+    color: var(--text-primary);
+    border: 1.5px solid var(--border);
+    border-radius: 100px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .btn-ghost:hover {
+    border-color: ${A};
+    color: ${A};
+  }
+
+  .cs-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: ${F.b};
+    font-size: 0.84rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    margin-bottom: 32px;
+  }
+  .cs-back:hover { color: ${A}; }
+
+  @media (max-width: 900px) {
+    .cs-section { grid-template-columns: 1fr; gap: 20px; }
+    .cs-results-grid { grid-template-columns: 1fr 1fr; }
+    .cs-related-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 600px) {
+    .cs-hero { padding: 100px 20px 40px; }
+    .cs-body { padding: 0 20px 60px; }
+    .cs-hero-metrics { gap: 24px; }
+    .cs-results-grid { grid-template-columns: 1fr; }
+  }
+`;
+
+type Metric = { label: string; value: string };
+type ProjectData = {
+  name: string;
+  client: string;
+  industry: string;
+  category: string;
+  problem: string;
+  solution: string;
+  stack: string[];
+  metrics: Metric[];
+  timeline: string;
+  price: string;
+  quote: { text: string; author: string; role: string };
+  related: { slug: string; name: string; desc: string }[];
+};
+
+const PROJECTS: Record<string, ProjectData> = {
+  inboxflow: {
+    name: 'InboxFlow',
+    client: 'Solo founder',
+    industry: 'SaaS / Productivity',
+    category: 'Products',
+    problem: 'The founder had spent 3 months with AI coding tools and got 70% of the product done. But it wouldn\'t deploy — a combination of architecture issues, missing authentication, and no payment system. The code worked locally but fell apart under any real-world conditions.',
+    solution: 'We audited the existing codebase, preserved 70% of what worked, rebuilt the data architecture, added Stripe payments with full webhook handling, implemented JWT auth with proper server-side session management, and deployed to Railway with staging and production environments — in 18 days.',
+    stack: ['Next.js', 'FastAPI', 'PostgreSQL', 'Stripe', 'Railway', 'JWT'],
+    metrics: [
+      { label: 'Shipped in', value: '18 days' },
+      { label: 'Total cost', value: '$3,200' },
+      { label: 'Existing code preserved', value: '70%' },
+      { label: 'Status', value: 'Live in production' },
+    ],
+    timeline: '18 days',
+    price: '$3,200',
+    quote: {
+      text: 'I was two weeks from giving up. SocioFi shipped it in 18 days and it\'s been running perfectly for 6 months.',
+      author: 'Priya D.',
+      role: 'Founder, InboxFlow',
     },
-    content: {
-      meta: {
-        category: 'Studio · Case Study',
-        title: 'From broken prototype to 10,000 active users in 8 weeks',
-        subtitle:
-          "A founder had a working demo — but it crashed under load, had no authentication, and couldn't connect to Stripe. We fixed all of it and launched in 8 weeks.",
-        client: 'BuildFlow',
-        duration: '8 weeks',
-        tags: ['Rescue', 'Next.js', 'PostgreSQL', 'Stripe'],
-      },
-      intro:
-        "Marcus came to us with a SaaS prototype he'd built using an AI coding platform over three months. The demo looked impressive. But when he tried to onboard his first paying users, the cracks appeared immediately. We took the project from broken prototype to a live, stable product — with 10,000 active users eight weeks after launch.",
-      sections: [
-        {
-          label: 'The problem',
-          headline: 'What the audit found',
-          body: (
-            <>
-              <p style={{ margin: '0 0 16px' }}>
-                Our 48-hour codebase audit identified six critical issues, any one of which would have caused serious problems after launch.
-              </p>
-              <ul style={{ paddingLeft: 24, display: 'flex', flexDirection: 'column', gap: 10, margin: 0 }}>
-                {[
-                  'Authentication relied on client-side checks that could be bypassed in the browser console',
-                  'The database schema had no relational integrity — deleting a user left orphaned records everywhere',
-                  'Stripe was wired to test mode with hardcoded keys committed to the public repository',
-                  'No error handling — any unhandled exception returned a 500 with a full stack trace to the client',
-                  'The app had no deployment pipeline — the founder was manually copying files to a shared hosting account',
-                  'Session tokens were stored in localStorage and never expired',
-                ].map((item, i) => (
-                  <li key={i} style={{ fontFamily: 'var(--font-body)', fontSize: '0.95rem', lineHeight: 1.65, color: 'var(--text-secondary)' }}>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </>
-          ),
-        },
-        {
-          label: 'The approach',
-          headline: 'Rebuild what needed rebuilding. Keep what worked.',
-          body: (
-            <>
-              <p style={{ margin: '0 0 16px' }}>
-                Not everything needed to be replaced. The UI was well-designed. The core business logic was sound. The problem was in the infrastructure, authentication, and data layer.
-              </p>
-              <p style={{ margin: '0 0 16px' }}>
-                We scoped a four-week rescue: new auth layer using NextAuth with proper server-side session management, database schema refactor with foreign key constraints and cascading deletes, Stripe integration rebuilt with proper webhook handling, error boundaries and logging, and a deployment pipeline on Vercel with staging and production environments.
-              </p>
-              <p style={{ margin: 0 }}>
-                Weeks five and six were QA and load testing. We simulated 1,000 concurrent users before we let a single real one through. When we launched, the infrastructure held.
-              </p>
-            </>
-          ),
-        },
-        {
-          label: 'The result',
-          headline: 'Launched. Stable. Growing.',
-          body: (
-            <p style={{ margin: 0 }}>
-              BuildFlow launched publicly in week eight. The first week brought 800 signups from a Product Hunt post. By week twelve, they had 10,000 active users and had processed $47,000 in subscription revenue. There were zero critical post-launch bugs.
-            </p>
-          ),
-        },
-      ],
-      outcomes: [
-        { numeric: 8, label: 'Weeks from rescue start to launch' },
-        { numeric: 10000, label: 'Active users within 12 weeks' },
-        { numeric: 0, label: 'Critical post-launch bugs' },
-        { numeric: 47, suffix: 'k', label: 'Dollars in subscription revenue, first 12 weeks' },
-      ],
-      related: [
-        {
-          title: 'Rescue & Ship',
-          description:
-            'Your AI-generated prototype is broken or stuck. We diagnose what went wrong, fix it, and get you to launch — usually in 2–4 weeks.',
-          href: '/studio/services/rescue-ship',
-          linkText: 'Learn more',
-        },
-        {
-          title: 'For Founders',
-          description:
-            "You've built a prototype with AI tools. Now you need someone to make it production-ready. We're that team.",
-          href: '/studio/solutions/for-founders',
-          linkText: 'Learn more',
-        },
-        {
-          title: 'Start a project',
-          description:
-            'Tell us what you need. We respond within 4 hours with an honest assessment and a clear path forward.',
-          href: '/studio/start-project',
-          linkText: 'Get in touch',
-        },
-      ],
-      relatedLabel: 'Related services',
-      relatedTitle: 'Working on something similar?',
-      cta: {
-        title: 'Is your prototype where BuildFlow was?',
-        subtitle:
-          'We audit codebases in 48 hours and give you a clear picture of what it would take to launch safely.',
-        primaryCTA: { label: 'Get a codebase audit', href: '/studio/start-project' },
-        ghostCTA: { label: 'See Rescue & Ship', href: '/studio/services/rescue-ship' },
-        note: 'Audit completed within 48 hours. Fixed-scope rescue proposal follows.',
-      },
-    },
+    related: [
+      { slug: 'brightpath', name: 'BrightPath Ops Dashboard', desc: '30-person logistics company replaced spreadsheet operations with a custom real-time dashboard.' },
+      { slug: 'stylestack', name: 'StyleStack Matching Platform', desc: 'Personal styling service scaled from 100 to 500+ clients with an AI-powered matching system.' },
+    ],
   },
-
-  'fintech-dashboard': {
-    metadata: {
-      title: 'Fintech Operations Dashboard — SocioFi Studio',
-      description:
-        'How we replaced a business-critical Google Sheets workflow with a proper role-based internal dashboard for a lending company.',
+  brightpath: {
+    name: 'BrightPath Ops Dashboard',
+    client: 'BrightPath Logistics',
+    industry: 'Logistics / Operations',
+    category: 'Internal Tools',
+    problem: 'A 30-person logistics company was tracking all operations in Google Sheets — 4+ hours per day of manual data entry across 3 spreadsheets that kept going out of sync. Managers had no real-time visibility. Reporting that should take seconds was a 2-hour manual process.',
+    solution: 'Custom operations dashboard with real-time data from all operations, automated data entry from their existing carrier systems, and a reporting engine that compiles any report in seconds. The team onboarded in one day and cut manual entry to near zero.',
+    stack: ['React', 'Node.js', 'PostgreSQL', 'Redis', 'Vercel', 'REST APIs'],
+    metrics: [
+      { label: 'Delivery time', value: '3 weeks' },
+      { label: 'Hours per week saved', value: '20 hrs' },
+      { label: 'Return on investment', value: 'ROI in 30 days' },
+      { label: 'Active users at launch', value: '30 users' },
+    ],
+    timeline: '3 weeks',
+    price: 'Fixed scope',
+    quote: {
+      text: 'We got quotes of $80K and 4 months from agencies. SocioFi delivered in 3 weeks for a fraction of that. The team was using it on day one.',
+      author: 'Marcus T.',
+      role: 'COO, BrightPath Logistics',
     },
-    content: {
-      meta: {
-        category: 'Studio · Case Study',
-        title: 'Fintech operations dashboard: replacing critical spreadsheets',
-        subtitle:
-          'A lending company was running loan application review, risk assessment, and portfolio management in a shared Google Sheet. Twelve people. One wrong formula from a data disaster.',
-        client: 'DataNest',
-        duration: '6 weeks',
-        tags: ['Internal Tools', 'React', 'PostgreSQL', 'Charts'],
-      },
-      intro:
-        'DataNest was a fast-growing SME lending company with a genuine operational problem: their entire loan management workflow ran in a single shared Google Sheet. It worked — until it didn\'t. Version conflicts, accidental overwrites, no audit trail, no access controls. We built a proper internal dashboard in six weeks.',
-      sections: [
-        {
-          label: 'The problem',
-          headline: 'A business-critical process in a spreadsheet',
-          body: (
-            <p style={{ margin: 0 }}>
-              Twelve people — loan officers, risk analysts, and operations managers — were sharing a single Google Sheet to manage 300+ active loan applications. There was no access control: anyone could see anyone else&apos;s notes. There was no audit trail: nobody could tell who changed what or when. Twice in the previous year, a formula error had corrupted data across multiple rows. The team had been talking about fixing it for 18 months.
-            </p>
-          ),
-        },
-        {
-          label: 'The solution',
-          headline: 'Role-based dashboard with real data integrity',
-          body: (
-            <>
-              <p style={{ margin: '0 0 16px' }}>
-                We built a React dashboard backed by PostgreSQL, with role-based access control so loan officers only see their own applications, risk analysts see what they need for review, and managers have full visibility with export capabilities.
-              </p>
-              <p style={{ margin: 0 }}>
-                Every action is logged. Every status change, note, and decision has an author, a timestamp, and is immutable in the audit log. The data model was designed to handle the edge cases their spreadsheet had been papering over for years.
-              </p>
-            </>
-          ),
-        },
-      ],
-      outcomes: [
-        { numeric: 6, label: 'Weeks from scoping call to live' },
-        { numeric: 12, label: 'Team members onboarded at launch' },
-        { numeric: 0, label: 'Data incidents since launch (vs 2 per year previously)' },
-        { numeric: 300, suffix: '+', label: 'Active applications managed in the system' },
-      ],
-      related: [
-        {
-          title: 'Internal Tools',
-          description:
-            'The dashboard your team actually needs. Built for your exact workflow — not a generic template.',
-          href: '/studio/solutions/for-smbs',
-          linkText: 'Learn more',
-        },
-        {
-          title: 'Start a project',
-          description:
-            'Tell us what your team needs. We scope internal tools in a single call and give you a fixed price.',
-          href: '/studio/start-project',
-          linkText: 'Get in touch',
-        },
-      ],
-      relatedLabel: 'Related',
-      relatedTitle: 'Similar needs?',
-      cta: {
-        title: 'Running something critical in a spreadsheet?',
-        subtitle:
-          'Tell us the workflow. We\'ll scope what a proper system looks like and what it would cost.',
-        primaryCTA: { label: 'Discuss your project', href: '/studio/start-project' },
-        ghostCTA: { label: 'Built for SMBs', href: '/studio/solutions/for-smbs' },
-        note: 'Fixed-scope pricing. Usually 4–8 weeks to delivery.',
-      },
-    },
+    related: [
+      { slug: 'inboxflow', name: 'InboxFlow', desc: 'AI prototype rescue — 70% of existing code preserved, shipped in 18 days for $3,200.' },
+      { slug: 'nexara', name: 'NEXARA GTM System', desc: '13 AI agents automating the entire go-to-market pipeline for a B2B SaaS company.' },
+    ],
   },
-
-  'ecommerce-replatform': {
-    metadata: {
-      title: 'E-commerce Replatform: 40,000 SKUs, 60% Faster — SocioFi Studio',
-      description:
-        'How we migrated a 6-year-old WooCommerce store to a modern Next.js storefront — 60% faster pages, 22% less cart abandonment, 85% lower hosting costs.',
+  stylestack: {
+    name: 'StyleStack Matching Platform',
+    client: 'StyleStack',
+    industry: 'Consumer / Personal Services',
+    category: 'Products',
+    problem: 'A personal styling service was managing client-stylist matching in Google Sheets. It worked at 50 clients. At 100 clients it started breaking — wrong assignments, missed bookings, no visibility into stylist availability. Growth had stalled because the operations couldn\'t scale.',
+    solution: 'An AI-powered matching platform that automatically pairs clients with stylists based on style preferences, availability, and past feedback. A client portal for booking and communication, and an admin dashboard for the operations team. The platform handles everything the spreadsheet couldn\'t.',
+    stack: ['Next.js', 'Python', 'PostgreSQL', 'OpenAI API', 'Stripe', 'Vercel'],
+    metrics: [
+      { label: 'Delivery time', value: '4 weeks' },
+      { label: 'Client capacity increase', value: '5x' },
+      { label: 'Match accuracy', value: '94%' },
+      { label: 'Status', value: 'Live' },
+    ],
+    timeline: '4 weeks',
+    price: 'Fixed scope',
+    quote: {
+      text: 'We couldn\'t grow because our operations were the bottleneck. Now the platform handles everything. We onboarded 400 new clients last quarter.',
+      author: 'Sarah K.',
+      role: 'CEO, StyleStack',
     },
-    content: {
-      meta: {
-        category: 'Studio · Case Study',
-        title: 'E-commerce replatform: 40,000 SKUs, 60% faster',
-        subtitle:
-          'A 6-year-old WooCommerce store was slow, expensive to host, and painful to update. We migrated it to a modern stack without losing a single order during the transition.',
-        client: 'RetailCo',
-        duration: '10 weeks',
-        tags: ['Product Development', 'Next.js', 'Shopify API', 'Performance'],
-      },
-      intro:
-        "RetailCo had been running on WooCommerce since 2018. Six years of plugins, customisations, and legacy code had made the site slow (4.2s average page load), expensive to host ($800/month), and painful to update. We rebuilt it from scratch and migrated them over in 10 weeks.",
-      sections: [
-        {
-          label: 'The challenge',
-          headline: 'Migrate 40,000 SKUs without disruption',
-          body: (
-            <p style={{ margin: 0 }}>
-              The hardest part of any replatform is the migration itself: 40,000 product SKUs, 8 years of order history, 50,000 customer accounts, and ongoing order processing that couldn&apos;t pause for a moment. We built and tested the new platform in parallel, ran a dark migration of the product catalog, and cut over with zero downtime during a low-traffic window.
-            </p>
-          ),
-        },
-        {
-          label: 'The result',
-          headline: 'Faster, cheaper, better',
-          body: (
-            <p style={{ margin: 0 }}>
-              The new Next.js storefront loads in 1.7 seconds (down from 4.2). Hosting costs dropped from $800 to $120 per month. Cart abandonment fell by 22% in the first 60 days — attributable almost entirely to the speed improvement. The team can now push product updates and new pages without touching the codebase.
-            </p>
-          ),
-        },
-      ],
-      outcomes: [
-        { numeric: 60, suffix: '%', label: 'Reduction in page load time' },
-        { numeric: 22, suffix: '%', label: 'Reduction in cart abandonment' },
-        { numeric: 85, suffix: '%', label: 'Reduction in monthly hosting cost' },
-        { numeric: 0, label: 'Orders lost during migration' },
-      ],
-      related: [
-        {
-          title: 'Product Development',
-          description:
-            'Building a full-stack product from scratch? We architect, build, and ship.',
-          href: '/studio/services/product-development',
-          linkText: 'Learn more',
-        },
-        {
-          title: 'Start a project',
-          description:
-            'Tell us what you need to build or migrate. We scope clearly and give you a fixed price.',
-          href: '/studio/start-project',
-          linkText: 'Get in touch',
-        },
-      ],
-      relatedLabel: 'Related',
-      relatedTitle: 'Building something similar?',
-      cta: {
-        title: 'Is your tech stack holding you back?',
-        subtitle:
-          "Tell us what you're running and what's broken. We'll scope a migration or rebuild and tell you what it costs.",
-        primaryCTA: { label: 'Discuss your project', href: '/studio/start-project' },
-        ghostCTA: { label: 'See our work', href: '/studio/portfolio' },
-        note: 'Free scoping call. Fixed-scope pricing.',
-      },
+    related: [
+      { slug: 'inboxflow', name: 'InboxFlow', desc: 'AI prototype rescue — 70% of existing code preserved, shipped in 18 days for $3,200.' },
+      { slug: 'brightpath', name: 'BrightPath Ops Dashboard', desc: '30-person logistics company saved 20 hours per week with a custom real-time dashboard.' },
+    ],
+  },
+  nexara: {
+    name: 'NEXARA GTM System',
+    client: 'NEXARA',
+    industry: 'B2B SaaS',
+    category: 'Products',
+    problem: 'A B2B SaaS company was executing their go-to-market manually — prospecting in spreadsheets, sending outreach one by one, tracking pipeline in a disconnected CRM, and compiling reports by hand. The sales team was spending 60% of their time on process instead of selling.',
+    solution: '13 AI agents managing the entire go-to-market pipeline: prospect identification, outreach sequencing, lead scoring, pipeline management, and reporting. The sales team now focuses exclusively on conversations with qualified prospects — the agents handle everything else.',
+    stack: ['Python', 'FastAPI', 'PostgreSQL', 'Redis', 'Celery', 'Next.js', 'AI APIs'],
+    metrics: [
+      { label: 'AI agents deployed', value: '13 agents' },
+      { label: 'Outreach volume increase', value: '8x' },
+      { label: 'Sales team time on selling', value: '90%' },
+      { label: 'Pipeline visibility', value: 'Real-time' },
+    ],
+    timeline: '6 weeks',
+    price: 'Custom scope',
+    quote: {
+      text: 'Our reps used to spend half their day on admin. Now the system handles everything end to end. We doubled pipeline in 60 days.',
+      author: 'James R.',
+      role: 'VP Sales, NEXARA',
     },
+    related: [
+      { slug: 'inboxflow', name: 'InboxFlow', desc: 'AI prototype rescue — 70% of existing code preserved, shipped in 18 days for $3,200.' },
+      { slug: 'brightpath', name: 'BrightPath Ops Dashboard', desc: '30-person logistics company saved 20 hours per week with a custom real-time dashboard.' },
+    ],
   },
 };
 
-// ── Route handlers ────────────────────────────────────────────────────────────
-
-export function generateStaticParams() {
-  return Object.keys(ITEMS).map((slug) => ({ slug }));
+function ArrowIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M2 7h10M7 2l5 5-5 5" />
+    </svg>
+  );
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
-  const item = ITEMS[slug];
-  if (!item) return {};
-  return item.metadata;
+function BackIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 7H2M7 2L2 7l5 5" />
+    </svg>
+  );
 }
 
-export default async function StudioPortfolioItemPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
-  const item = ITEMS[slug];
-  if (!item) notFound();
-  return <DetailPage content={item.content} />;
+function NotFoundMessage() {
+  return (
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 24, padding: 32 }}>
+      <h1 style={{ fontFamily: F.h, fontSize: '2rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>Project not found</h1>
+      <Link href="/studio/portfolio" style={{ fontFamily: F.b, color: A, textDecoration: 'none' }}>Back to portfolio</Link>
+    </div>
+  );
+}
+
+export default function PortfolioSlugPage() {
+  const params = useParams();
+  const slug = typeof params?.slug === 'string' ? params.slug : Array.isArray(params?.slug) ? params.slug[0] : '';
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
+  if (!mounted) {
+    return <div style={{ minHeight: '100vh', background: 'var(--bg)' }} />;
+  }
+
+  const project = PROJECTS[slug];
+  if (!project) return <NotFoundMessage />;
+
+  const fadein = (delay = 0) => ({
+    initial: { opacity: 0, y: 24 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.7, ease: EASE, delay },
+  });
+
+  const inview = {
+    initial: { opacity: 0, y: 24 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true, amount: 0.2 as const },
+    transition: { duration: 0.7, ease: EASE },
+  };
+
+  return (
+    <>
+      <style dangerouslySetInnerHTML={{ __html: STYLES }} />
+      <div className="cs-page">
+
+        {/* Hero */}
+        <section className="cs-hero">
+          <motion.div {...fadein(0)}>
+            <Link href="/studio/portfolio" className="cs-back">
+              <BackIcon />
+              Back to Portfolio
+            </Link>
+          </motion.div>
+
+          <motion.div {...fadein(0.05)}>
+            <p className="cs-label">Case Study</p>
+          </motion.div>
+
+          <motion.div {...fadein(0.1)}>
+            <div className="cs-hero-badges">
+              <span className="cs-badge">{project.industry}</span>
+              <span className="cs-badge">{project.category}</span>
+            </div>
+            <h1 className="cs-hero-title">{project.name}</h1>
+            <p style={{ fontFamily: F.b, fontSize: '0.9rem', color: 'var(--text-muted)', margin: 0 }}>
+              Client: {project.client}
+            </p>
+          </motion.div>
+
+          <motion.div {...fadein(0.15)}>
+            <div className="cs-hero-metrics">
+              {project.metrics.map((m) => (
+                <div key={m.label}>
+                  <span className="cs-hero-metric-val">{m.value}</span>
+                  <span className="cs-hero-metric-lab">{m.label}</span>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        </section>
+
+        {/* Body */}
+        <div className="cs-body">
+
+          {/* The Problem */}
+          <motion.div className="cs-section" {...inview}>
+            <div>
+              <p className="cs-section-label">The Problem</p>
+            </div>
+            <div>
+              <h2 className="cs-section-title">The situation before we were involved</h2>
+              <p className="cs-body-text">{project.problem}</p>
+            </div>
+          </motion.div>
+
+          {/* The Solution */}
+          <motion.div className="cs-section" {...inview}>
+            <div>
+              <p className="cs-section-label">The Solution</p>
+            </div>
+            <div>
+              <h2 className="cs-section-title">What we built</h2>
+              <p className="cs-body-text">{project.solution}</p>
+            </div>
+          </motion.div>
+
+          {/* Technical Details */}
+          <motion.div className="cs-section" {...inview}>
+            <div>
+              <p className="cs-section-label">Technical Details</p>
+            </div>
+            <div>
+              <h2 className="cs-section-title">Stack and architecture</h2>
+              <p className="cs-body-text">Every technology choice was made for a reason — performance, cost, or long-term maintainability. All code is documented and transferred in full.</p>
+              <div className="cs-stack-pills">
+                {project.stack.map((s) => (
+                  <span key={s} className="cs-stack-pill">{s}</span>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Results */}
+          <motion.div className="cs-section" {...inview}>
+            <div>
+              <p className="cs-section-label">Results</p>
+            </div>
+            <div>
+              <h2 className="cs-section-title">What changed</h2>
+              <div className="cs-results-grid">
+                {project.metrics.map((m) => (
+                  <div key={m.label} className="cs-result-card">
+                    <span className="cs-result-val">{m.value}</span>
+                    <span className="cs-result-lab">{m.label}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="cs-quote-card">
+                <span className="cs-quote-mark" aria-hidden="true">"</span>
+                <p className="cs-quote-text">{project.quote.text}</p>
+                <p className="cs-quote-author">{project.quote.author}</p>
+                <p className="cs-quote-role">{project.quote.role}</p>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Related Projects */}
+          <motion.div className="cs-section" {...inview}>
+            <div>
+              <p className="cs-section-label">Related Projects</p>
+            </div>
+            <div>
+              <h2 className="cs-section-title">Similar work</h2>
+              <div className="cs-related-grid">
+                {project.related.map((r) => (
+                  <Link key={r.slug} href={`/studio/portfolio/${r.slug}`} className="cs-related-card">
+                    <h3 className="cs-related-name">{r.name}</h3>
+                    <p className="cs-related-desc">{r.desc}</p>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+
+        </div>
+
+        {/* CTA */}
+        <section className="cs-cta">
+          <div className="cs-cta-inner">
+            <motion.div {...inview}>
+              <p className="cs-label" style={{ justifyContent: 'center' }}>Start a project</p>
+              <h2 className="cs-cta-title">Start a similar project</h2>
+              <p className="cs-cta-sub">Tell us what you need. We scope it, price it, and build it — in plain English, on a fixed timeline.</p>
+              <div className="cs-cta-btns">
+                <Link href="/studio/start-project" className="btn-primary">
+                  Start Your Project
+                  <ArrowIcon />
+                </Link>
+                <Link href="/studio/portfolio" className="btn-ghost">
+                  See More Work
+                </Link>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+      </div>
+    </>
+  );
 }

@@ -49,10 +49,10 @@
   --division-accent-light: var(--teal-light);
 
   /* Font stacks (populated by next/font CSS vars in layout.tsx) */
-  --font-display:  var(--font-jakarta, 'Plus Jakarta Sans'), sans-serif; /* logo + nav */
-  --font-headline: var(--font-jakarta, 'Plus Jakarta Sans'), sans-serif; /* all headings */
-  --font-body:     var(--font-inter, 'Inter'), sans-serif;               /* all body text */
-  --font-mono:     var(--font-fira, 'Fira Code'), monospace;
+  --font-display:  var(--font-manrope, 'Manrope'), sans-serif;           /* logo + nav */
+  --font-headline: var(--font-manrope, 'Manrope'), sans-serif;           /* all headings */
+  --font-body:     var(--font-dm-sans, 'DM Sans'), sans-serif;           /* all body text */
+  --font-mono:     var(--font-jb-mono, 'JetBrains Mono'), monospace;
 
   /* Motion curves */
   --ease:        cubic-bezier(0.16, 1, 0.3, 1);
@@ -93,8 +93,8 @@
   --bg-card-hover:#181840;
 
   --text-primary:   #FFFFFF;
-  --text-secondary: #7C8DB0;
-  --text-muted:     #4A5578;
+  --text-secondary: #8E9FC4;
+  --text-muted:     #6B7A9B;
 
   --border:       rgba(89, 163, 146, 0.08);
   --border-hover: rgba(89, 163, 146, 0.15);
@@ -137,8 +137,8 @@
   --bg-card-hover:#181840;
 
   --text-primary:   #FFFFFF;
-  --text-secondary: #7C8DB0;
-  --text-muted:     #4A5578;
+  --text-secondary: #8E9FC4;
+  --text-muted:     #6B7A9B;
 
   --border:       rgba(89, 163, 146, 0.08);
   --border-hover: rgba(89, 163, 146, 0.15);

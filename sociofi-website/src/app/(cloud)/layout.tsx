@@ -7,7 +7,7 @@ const division = divisions.cloud;
 
 export default function CloudLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ '--division-accent': division.accent } as React.CSSProperties}>
+    <div style={{ '--division-accent': '#5BB5E0' } as React.CSSProperties}>
       <Nav division={division} />
       {children}
       <Footer division={division} />

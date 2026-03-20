@@ -64,10 +64,11 @@ export const divisions: Record<DivisionSlug, Division> = {
     cta: null,
     url: '/',
     navLinks: [
-      { label: 'AaaS', href: '/aaas', dropdown: [
-        { label: 'What is AaaS?', href: '/aaas', description: 'The shift from SaaS to Agent-as-a-Service' },
-        { label: 'AI Agent Systems', href: '/studio/services/ai-agent-systems', description: 'Custom agent pipelines for your business' },
-        { label: 'How We Build Agents', href: '/aaas#how-we-build', description: 'Our 4-phase agent deployment process' },
+      { label: 'Agents', href: '/agents', dropdown: [
+        { label: 'Browse Catalog', href: '/agents/catalog', description: 'All 16 agents — subscribe and deploy' },
+        { label: 'How It Works', href: '/agents/how-it-works', description: 'Our 4-phase agent deployment process' },
+        { label: 'Custom Agents', href: '/agents/custom', description: 'Custom agent pipelines for your business' },
+        { label: 'Pricing', href: '/agents/pricing', description: 'Monthly subscription plans' },
       ]},
       { label: 'Studio', href: '/studio', dropdown: [
         { label: 'Product Development', href: '/studio/services/product-development', description: 'Full-stack apps, built with AI' },
@@ -267,11 +268,11 @@ export const divisions: Record<DivisionSlug, Division> = {
     cta: { label: 'Get Hosted', href: '/cloud/get-hosted' },
     url: '/cloud',
     navLinks: [
-      { label: 'Why Managed', href: '/cloud/why-managed' },
       { label: 'Features', href: '/cloud/features' },
       { label: 'Security', href: '/cloud/security' },
       { label: 'Providers', href: '/cloud/providers' },
       { label: 'Plans', href: '/cloud/plans' },
+      { label: 'Migration', href: '/cloud/migration' },
     ],
   },
 

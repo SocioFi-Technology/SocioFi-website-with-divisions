@@ -7,7 +7,7 @@ const division = divisions.services;
 
 export default function ServicesLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ '--division-accent': division.accent } as React.CSSProperties}>
+    <div style={{ '--division-accent': '#4DBFA8' } as React.CSSProperties}>
       <Nav division={division} />
       {children}
       <Footer division={division} />
