@@ -34,12 +34,13 @@ export default function BlogNewsletter({
 
   return (
     <div
+      className="blognl-wrap"
       style={{
         background: 'var(--glass-bg)',
         border: '1px solid var(--glass-border)',
         borderRadius: 'var(--radius-xl)',
         backdropFilter: 'blur(12px)',
-        padding: '48px 48px',
+        padding: '48px',
         display: 'flex',
         alignItems: 'center',
         gap: 48,
@@ -48,6 +49,14 @@ export default function BlogNewsletter({
         overflow: 'hidden',
       }}
     >
+      <style>{`
+        @media (max-width: 640px) {
+          .blognl-wrap { padding: 28px 20px !important; gap: 24px !important; }
+          .blognl-form { flex-direction: column !important; }
+          .blognl-input { width: 100% !important; }
+          .blognl-btn { width: 100% !important; justify-content: center; }
+        }
+      `}</style>
       {/* Glow orb */}
       <span
         aria-hidden="true"
@@ -120,6 +129,7 @@ export default function BlogNewsletter({
         ) : (
           <form
             onSubmit={handleSubmit}
+            className="blognl-form"
             style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}
             aria-label="Newsletter signup"
           >
@@ -130,6 +140,7 @@ export default function BlogNewsletter({
               onChange={(e) => setEmail(e.target.value)}
               placeholder="your@email.com"
               aria-label="Email address"
+              className="blognl-input"
               style={{
                 fontFamily: 'var(--font-body)',
                 fontSize: '0.9rem',
@@ -148,6 +159,7 @@ export default function BlogNewsletter({
             <button
               type="submit"
               disabled={state === 'loading'}
+              className="blognl-btn"
               style={{
                 fontFamily: 'var(--font-display)',
                 fontSize: '0.88rem',
