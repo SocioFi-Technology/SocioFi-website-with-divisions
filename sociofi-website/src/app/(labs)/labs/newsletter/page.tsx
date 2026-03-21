@@ -247,11 +247,19 @@ export default function NewsletterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    if (!email || status === 'loading') return;
     setStatus('loading');
-    // Simulate submission — replace with real endpoint
-    await new Promise((r) => setTimeout(r, 1200));
-    setStatus('success');
+    try {
+      const res = await fetch('/api/newsletter/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, source: 'labs-newsletter' }),
+      });
+      if (!res.ok) throw new Error('Failed');
+      setStatus('success');
+    } catch {
+      setStatus('error');
+    }
   };
 
   return (
@@ -402,6 +410,7 @@ export default function NewsletterPage() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
+                        disabled={status === 'loading'}
                       />
                       <button
                         className="nl-form-submit"
@@ -411,6 +420,11 @@ export default function NewsletterPage() {
                         {status === 'loading' ? 'Subscribing…' : 'Subscribe'}
                       </button>
                     </form>
+                    {status === 'error' && (
+                      <p style={{ color: '#F87171', fontSize: '0.8rem', marginTop: 8 }}>
+                        Something went wrong. Please try again.
+                      </p>
+                    )}
                     <p className="nl-form-privacy">
                       We never sell your email. One email per month. Unsubscribe anytime — no dark patterns, no re-subscribe tricks.
                     </p>

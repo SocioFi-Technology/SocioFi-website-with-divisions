@@ -1,96 +1,459 @@
-import BlogListing, { type BlogListingContent } from '@/templates/BlogListing';
-import type { Metadata } from 'next';
+'use client';
 
-export const metadata: Metadata = {
-  title: 'Blog — SocioFi Technology',
-  description:
-    'Thinking on AI-native development, production engineering, and what it actually takes to build software that lasts. From the SocioFi Technology team.',
-};
+import { useState, useMemo } from 'react';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import {
+  getAllPosts,
+  getFeaturedPost,
+  getAllAuthors,
+  BlogCategory,
+  CATEGORY_CONFIG,
+} from '@/lib/blog';
+import BlogFeatured from '@/components/blog/BlogFeatured';
+import BlogCard from '@/components/blog/BlogCard';
+import BlogCategoryBar from '@/components/blog/BlogCategoryBar';
+import BlogNewsletter from '@/components/blog/BlogNewsletter';
 
-const content: BlogListingContent = {
-  label: 'From the team',
-  title: 'Writing from SocioFi Technology',
-  categories: ['Technical', 'Business', 'Build Logs', 'Guides', 'News'],
-  featured: {
-    title: 'Why 80% of AI-generated prototypes never make it to production',
-    excerpt:
-      "AI coding tools have made it possible for non-technical founders to build working prototypes in days. But the gap between 'it works on my machine' and 'it's live and stable' is where most of them get stuck. Here's what that gap actually looks like — and how to close it.",
-    category: 'Technical',
-    date: 'March 12, 2026',
-    readTime: '8 min read',
-    href: '/blog/why-ai-prototypes-fail-production',
-    author: 'Kamrul Hasan',
-    accentColor: 'var(--teal)',
-  },
-  posts: [
-    {
-      title: 'The architecture decisions AI gets wrong (and how we fix them)',
-      excerpt:
-        'AI coding agents are remarkably good at writing individual functions. They are significantly worse at system-level decisions: how services communicate, how data is structured, how failure is handled.',
-      category: 'Technical',
-      date: 'March 8, 2026',
-      readTime: '6 min read',
-      href: '/blog/architecture-decisions-ai-gets-wrong',
-      author: 'Kamrul Hasan',
-    },
-    {
-      title: 'How we scope a project in 30 minutes',
-      excerpt:
-        "Our intro calls are 30 minutes. By the end, we have a clear enough picture to give a fixed-scope proposal. Here's the framework we use — and why most scoping conversations take too long because they start in the wrong place.",
-      category: 'Business',
-      date: 'March 4, 2026',
-      readTime: '5 min read',
-      href: '/blog/how-we-scope-in-30-minutes',
-      author: 'Arifur Rahman',
-    },
-    {
-      title: 'Build Log: rescuing a broken SaaS prototype in 2 weeks',
-      excerpt:
-        "A founder came to us with a prototype built over three months that had three critical bugs, no authentication, and couldn't connect to Stripe. Here's exactly what we found and what we fixed.",
-      category: 'Build Logs',
-      date: 'Feb 28, 2026',
-      readTime: '7 min read',
-      href: '/blog/build-log-saas-rescue',
-      author: 'Kamrul Hasan',
-    },
-    {
-      title: 'Guide: deploying your first Next.js app to production',
-      excerpt:
-        "A practical walkthrough for non-technical founders. What 'deployment' actually means, what can go wrong, and the checklist we run through before every launch.",
-      category: 'Guides',
-      date: 'Feb 21, 2026',
-      readTime: '9 min read',
-      href: '/blog/deploying-nextjs-to-production',
-      author: 'Kamrul Hasan',
-    },
-    {
-      title: "What 'production-ready' actually means for a first product",
-      excerpt:
-        "It doesn't mean perfect. It means: loads under real traffic, doesn't leak data, recovers from failures, can be updated without breaking, and has someone who knows what to do at 2am when it falls over.",
-      category: 'Business',
-      date: 'Feb 14, 2026',
-      readTime: '5 min read',
-      href: '/blog/what-production-ready-means',
-      author: 'Arifur Rahman',
-    },
-    {
-      title: 'SocioFi Technology opens Academy: AI development courses for non-technical founders',
-      excerpt:
-        "We launched SocioFi Academy — a training programme designed for founders and business owners who want to understand modern AI development. Here's what's in it and who it's for.",
-      category: 'News',
-      date: 'Feb 7, 2026',
-      readTime: '3 min read',
-      href: '/blog/sociofi-academy-launch',
-      author: 'Arifur Rahman',
-    },
-  ],
-  newsletter: {
-    headline: 'Get new articles in your inbox',
-    description:
-      'We publish a few times a month. No fluff, no AI hype — just honest writing about building software that works.',
-  },
-};
+const DIVISIONS = [
+  { slug: 'studio', label: 'Studio', accent: '#72C4B2', href: '/studio/blog' },
+  { slug: 'services', label: 'Services', accent: '#4DBFA8', href: '/services/blog' },
+  { slug: 'labs', label: 'Labs', accent: '#7B6FE8', href: '/labs/blog' },
+  { slug: 'products', label: 'Products', accent: '#E8916F', href: '/products' },
+  { slug: 'academy', label: 'Academy', accent: '#E8B84D', href: '/academy/blog' },
+  { slug: 'ventures', label: 'Ventures', accent: '#6BA3E8', href: '/ventures/blog' },
+  { slug: 'cloud', label: 'Cloud', accent: '#5BB5E0', href: '/cloud/blog' },
+  { slug: 'agents', label: 'Agents', accent: '#8B5CF6', href: '/agents/blog' },
+];
 
-export default function BlogPage() {
-  return <BlogListing content={content} />;
+const PAGE_SIZE = 9;
+
+export default function BlogHubPage() {
+  const [activeCategory, setActiveCategory] = useState<BlogCategory | undefined>(undefined);
+  const [activeDivision, setActiveDivision] = useState<string | undefined>(undefined);
+  const [page, setPage] = useState(1);
+
+  const featuredPost = getFeaturedPost();
+  const allAuthors = getAllAuthors();
+
+  const filteredPosts = useMemo(() => {
+    return getAllPosts({
+      category: activeCategory,
+      division: activeDivision,
+    }).filter((p) => p.slug !== featuredPost.slug);
+  }, [activeCategory, activeDivision, featuredPost.slug]);
+
+  const mostRead = useMemo(() => getAllPosts().slice(0, 5), []);
+  const displayedPosts = filteredPosts.slice(0, page * PAGE_SIZE);
+  const hasMore = filteredPosts.length > page * PAGE_SIZE;
+
+  function handleCategoryChange(cat?: BlogCategory) {
+    setActiveCategory(cat);
+    setPage(1);
+  }
+
+  return (
+    <>
+      {/* ── Hero ────────────────────────────────────────────────────────────── */}
+      <section
+        style={{
+          paddingTop: 'calc(var(--space-section, 120px) + 60px)',
+          paddingBottom: 80,
+          background: 'var(--bg)',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Background orb */}
+        <span
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            top: '-100px',
+            right: '-100px',
+            width: 500,
+            height: 500,
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(89,163,146,0.06) 0%, transparent 70%)',
+            pointerEvents: 'none',
+          }}
+        />
+
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 32px' }}>
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <div
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '0.72rem',
+                fontWeight: 500,
+                color: 'var(--teal)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.12em',
+                marginBottom: 14,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+              }}
+            >
+              <span
+                aria-hidden="true"
+                style={{ width: 20, height: 1.5, background: 'var(--teal)', display: 'inline-block' }}
+              />
+              Ideas, Research &amp; Hard-Won Lessons
+            </div>
+
+            <h1
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: 'clamp(2.2rem, 4vw, 3.2rem)',
+                fontWeight: 800,
+                lineHeight: 1.08,
+                letterSpacing: '-0.035em',
+                color: 'var(--text-primary)',
+                margin: '0 0 16px',
+                maxWidth: '14ch',
+              }}
+            >
+              Writing from SocioFi Technology.
+            </h1>
+
+            <p
+              style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: '1.05rem',
+                lineHeight: 1.7,
+                color: 'var(--text-secondary)',
+                margin: 0,
+                maxWidth: '52ch',
+              }}
+            >
+              Honest thinking on AI-native development, production engineering, and what it
+              actually takes to turn an AI prototype into a real product.
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── Featured Article ─────────────────────────────────────────────────── */}
+      <section style={{ padding: '0 0 80px', background: 'var(--bg)' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 32px' }}>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <BlogFeatured post={featuredPost} />
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── Most Read ────────────────────────────────────────────────────────── */}
+      <section style={{ padding: '60px 0', background: 'var(--bg-2)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 32px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
+            <span aria-hidden="true" style={{ width: 20, height: 1.5, background: 'var(--teal)', display: 'inline-block' }} />
+            <h2
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '0.72rem',
+                fontWeight: 500,
+                color: 'var(--teal)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.12em',
+                margin: 0,
+              }}
+            >
+              Most Read
+            </h2>
+          </div>
+
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(5, 1fr)',
+              gap: 16,
+              overflowX: 'auto',
+            }}
+          >
+            <style>{`
+              @media (max-width: 1100px) { .most-read-grid { grid-template-columns: repeat(3,1fr) !important; } }
+              @media (max-width: 700px) { .most-read-grid { grid-template-columns: repeat(2,1fr) !important; } }
+              @media (max-width: 480px) { .most-read-grid { grid-template-columns: 1fr !important; } }
+            `}</style>
+            {mostRead.map((post) => (
+              <BlogCard key={post.slug} post={post} compact />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Article Grid with filters ─────────────────────────────────────────── */}
+      <section style={{ padding: '80px 0 100px', background: 'var(--bg)' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 32px' }}>
+          {/* Filters */}
+          <div style={{ marginBottom: 48 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+              <span aria-hidden="true" style={{ width: 20, height: 1.5, background: 'var(--teal)', display: 'inline-block' }} />
+              <h2
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.72rem',
+                  fontWeight: 500,
+                  color: 'var(--teal)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.12em',
+                  margin: 0,
+                }}
+              >
+                All Articles
+              </h2>
+            </div>
+            <BlogCategoryBar activeCategory={activeCategory} onChange={handleCategoryChange} />
+          </div>
+
+          {/* Grid */}
+          {displayedPosts.length > 0 ? (
+            <>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(3, 1fr)',
+                  gap: 24,
+                  marginBottom: 48,
+                }}
+              >
+                <style>{`
+                  @media (max-width: 900px) { .blog-grid-3 { grid-template-columns: 1fr 1fr !important; } }
+                  @media (max-width: 600px) { .blog-grid-3 { grid-template-columns: 1fr !important; } }
+                `}</style>
+                {displayedPosts.map((post, i) => (
+                  <motion.div
+                    key={post.slug}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.1 }}
+                    transition={{ duration: 0.5, delay: (i % PAGE_SIZE) * 0.05, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    <BlogCard post={post} />
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Load more */}
+              {hasMore && (
+                <div style={{ textAlign: 'center' }}>
+                  <button
+                    onClick={() => setPage((p) => p + 1)}
+                    style={{
+                      fontFamily: 'var(--font-display)',
+                      fontSize: '0.9rem',
+                      fontWeight: 600,
+                      padding: '13px 32px',
+                      borderRadius: 'var(--radius-full)',
+                      border: '1.5px solid var(--border)',
+                      background: 'transparent',
+                      color: 'var(--text-primary)',
+                      cursor: 'pointer',
+                      letterSpacing: '-0.01em',
+                      transition: 'border-color 0.2s, color 0.2s',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = 'var(--teal)';
+                      e.currentTarget.style.color = 'var(--teal)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = 'var(--border)';
+                      e.currentTarget.style.color = 'var(--text-primary)';
+                    }}
+                  >
+                    Load more articles
+                  </button>
+                </div>
+              )}
+            </>
+          ) : (
+            <p
+              style={{
+                fontFamily: 'var(--font-body)',
+                color: 'var(--text-muted)',
+                textAlign: 'center',
+                padding: '60px 0',
+              }}
+            >
+              No articles in this category yet.
+            </p>
+          )}
+        </div>
+      </section>
+
+      {/* ── Authors ──────────────────────────────────────────────────────────── */}
+      <section
+        style={{
+          padding: '60px 0',
+          background: 'var(--bg-2)',
+          borderTop: '1px solid var(--border)',
+        }}
+      >
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 32px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 28 }}>
+            <span aria-hidden="true" style={{ width: 20, height: 1.5, background: 'var(--teal)', display: 'inline-block' }} />
+            <h2
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '0.72rem',
+                fontWeight: 500,
+                color: 'var(--teal)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.12em',
+                margin: 0,
+              }}
+            >
+              Who Writes Here
+            </h2>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+            <style>{`
+              @media (max-width: 900px) { .authors-grid { grid-template-columns: 1fr 1fr !important; } }
+              @media (max-width: 500px) { .authors-grid { grid-template-columns: 1fr !important; } }
+            `}</style>
+            {allAuthors.map((author) => {
+              const postCount = getAllPosts({ author: author.slug }).length;
+              return (
+                <Link
+                  key={author.slug}
+                  href={`/blog/author/${author.slug}`}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    background: 'var(--bg-card)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 'var(--radius-lg)',
+                    padding: '16px 18px',
+                    textDecoration: 'none',
+                    transition: 'border-color 0.2s, transform 0.2s',
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.borderColor = author.accentColor + '40';
+                    (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)';
+                    (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
+                  }}
+                >
+                  <span
+                    style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: '50%',
+                      background: author.accentColor + '22',
+                      border: `1.5px solid ${author.accentColor}44`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '0.7rem',
+                      fontWeight: 700,
+                      color: author.accentColor,
+                      flexShrink: 0,
+                    }}
+                    aria-hidden="true"
+                  >
+                    {author.avatarInitials}
+                  </span>
+                  <span>
+                    <span
+                      style={{
+                        display: 'block',
+                        fontFamily: 'var(--font-display)',
+                        fontSize: '0.84rem',
+                        fontWeight: 700,
+                        color: 'var(--text-primary)',
+                        letterSpacing: '-0.01em',
+                      }}
+                    >
+                      {author.name}
+                    </span>
+                    <span
+                      style={{
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '0.62rem',
+                        color: 'var(--text-muted)',
+                      }}
+                    >
+                      {postCount} {postCount === 1 ? 'article' : 'articles'}
+                    </span>
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Division Links ────────────────────────────────────────────────────── */}
+      <section style={{ padding: '60px 0', background: 'var(--bg)' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 32px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+            <span aria-hidden="true" style={{ width: 20, height: 1.5, background: 'var(--teal)', display: 'inline-block' }} />
+            <p
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '0.72rem',
+                fontWeight: 500,
+                color: 'var(--teal)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.12em',
+                margin: 0,
+              }}
+            >
+              Browse by Division
+            </p>
+          </div>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            {DIVISIONS.map((div) => (
+              <Link
+                key={div.slug}
+                href={div.href}
+                style={{
+                  fontFamily: 'var(--font-body)',
+                  fontSize: '0.84rem',
+                  fontWeight: 500,
+                  padding: '8px 18px',
+                  borderRadius: 'var(--radius-full)',
+                  border: `1.5px solid ${div.accent}30`,
+                  background: div.accent + '10',
+                  color: div.accent,
+                  textDecoration: 'none',
+                  transition: 'background 0.2s, border-color 0.2s',
+                  display: 'inline-block',
+                }}
+              >
+                {div.label}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Newsletter ────────────────────────────────────────────────────────── */}
+      <section
+        style={{
+          padding: '80px 0',
+          background: 'var(--bg-2)',
+          borderTop: '1px solid var(--border)',
+        }}
+      >
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 32px' }}>
+          <BlogNewsletter />
+        </div>
+      </section>
+    </>
+  );
 }

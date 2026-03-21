@@ -205,7 +205,7 @@ const Reveal = ({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
 };
 
 // ── Form data types ──
-interface FormData {
+interface HostedFormData {
   // Step 1
   appName: string;
   appType: string;
@@ -224,7 +224,7 @@ interface FormData {
   message: string;
 }
 
-const INITIAL: FormData = {
+const INITIAL: HostedFormData = {
   appName: '', appType: '', currentHosting: '', monthlyTraffic: '',
   frontend: [], backend: [], database: [], customDomain: '',
   name: '', email: '', company: '', plan: '', message: '',
@@ -266,7 +266,7 @@ function PlanRadio({ value, selected, label, price, desc, onChange }: {
 }
 
 // ── Step 1: Your App ──
-function Step1({ data, set }: { data: FormData; set: (k: keyof FormData, v: string) => void }) {
+function Step1({ data, set }: { data: HostedFormData; set: (k: keyof HostedFormData, v: string) => void }) {
   return (
     <div>
       <h3 className="gh-step-title">Your App</h3>
@@ -324,7 +324,7 @@ function Step1({ data, set }: { data: FormData; set: (k: keyof FormData, v: stri
 }
 
 // ── Step 2: Your Stack ──
-function Step2({ data, toggleArr }: { data: FormData; toggleArr: (key: 'frontend' | 'backend' | 'database', v: string) => void; set: (k: keyof FormData, v: string) => void }) {
+function Step2({ data, toggleArr }: { data: HostedFormData; toggleArr: (key: 'frontend' | 'backend' | 'database', v: string) => void; set: (k: keyof HostedFormData, v: string) => void }) {
   return (
     <div>
       <h3 className="gh-step-title">Your Stack</h3>
@@ -381,7 +381,7 @@ function Step2({ data, toggleArr }: { data: FormData; toggleArr: (key: 'frontend
 }
 
 // ── Step 2 wrapper with domain handler ──
-function Step2Wrapper({ data, toggleArr, set }: { data: FormData; toggleArr: (key: 'frontend' | 'backend' | 'database', v: string) => void; set: (k: keyof FormData, v: string) => void }) {
+function Step2Wrapper({ data, toggleArr, set }: { data: HostedFormData; toggleArr: (key: 'frontend' | 'backend' | 'database', v: string) => void; set: (k: keyof HostedFormData, v: string) => void }) {
   // Use a ref-based approach for the toggle
   const handleToggle = (opt: string) => set('customDomain', opt);
 
@@ -437,7 +437,7 @@ function Step2Wrapper({ data, toggleArr, set }: { data: FormData; toggleArr: (ke
 }
 
 // ── Step 3: Contact ──
-function Step3({ data, set }: { data: FormData; set: (k: keyof FormData, v: string) => void }) {
+function Step3({ data, set }: { data: HostedFormData; set: (k: keyof HostedFormData, v: string) => void }) {
   return (
     <div>
       <h3 className="gh-step-title">Contact</h3>
@@ -525,9 +525,11 @@ export default function GetHostedPage() {
   const [selectedPath, setSelectedPath] = useState<'existing' | 'new' | null>(null);
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
-  const [data, setData] = useState<FormData>(INITIAL);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [data, setData] = useState<HostedFormData>(INITIAL);
 
-  function set(key: keyof FormData, val: string) {
+  function set(key: keyof HostedFormData, val: string) {
     setData((prev) => ({ ...prev, [key]: val }));
   }
 
@@ -540,9 +542,39 @@ export default function GetHostedPage() {
     }));
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setSubmitted(true);
+    if (!data.name.trim() || !data.email.trim() || submitting) return;
+    setSubmitting(true);
+    setSubmitError('');
+    try {
+      const res = await fetch('/api/cloud/get-hosted', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          company: data.company || undefined,
+          app_type: selectedPath || data.appType,
+          app_name: data.appName,
+          current_hosting: data.currentHosting,
+          monthly_traffic: data.monthlyTraffic,
+          frontend: data.frontend,
+          backend: data.backend,
+          database: data.database,
+          custom_domain: data.customDomain,
+          plan: data.plan,
+          message: data.message || undefined,
+          source_url: typeof window !== 'undefined' ? window.location.href : undefined,
+        }),
+      });
+      if (!res.ok) throw new Error('Submission failed');
+      setSubmitted(true);
+    } catch {
+      setSubmitError('Something went wrong. Please try again or contact us directly.');
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   const STEP_LABELS = ['Your App', 'Your Stack', 'Contact'];
@@ -694,15 +726,22 @@ export default function GetHostedPage() {
                             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
                           >
                             <Step3 data={data} set={set} />
+                            {submitError && (
+                              <p style={{ color: '#F87171', fontSize: '0.85rem', marginBottom: 12, lineHeight: 1.5 }}>
+                                {submitError}
+                              </p>
+                            )}
                             <div className="gh-form-nav">
-                              <button type="button" className="gh-btn-back" onClick={() => setStep(2)}>
+                              <button type="button" className="gh-btn-back" onClick={() => setStep(2)} disabled={submitting}>
                                 <IconArrowLeft /> Back
                               </button>
-                              <button type="submit" className="gh-btn-submit">
-                                Request Hosting Setup
-                                <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                                  <path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/>
-                                </svg>
+                              <button type="submit" className="gh-btn-submit" disabled={submitting}>
+                                {submitting ? 'Sending...' : 'Request Hosting Setup'}
+                                {!submitting && (
+                                  <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                    <path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/>
+                                  </svg>
+                                )}
                               </button>
                             </div>
                           </motion.div>

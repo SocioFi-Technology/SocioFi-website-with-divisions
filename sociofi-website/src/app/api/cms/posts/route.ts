@@ -9,6 +9,10 @@ function slugify(title: string): string {
     .replace(/(^-|-$)/g, '');
 }
 
+function hasSupabase(): boolean {
+  return !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
+}
+
 function getServiceClient() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -18,6 +22,10 @@ function getServiceClient() {
 
 export async function GET(req: NextRequest) {
   try {
+    if (!hasSupabase()) {
+      return NextResponse.json({ posts: [], total: 0, source: 'mock' });
+    }
+
     const { searchParams } = new URL(req.url);
     const division = searchParams.get('division');
     const status = searchParams.get('status');

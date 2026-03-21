@@ -705,10 +705,36 @@ function InquiryForm() {
   const [loading, setLoading] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [submitError, setSubmitError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formRef.current || loading) return;
     setLoading(true);
-    setTimeout(() => { setLoading(false); setSubmitted(true); }, 1000);
+    setSubmitError('');
+    const fd = new FormData(formRef.current);
+    try {
+      const res = await fetch('/api/academy/corporate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          company: fd.get('company'),
+          team_size: fd.get('team_size'),
+          goal: fd.get('goal'),
+          format: fd.get('format'),
+          timeline: fd.get('timeline'),
+          email: fd.get('email'),
+          notes: fd.get('notes') || undefined,
+          source_url: typeof window !== 'undefined' ? window.location.href : undefined,
+        }),
+      });
+      if (!res.ok) throw new Error('Failed');
+      setSubmitted(true);
+    } catch {
+      setSubmitError('Something went wrong. Please try again or contact us directly.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (submitted) {
@@ -728,15 +754,15 @@ function InquiryForm() {
       <div className="corp-form-grid">
         <div className="corp-form-group">
           <label className="corp-form-label">Company name</label>
-          <input type="text" className="corp-form-input" placeholder="Acme Corp" required />
+          <input name="company" type="text" className="corp-form-input" placeholder="Acme Corp" required disabled={loading} />
         </div>
         <div className="corp-form-group">
           <label className="corp-form-label">Team size</label>
-          <input type="number" className="corp-form-input" placeholder="25" min={1} required />
+          <input name="team_size" type="number" className="corp-form-input" placeholder="25" min={1} required disabled={loading} />
         </div>
         <div className="corp-form-group">
           <label className="corp-form-label">Primary goal</label>
-          <select className="corp-form-select" required defaultValue="">
+          <select name="goal" className="corp-form-select" required defaultValue="" disabled={loading}>
             <option value="" disabled>Select a goal</option>
             <option>AI Development literacy</option>
             <option>AI Agents training</option>
@@ -746,7 +772,7 @@ function InquiryForm() {
         </div>
         <div className="corp-form-group">
           <label className="corp-form-label">Preferred format</label>
-          <select className="corp-form-select" required defaultValue="">
+          <select name="format" className="corp-form-select" required defaultValue="" disabled={loading}>
             <option value="" disabled>Select format</option>
             <option>Virtual</option>
             <option>In-person Dhaka</option>
@@ -755,7 +781,7 @@ function InquiryForm() {
         </div>
         <div className="corp-form-group">
           <label className="corp-form-label">Timeline</label>
-          <select className="corp-form-select" required defaultValue="">
+          <select name="timeline" className="corp-form-select" required defaultValue="" disabled={loading}>
             <option value="" disabled>When do you need this?</option>
             <option>Within 1 month</option>
             <option>1–3 months</option>
@@ -764,13 +790,18 @@ function InquiryForm() {
         </div>
         <div className="corp-form-group">
           <label className="corp-form-label">Contact email</label>
-          <input type="email" className="corp-form-input" placeholder="you@company.com" required />
+          <input name="email" type="email" className="corp-form-input" placeholder="you@company.com" required disabled={loading} />
         </div>
         <div className="corp-form-group full">
           <label className="corp-form-label">Anything else we should know? (optional)</label>
-          <textarea className="corp-form-textarea" placeholder="Specific topics, constraints, or questions..." />
+          <textarea name="notes" className="corp-form-textarea" placeholder="Specific topics, constraints, or questions..." disabled={loading} />
         </div>
       </div>
+      {submitError && (
+        <p style={{ color: '#F87171', fontSize: '0.85rem', marginBottom: 12, lineHeight: 1.5 }}>
+          {submitError}
+        </p>
+      )}
       <button type="submit" className="corp-form-submit" disabled={loading}>
         {loading ? 'Sending...' : <><span>Request Training Proposal</span> <ArrowRight size={14} /></>}
       </button>

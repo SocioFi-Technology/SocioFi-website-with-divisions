@@ -378,14 +378,35 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 function AuditForm() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const formRef = useRef<HTMLFormElement>(null);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (loading || !formRef.current) return;
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    setSubmitError('');
+    const fd = new FormData(formRef.current);
+    try {
+      const res = await fetch('/api/cloud/audit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: fd.get('name'),
+          email: fd.get('email'),
+          company: fd.get('company') || undefined,
+          current_provider: fd.get('provider'),
+          setup_description: fd.get('setup'),
+          source_url: typeof window !== 'undefined' ? window.location.href : undefined,
+        }),
+      });
+      if (!res.ok) throw new Error('Failed');
       setSubmitted(true);
-    }, 1200);
+    } catch {
+      setSubmitError('Something went wrong. Please try again or contact us directly.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (submitted) {
@@ -405,7 +426,7 @@ function AuditForm() {
   }
 
   return (
-    <form className="au-form" onSubmit={handleSubmit} noValidate>
+    <form ref={formRef} className="au-form" onSubmit={handleSubmit} noValidate>
       <div className="au-field">
         <label className="au-label-text" htmlFor="audit-name">Your name</label>
         <input id="audit-name" name="name" type="text" className="au-input" placeholder="Alex Johnson" required />
@@ -445,6 +466,11 @@ function AuditForm() {
         />
       </div>
       <div className="au-form-submit au-form-full">
+        {submitError && (
+          <p style={{ color: '#F87171', fontSize: '0.85rem', marginBottom: 10, lineHeight: 1.5 }}>
+            {submitError}
+          </p>
+        )}
         <button type="submit" className="au-submit-btn" disabled={loading}>
           {loading ? (
             <>

@@ -667,6 +667,9 @@ function EnrollmentFormInner() {
   const [step, setStep] = useState<1 | 2>(1);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [accountName, setAccountName] = useState('');
+  const [accountEmail, setAccountEmail] = useState('');
 
   useEffect(() => {
     if (bundleParam) { setSelectionType('bundle'); setSelectedBundle(bundleParam); }
@@ -679,10 +682,33 @@ function EnrollmentFormInner() {
   const orderName = selectionType === 'course' ? selectedCourseData?.name : selectedBundleData?.name;
   const orderPrice = selectionType === 'course' ? selectedCourseData?.price : selectedBundleData?.price;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!accountName.trim() || !accountEmail.trim()) return;
     setLoading(true);
-    setTimeout(() => { setLoading(false); setSubmitted(true); }, 1200);
+    setSubmitError('');
+    try {
+      const courseSlug = selectionType === 'course'
+        ? selectedCourse
+        : `bundle-${selectedBundle}`;
+      const res = await fetch('/api/academy/enroll', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: accountName,
+          email: accountEmail,
+          course: courseSlug,
+          format: selectionType,
+          source_url: typeof window !== 'undefined' ? window.location.href : undefined,
+        }),
+      });
+      if (!res.ok) throw new Error('Enrollment failed');
+      setSubmitted(true);
+    } catch {
+      setSubmitError('Something went wrong. Please try again or contact us directly.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (submitted) {
@@ -803,16 +829,28 @@ function EnrollmentFormInner() {
               <div className="enr-field-grid">
                 <div className="enr-field-group">
                   <label className="enr-field-label">Full name</label>
-                  <input type="text" className="enr-field-input" placeholder="Your name" required />
+                  <input
+                    type="text"
+                    className="enr-field-input"
+                    placeholder="Your name"
+                    required
+                    value={accountName}
+                    onChange={(e) => setAccountName(e.target.value)}
+                    disabled={loading}
+                  />
                 </div>
                 <div className="enr-field-group">
                   <label className="enr-field-label">Email address</label>
-                  <input type="email" className="enr-field-input" placeholder="you@email.com" required />
+                  <input
+                    type="email"
+                    className="enr-field-input"
+                    placeholder="you@email.com"
+                    required
+                    value={accountEmail}
+                    onChange={(e) => setAccountEmail(e.target.value)}
+                    disabled={loading}
+                  />
                 </div>
-              </div>
-              <div className="enr-field-group">
-                <label className="enr-field-label">Create password</label>
-                <input type="password" className="enr-field-input" placeholder="At least 8 characters" minLength={8} required />
               </div>
 
               <div className="enr-form-divider" />
@@ -837,6 +875,12 @@ function EnrollmentFormInner() {
                   <span>Stripe secure payment form</span>
                 </div>
               </div>
+
+              {submitError && (
+                <p style={{ color: '#F87171', fontSize: '0.85rem', marginBottom: 12, lineHeight: 1.5 }}>
+                  {submitError}
+                </p>
+              )}
 
               <button type="submit" className="enr-continue-btn" disabled={loading}>
                 {loading ? 'Processing...' : <><span>Complete Enrollment</span> <ArrowRight size={14} /></>}

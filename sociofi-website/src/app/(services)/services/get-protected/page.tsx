@@ -578,6 +578,7 @@ export default function GetProtectedPage() {
   const [step, setStep] = useState(0); // 0,1,2 = form steps; 3 = success
   const [form, setForm] = useState<FormState>(INITIAL);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
   const [dynRec, setDynRec] = useState<{ plan: string; reason: string } | null>(null);
 
   // Update recommendation dynamically as user fills the form
@@ -616,10 +617,29 @@ export default function GetProtectedPage() {
   async function handleSubmit() {
     if (!step3Valid() || submitting) return;
     setSubmitting(true);
-    // Simulate submission delay
-    await new Promise((r) => setTimeout(r, 1200));
-    setSubmitting(false);
-    setStep(3);
+    setSubmitError('');
+    try {
+      const res = await fetch('/api/services/get-protected', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          product_desc: form.productDesc,
+          built_by: form.builtBy,
+          how_long: form.howLong,
+          customers: form.customers,
+          concerns: form.concerns,
+          source_url: typeof window !== 'undefined' ? window.location.href : undefined,
+        }),
+      });
+      if (!res.ok) throw new Error('Submission failed');
+      setStep(3);
+    } catch {
+      setSubmitError('Something went wrong. Please try again or contact us directly.');
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   const renderStep = () => {
@@ -798,8 +818,13 @@ export default function GetProtectedPage() {
               </div>
             </div>
 
+            {submitError && (
+              <p style={{ color: '#F87171', fontSize: '0.85rem', marginBottom: 12, lineHeight: 1.5 }}>
+                {submitError}
+              </p>
+            )}
             <div className="gp-form-nav">
-              <button className="gp-btn-back" onClick={() => setStep(1)}>Back</button>
+              <button className="gp-btn-back" onClick={() => setStep(1)} disabled={submitting}>Back</button>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div className="gp-step-dots">
                   {[0, 1, 2].map((i) => (

@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createAuthClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
 
+function hasSupabase(): boolean {
+  return !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
+}
+
 function getServiceClient() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -11,6 +15,10 @@ function getServiceClient() {
 
 export async function GET() {
   try {
+    if (!hasSupabase()) {
+      return NextResponse.json({ files: [], total: 0, source: 'mock' });
+    }
+
     const supabase = getServiceClient();
     const { data: files, error } = await supabase
       .from('cms_media')

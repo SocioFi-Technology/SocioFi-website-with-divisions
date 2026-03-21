@@ -497,7 +497,7 @@ function SidebarContent({
                   {'dot' in item ? (
                     <span
                       className="adm-div-dot"
-                      style={{ background: item.dot }}
+                      style={{ background: (item as { dot: string }).dot }}
                       aria-hidden="true"
                     />
                   ) : (
