@@ -28,6 +28,7 @@ export default function BlogFeatured({ post }: BlogFeaturedProps) {
       {/* Left: gradient thumbnail */}
       <span
         aria-hidden="true"
+        className="blog-featured-thumb"
         style={{
           display: 'block',
           background: `linear-gradient(135deg, ${accent}33 0%, #3A589E44 50%, ${accent}11 100%)`,
@@ -85,6 +86,7 @@ export default function BlogFeatured({ post }: BlogFeaturedProps) {
 
       {/* Right: content */}
       <span
+        className="blog-featured-content"
         style={{
           display: 'flex',
           flexDirection: 'column',
@@ -285,9 +287,9 @@ export default function BlogFeatured({ post }: BlogFeaturedProps) {
           box-shadow: var(--card-hover-shadow, 0 20px 60px rgba(0,0,0,0.15));
         }
         @media (max-width: 768px) {
-          .blog-featured-link {
-            grid-template-columns: 1fr !important;
-          }
+          .blog-featured-link { grid-template-columns: 1fr !important; }
+          .blog-featured-thumb { min-height: 180px !important; }
+          .blog-featured-content { padding: 24px 20px !important; }
         }
       `}</style>
     </Link>

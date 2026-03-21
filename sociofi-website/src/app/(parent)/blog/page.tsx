@@ -153,8 +153,8 @@ export default function BlogHubPage() {
 
       {/* ── Most Read ────────────────────────────────────────────────────────── */}
       <section style={{ padding: '60px 0', background: 'var(--bg-2)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 32px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
+        <div className="most-read-outer" style={{ maxWidth: 1200, margin: '0 auto', padding: '0 32px' }}>
+          <div className="most-read-header" style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
             <span aria-hidden="true" style={{ width: 20, height: 1.5, background: 'var(--teal)', display: 'inline-block' }} />
             <h2
               style={{
@@ -179,14 +179,18 @@ export default function BlogHubPage() {
             }
             @media (max-width: 1100px) { .most-read-grid { grid-template-columns: repeat(3,1fr); } }
             @media (max-width: 700px) {
+              .most-read-outer { padding-left: 0 !important; padding-right: 0 !important; }
+              .most-read-header { padding: 0 20px; }
               .most-read-grid {
                 display: flex;
                 overflow-x: auto;
                 gap: 12px;
-                padding-bottom: 8px;
+                padding: 0 20px 8px;
                 -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
               }
-              .most-read-grid > * { flex: 0 0 240px; min-width: 240px; }
+              .most-read-grid::-webkit-scrollbar { display: none; }
+              .most-read-grid > * { flex: 0 0 220px; min-width: 220px; }
             }
           `}</style>
           <div className="most-read-grid">
@@ -316,7 +320,7 @@ export default function BlogHubPage() {
             </h2>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+          <div className="authors-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
             <style>{`
               @media (max-width: 900px) { .authors-grid { grid-template-columns: 1fr 1fr !important; } }
               @media (max-width: 500px) { .authors-grid { grid-template-columns: 1fr !important; } }
