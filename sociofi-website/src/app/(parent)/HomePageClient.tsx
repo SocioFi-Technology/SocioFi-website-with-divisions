@@ -835,13 +835,33 @@ function StreamHeadline({ lines, gradientLine, gradientColors, rm }: {
   useEffect(() => {
     if (rm) { setCount(totalChars); return; }
     setCount(0);
-    let i = 0;
-    const id = setInterval(() => {
-      i++;
-      setCount(i);
-      if (i >= totalChars) clearInterval(id);
-    }, 90);
-    return () => clearInterval(id);
+
+    let rafId: number;
+    let startTime: number | null = null;
+    const MS_PER_CHAR = 90;
+
+    function tick(now: number) {
+      if (startTime === null) startTime = now;
+      const chars = Math.min(Math.floor((now - startTime) / MS_PER_CHAR), totalChars);
+      setCount(chars);
+      if (chars < totalChars) rafId = requestAnimationFrame(tick);
+    }
+
+    function start() {
+      rafId = requestAnimationFrame(tick);
+    }
+
+    // If loading screen already dismissed (e.g. slide transition), start immediately
+    if (typeof window !== 'undefined' && (window as any).__sfLoadingDone) {
+      start();
+    } else {
+      window.addEventListener('loading-done', start, { once: true });
+    }
+
+    return () => {
+      window.removeEventListener('loading-done', start);
+      cancelAnimationFrame(rafId);
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -883,9 +903,25 @@ function highlightSubtext(text: string, highlights: string[]): React.ReactNode {
 }
 
 /* ── Streaming subtext — word-by-word reveal, preserving highlights ── */
-function StreamSubtext({ text, highlights, rm, startDelay }: {
-  text: string; highlights: string[]; rm: boolean; startDelay: number;
+function StreamSubtext({ text, highlights, rm }: {
+  text: string; highlights: string[]; rm: boolean;
 }) {
+  const [animating, setAnimating] = useState(rm);
+
+  useEffect(() => {
+    if (rm) return;
+    // Start 1.4s after loading screen exits so headline has a moment to run
+    function start() {
+      setTimeout(() => setAnimating(true), 1400);
+    }
+    if (typeof window !== 'undefined' && (window as any).__sfLoadingDone) {
+      start();
+    } else {
+      window.addEventListener('loading-done', start, { once: true });
+    }
+    return () => window.removeEventListener('loading-done', start);
+  }, [rm]);
+
   if (rm) {
     return <>{highlightSubtext(text, highlights)}</>;
   }
@@ -908,8 +944,8 @@ function StreamSubtext({ text, highlights, rm, startDelay }: {
   return (
     <motion.span
       initial="hidden"
-      animate="visible"
-      variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.055, delayChildren: startDelay } } }}
+      animate={animating ? 'visible' : 'hidden'}
+      variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.055, delayChildren: 0.1 } } }}
       style={{ display: 'inline' }}
     >
       {tokens.map((token, i) => (
@@ -1080,7 +1116,7 @@ function Hero() {
 
       {/* Subtext — streams word-by-word after headline */}
       <p style={{ fontFamily: F.b, fontSize: '1rem', lineHeight: 1.7, color: 'var(--text-secondary)', maxWidth: 560, marginInline: 'auto', marginBottom: 28 }}>
-        <StreamSubtext text={s.subtext} highlights={s.subtextHighlights ?? []} rm={rm} startDelay={3.8} />
+        <StreamSubtext text={s.subtext} highlights={s.subtextHighlights ?? []} rm={rm} />
       </p>
 
       {/* CTAs */}

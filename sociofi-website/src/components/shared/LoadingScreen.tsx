@@ -24,7 +24,14 @@ export default function LoadingScreen() {
       return () => clearTimeout(t);
     }
 
-    const t = setTimeout(() => setVisible(false), HOLD_MS);
+    const t = setTimeout(() => {
+      // Signal hero animations to start (Option B)
+      if (typeof window !== 'undefined') {
+        (window as any).__sfLoadingDone = true;
+        window.dispatchEvent(new CustomEvent('loading-done'));
+      }
+      setVisible(false);
+    }, HOLD_MS);
     return () => clearTimeout(t);
   }, []);
 
