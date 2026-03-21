@@ -171,19 +171,25 @@ export default function BlogHubPage() {
             </h2>
           </div>
 
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(5, 1fr)',
-              gap: 16,
-              overflowX: 'auto',
-            }}
-          >
-            <style>{`
-              @media (max-width: 1100px) { .most-read-grid { grid-template-columns: repeat(3,1fr) !important; } }
-              @media (max-width: 700px) { .most-read-grid { grid-template-columns: repeat(2,1fr) !important; } }
-              @media (max-width: 480px) { .most-read-grid { grid-template-columns: 1fr !important; } }
-            `}</style>
+          <style>{`
+            .most-read-grid {
+              display: grid;
+              grid-template-columns: repeat(5, 1fr);
+              gap: 16px;
+            }
+            @media (max-width: 1100px) { .most-read-grid { grid-template-columns: repeat(3,1fr); } }
+            @media (max-width: 700px) {
+              .most-read-grid {
+                display: flex;
+                overflow-x: auto;
+                gap: 12px;
+                padding-bottom: 8px;
+                -webkit-overflow-scrolling: touch;
+              }
+              .most-read-grid > * { flex: 0 0 240px; min-width: 240px; }
+            }
+          `}</style>
+          <div className="most-read-grid">
             {mostRead.map((post) => (
               <BlogCard key={post.slug} post={post} compact />
             ))}
@@ -218,18 +224,12 @@ export default function BlogHubPage() {
           {/* Grid */}
           {displayedPosts.length > 0 ? (
             <>
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(3, 1fr)',
-                  gap: 24,
-                  marginBottom: 48,
-                }}
-              >
-                <style>{`
-                  @media (max-width: 900px) { .blog-grid-3 { grid-template-columns: 1fr 1fr !important; } }
-                  @media (max-width: 600px) { .blog-grid-3 { grid-template-columns: 1fr !important; } }
-                `}</style>
+              <style>{`
+                .blog-grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; margin-bottom: 48px; }
+                @media (max-width: 900px) { .blog-grid-3 { grid-template-columns: 1fr 1fr; } }
+                @media (max-width: 600px) { .blog-grid-3 { grid-template-columns: 1fr; } }
+              `}</style>
+              <div className="blog-grid-3">
                 {displayedPosts.map((post, i) => (
                   <motion.div
                     key={post.slug}

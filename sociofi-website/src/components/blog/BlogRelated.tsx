@@ -44,21 +44,12 @@ export default function BlogRelated({ posts, currentSlug }: BlogRelatedProps) {
         </h2>
       </div>
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: 20,
-        }}
-      >
-        <style>{`
-          @media (max-width: 900px) {
-            .blog-related-grid { grid-template-columns: 1fr 1fr !important; }
-          }
-          @media (max-width: 600px) {
-            .blog-related-grid { grid-template-columns: 1fr !important; }
-          }
-        `}</style>
+      <style>{`
+        .blog-related-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+        @media (max-width: 900px) { .blog-related-grid { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 600px) { .blog-related-grid { grid-template-columns: 1fr; } }
+      `}</style>
+      <div className="blog-related-grid">
         {related.map((post) => (
           <BlogCard key={post.slug} post={post} compact />
         ))}

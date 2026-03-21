@@ -31,6 +31,7 @@ const PARENT_LINKS = [
   { label: 'Agents', href: '/agents' },
   { label: 'Services', href: '/services' },
   { label: 'Products', href: '/products' },
+  { label: 'Blog', href: '/blog' },
   { label: 'About', href: '/about' },
 ];
 
