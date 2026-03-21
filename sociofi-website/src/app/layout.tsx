@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Plus_Jakarta_Sans, Inter, Fira_Code, Manrope, DM_Sans, JetBrains_Mono, Syne, Outfit, Space_Grotesk } from 'next/font/google';
 import { ThemeProvider } from 'next-themes';
 import { OrganizationJsonLd, WebsiteJsonLd } from '@/components/shared/JsonLd';
+import LoadingScreen from '@/components/shared/LoadingScreen';
 import '../styles/globals.css';
 import '../styles/animations.css';
 import '../styles/responsive.css';
@@ -112,6 +113,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange={false}
         >
+          <LoadingScreen />
           <a href="#main-content" className="skip-to-content">Skip to content</a>
           <main id="main-content">
             {children}
