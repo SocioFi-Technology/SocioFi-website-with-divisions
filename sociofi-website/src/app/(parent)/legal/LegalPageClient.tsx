@@ -199,10 +199,10 @@ export default function LegalPageClient() {
         background: 'var(--bg)',
       }}>
         <Container>
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 lg:gap-16" style={{ alignItems: 'start' }}>
+          <div className="legal-layout" style={{ alignItems: 'start' }}>
 
-            {/* Sticky nav */}
-            <nav style={{ position: 'sticky', top: 100 }} aria-label="Document sections">
+            {/* Sticky nav (desktop) / static nav (mobile) */}
+            <nav className="legal-nav" aria-label="Document sections">
               <p style={{
                 fontFamily: 'var(--font-mono)', fontSize: '0.66rem',
                 color: 'var(--text-muted)', textTransform: 'uppercase',
@@ -210,7 +210,7 @@ export default function LegalPageClient() {
               }}>
                 {current.label}
               </p>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <ul className="legal-nav-list" style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', gap: 4 }}>
                 {current.sections.map((sec) => (
                   <li key={sec.heading}>
                     <a
@@ -220,6 +220,7 @@ export default function LegalPageClient() {
                         fontFamily: 'var(--font-body)', fontSize: '0.82rem',
                         lineHeight: 1.5, color: 'var(--text-muted)',
                         textDecoration: 'none', padding: '4px 0',
+                        whiteSpace: 'nowrap',
                       }}
                     >
                       {sec.heading}
@@ -227,7 +228,7 @@ export default function LegalPageClient() {
                   </li>
                 ))}
               </ul>
-              <p style={{
+              <p className="legal-nav-updated" style={{
                 fontFamily: 'var(--font-mono)', fontSize: '0.66rem',
                 color: 'var(--text-muted)', marginTop: 28,
                 letterSpacing: '0.06em',
@@ -236,9 +237,52 @@ export default function LegalPageClient() {
               </p>
             </nav>
 
+            <style>{`
+              .legal-layout {
+                display: grid;
+                grid-template-columns: 1fr 3fr;
+                gap: 64px;
+              }
+              .legal-nav {
+                position: sticky;
+                top: 100px;
+                background: var(--bg);
+              }
+              .legal-nav-list {
+                flex-direction: column;
+              }
+              @media (max-width: 1024px) {
+                .legal-layout {
+                  grid-template-columns: 1fr;
+                  gap: 32px;
+                }
+                .legal-nav {
+                  position: static;
+                  background: var(--bg-card);
+                  border: 1px solid var(--border);
+                  border-radius: var(--radius-md);
+                  padding: 20px 24px;
+                }
+                .legal-nav-list {
+                  flex-direction: row !important;
+                  flex-wrap: wrap;
+                  gap: 0 !important;
+                }
+                .legal-nav-list li a {
+                  padding: 4px 12px !important;
+                  font-size: 0.78rem !important;
+                  border-radius: var(--radius-full);
+                  border: 1px solid var(--border);
+                  margin: 3px 0;
+                }
+                .legal-nav-updated {
+                  display: none;
+                }
+              }
+            `}</style>
+
             {/* Article body */}
             <article
-              className="lg:col-span-3"
               style={{ display: 'flex', flexDirection: 'column', gap: 48 }}
             >
               {current.sections.map((sec) => {
