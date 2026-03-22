@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Container from '@/components/shared/Container';
 
 const SUBPAGES = [
@@ -13,13 +13,25 @@ const SUBPAGES = [
 ];
 
 export default function AboutSubNav({ active }: { active: string }) {
-  const [navHeight, setNavHeight] = useState(68);
+  // Track the nav's bottom edge in the viewport (drops to 0 as nav hides on scroll)
+  const [navBottom, setNavBottom] = useState(68);
+  // Track this bar's own height so we can add an equivalent spacer
+  const [barHeight, setBarHeight] = useState(44);
+  const barRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const measure = () => {
       const nav = document.querySelector('header.nav') as HTMLElement | null;
-      if (nav) setNavHeight(nav.getBoundingClientRect().height);
+      if (nav) {
+        // .bottom gives the actual viewport position including CSS transforms
+        const bottom = nav.getBoundingClientRect().bottom;
+        setNavBottom(Math.max(0, bottom));
+      }
+      if (barRef.current) {
+        setBarHeight(barRef.current.getBoundingClientRect().height);
+      }
     };
+
     measure();
     window.addEventListener('scroll', measure, { passive: true });
     window.addEventListener('resize', measure, { passive: true });
@@ -30,32 +42,42 @@ export default function AboutSubNav({ active }: { active: string }) {
   }, []);
 
   return (
-    <div
-      className="about-subnav"
-      style={{
-        borderBottom: '1px solid var(--border)',
-        background: 'var(--bg-2)',
-        position: 'sticky',
-        top: navHeight,
-        zIndex: 40,
-      }}
-    >
-      <Container>
-        <div className="about-subnav-list">
-          {SUBPAGES.map((p) => {
-            const isActive = p.href === active;
-            return (
-              <a
-                key={p.href}
-                href={p.href}
-                className={`about-subnav-link${isActive ? ' active' : ''}`}
-              >
-                {p.label}
-              </a>
-            );
-          })}
-        </div>
-      </Container>
-    </div>
+    <>
+      {/* Fixed bar — follows nav as it slides in/out */}
+      <div
+        ref={barRef}
+        className="about-subnav"
+        style={{
+          position: 'fixed',
+          top: navBottom,
+          left: 0,
+          right: 0,
+          zIndex: 40,
+          borderBottom: '1px solid var(--border)',
+          background: 'var(--bg-2)',
+          transition: 'top 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+        }}
+      >
+        <Container>
+          <div className="about-subnav-list">
+            {SUBPAGES.map((p) => {
+              const isActive = p.href === active;
+              return (
+                <a
+                  key={p.href}
+                  href={p.href}
+                  className={`about-subnav-link${isActive ? ' active' : ''}`}
+                >
+                  {p.label}
+                </a>
+              );
+            })}
+          </div>
+        </Container>
+      </div>
+
+      {/* Spacer — keeps page content from hiding behind the fixed bar */}
+      <div style={{ height: barHeight }} aria-hidden="true" />
+    </>
   );
 }
