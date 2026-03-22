@@ -15,6 +15,8 @@ interface PortfolioCardProps {
   accentColor?: string;
   /** Hex color 2 for the placeholder gradient */
   accentColor2?: string;
+  /** Optional image path (SVG/PNG) for the card */
+  image?: string;
   className?: string;
 }
 
@@ -26,6 +28,7 @@ export default function PortfolioCard({
   client,
   accentColor,
   accentColor2,
+  image,
   className = '',
 }: PortfolioCardProps) {
   const [hovered, setHovered] = useState(false);
@@ -64,19 +67,33 @@ export default function PortfolioCard({
             transition: 'transform 0.6s var(--ease)',
           }}
         >
-          {/* Grid overlay on placeholder */}
-          <div
-            aria-hidden="true"
-            style={{
-              position: 'absolute',
-              inset: 0,
-              backgroundImage: `
-                linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)
-              `,
-              backgroundSize: '32px 32px',
-            }}
-          />
+          {/* Image or grid overlay */}
+          {image ? (
+            <img
+              src={image}
+              alt=""
+              style={{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+              }}
+            />
+          ) : (
+            <div
+              aria-hidden="true"
+              style={{
+                position: 'absolute',
+                inset: 0,
+                backgroundImage: `
+                  linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+                  linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)
+                `,
+                backgroundSize: '32px 32px',
+              }}
+            />
+          )}
 
           {/* Subtle chevron watermark */}
           <div

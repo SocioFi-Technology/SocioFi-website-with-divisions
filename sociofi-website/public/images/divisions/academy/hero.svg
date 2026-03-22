@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="800" y2="450" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0C0C1D"/>
+      <stop offset="100%" stop-color="#111128"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="400" cy="225" r="280" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#E8B84D" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#E8B84D" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#bg)"/>
+  <rect width="800" height="450" fill="url(#glow)"/>
+  <!-- Open book shape -->
+  <path d="M400 150 Q300 140 220 160 L220 340 Q300 320 400 330" fill="#161636" stroke="#E8B84D" stroke-opacity="0.2" stroke-width="1"/>
+  <path d="M400 150 Q500 140 580 160 L580 340 Q500 320 400 330" fill="#161636" stroke="#E8B84D" stroke-opacity="0.2" stroke-width="1"/>
+  <!-- Book spine -->
+  <line x1="400" y1="150" x2="400" y2="330" stroke="#E8B84D" stroke-opacity="0.15" stroke-width="1"/>
+  <!-- Text lines left page -->
+  <rect x="248" y="185" width="120" height="5" rx="2.5" fill="#E8B84D" fill-opacity="0.15"/>
+  <rect x="248" y="200" width="100" height="4" rx="2" fill="#E8B84D" fill-opacity="0.1"/>
+  <rect x="248" y="215" width="110" height="4" rx="2" fill="#72C4B2" fill-opacity="0.08"/>
+  <rect x="248" y="235" width="90" height="5" rx="2.5" fill="#E8B84D" fill-opacity="0.15"/>
+  <rect x="248" y="250" width="115" height="4" rx="2" fill="#E8B84D" fill-opacity="0.1"/>
+  <rect x="248" y="265" width="80" height="4" rx="2" fill="#72C4B2" fill-opacity="0.08"/>
+  <rect x="248" y="285" width="105" height="5" rx="2.5" fill="#E8B84D" fill-opacity="0.12"/>
+  <!-- Text lines right page -->
+  <rect x="428" y="185" width="110" height="5" rx="2.5" fill="#E8B84D" fill-opacity="0.15"/>
+  <rect x="428" y="200" width="95" height="4" rx="2" fill="#E8B84D" fill-opacity="0.1"/>
+  <rect x="428" y="215" width="120" height="4" rx="2" fill="#72C4B2" fill-opacity="0.08"/>
+  <rect x="428" y="235" width="100" height="5" rx="2.5" fill="#E8B84D" fill-opacity="0.15"/>
+  <rect x="428" y="250" width="80" height="4" rx="2" fill="#E8B84D" fill-opacity="0.1"/>
+  <rect x="428" y="265" width="115" height="4" rx="2" fill="#72C4B2" fill-opacity="0.08"/>
+  <rect x="428" y="285" width="90" height="5" rx="2.5" fill="#E8B84D" fill-opacity="0.12"/>
+  <!-- Knowledge rays (academy logo modifier) -->
+  <line x1="400" y1="120" x2="400" y2="60" stroke="#E8B84D" stroke-opacity="0.15" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="400" y1="120" x2="340" y2="70" stroke="#E8B84D" stroke-opacity="0.1" stroke-width="1" stroke-linecap="round"/>
+  <line x1="400" y1="120" x2="460" y2="70" stroke="#E8B84D" stroke-opacity="0.1" stroke-width="1" stroke-linecap="round"/>
+  <line x1="400" y1="120" x2="300" y2="90" stroke="#E8B84D" stroke-opacity="0.06" stroke-width="1" stroke-linecap="round"/>
+  <line x1="400" y1="120" x2="500" y2="90" stroke="#E8B84D" stroke-opacity="0.06" stroke-width="1" stroke-linecap="round"/>
+  <!-- Graduation cap hint -->
+  <path d="M370 100 L400 85 L430 100 L400 115 Z" fill="#E8B84D" fill-opacity="0.12" stroke="#E8B84D" stroke-opacity="0.2" stroke-width="1"/>
+  <!-- Floating elements -->
+  <circle cx="150" cy="120" r="2.5" fill="#E8B84D" fill-opacity="0.2"/>
+  <circle cx="680" cy="100" r="3" fill="#72C4B2" fill-opacity="0.15"/>
+  <circle cx="120" cy="380" r="2" fill="#E8B84D" fill-opacity="0.2"/>
+  <circle cx="700" cy="390" r="2.5" fill="#E8B84D" fill-opacity="0.15"/>
+</svg>

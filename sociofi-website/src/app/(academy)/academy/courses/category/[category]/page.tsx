@@ -413,10 +413,11 @@ export default function CategoryPage() {
               <motion.div key={c.slug} className="acc-card"
                 initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }} transition={{ duration: 0.35, delay: i * 0.07 }}>
-                <div className="acc-thumb" style={{ background: c.gradient }}>
-                  <span className="acc-price-badge">${c.price}</span>
-                  <span className="acc-dur-badge">{c.duration}</span>
-                  <span className="acc-dot" />
+                <div className="acc-thumb" style={{ background: c.gradient, overflow: 'hidden' }}>
+                  <img src={`/images/courses/${c.category}.svg`} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <span className="acc-price-badge" style={{ zIndex: 1 }}>${c.price}</span>
+                  <span className="acc-dur-badge" style={{ zIndex: 1 }}>{c.duration}</span>
+                  <span className="acc-dot" style={{ zIndex: 1 }} />
                 </div>
                 <div className="acc-card-body">
                   <div className="acc-aud-tag">{AUDIENCE_LABEL[c.audience]}</div>

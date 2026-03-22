@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { BlogPost, CATEGORY_CONFIG, formatPostDate } from '@/lib/blog';
+import { BlogPost, CATEGORY_CONFIG, CATEGORY_IMAGES, formatPostDate } from '@/lib/blog';
 
 interface BlogFeaturedProps {
   post: BlogPost;
@@ -25,7 +25,7 @@ export default function BlogFeatured({ post }: BlogFeaturedProps) {
       }}
       className="blog-featured-link"
     >
-      {/* Left: gradient thumbnail */}
+      {/* Left: thumbnail image */}
       <span
         aria-hidden="true"
         className="blog-featured-thumb"
@@ -36,30 +36,17 @@ export default function BlogFeatured({ post }: BlogFeaturedProps) {
           overflow: 'hidden',
         }}
       >
-        {/* Glassmorphic overlay */}
-        <span
-          aria-hidden="true"
+        <img
+          src={CATEGORY_IMAGES[post.category]}
+          alt=""
           style={{
             position: 'absolute',
             inset: 0,
-            background: 'var(--glass-bg)',
-            backdropFilter: 'blur(8px)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
           }}
-        >
-          {/* Orb */}
-          <span
-            style={{
-              width: 200,
-              height: 200,
-              borderRadius: '50%',
-              background: `radial-gradient(circle, ${accent}40 0%, transparent 70%)`,
-              display: 'block',
-            }}
-          />
-        </span>
+        />
 
         {/* Featured label bottom-left */}
         <span
@@ -78,6 +65,7 @@ export default function BlogFeatured({ post }: BlogFeaturedProps) {
             backdropFilter: 'blur(8px)',
             borderRadius: 'var(--radius-full)',
             padding: '4px 10px',
+            zIndex: 1,
           }}
         >
           Featured

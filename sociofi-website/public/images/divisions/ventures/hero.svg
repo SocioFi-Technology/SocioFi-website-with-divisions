@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="800" y2="450" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0C0C1D"/>
+      <stop offset="100%" stop-color="#111128"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="400" cy="200" r="280" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#6BA3E8" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#6BA3E8" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#bg)"/>
+  <rect width="800" height="450" fill="url(#glow)"/>
+  <!-- Ascending branch (ventures logo modifier) -->
+  <!-- Main trunk -->
+  <line x1="300" y1="380" x2="400" y2="100" stroke="#6BA3E8" stroke-opacity="0.25" stroke-width="2" stroke-linecap="round"/>
+  <!-- Branches -->
+  <line x1="340" y1="280" x2="240" y2="240" stroke="#6BA3E8" stroke-opacity="0.15" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="360" y1="220" x2="280" y2="170" stroke="#72C4B2" stroke-opacity="0.12" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="370" y1="190" x2="320" y2="120" stroke="#6BA3E8" stroke-opacity="0.1" stroke-width="1" stroke-linecap="round"/>
+  <line x1="355" y1="250" x2="450" y2="210" stroke="#6BA3E8" stroke-opacity="0.15" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="380" y1="160" x2="480" y2="130" stroke="#72C4B2" stroke-opacity="0.12" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="390" y1="130" x2="460" y2="80" stroke="#6BA3E8" stroke-opacity="0.1" stroke-width="1" stroke-linecap="round"/>
+  <!-- Leaf/fruit nodes (startups) -->
+  <circle cx="240" cy="240" r="18" fill="#161636" stroke="#6BA3E8" stroke-opacity="0.35" stroke-width="1.5"/>
+  <circle cx="240" cy="240" r="7" fill="#6BA3E8" fill-opacity="0.12"/>
+  <circle cx="280" cy="170" r="16" fill="#161636" stroke="#72C4B2" stroke-opacity="0.3" stroke-width="1.5"/>
+  <circle cx="280" cy="170" r="6" fill="#72C4B2" fill-opacity="0.12"/>
+  <circle cx="320" cy="120" r="12" fill="#161636" stroke="#6BA3E8" stroke-opacity="0.25" stroke-width="1"/>
+  <circle cx="320" cy="120" r="4" fill="#6BA3E8" fill-opacity="0.15"/>
+  <circle cx="450" cy="210" r="18" fill="#161636" stroke="#6BA3E8" stroke-opacity="0.35" stroke-width="1.5"/>
+  <circle cx="450" cy="210" r="7" fill="#6BA3E8" fill-opacity="0.12"/>
+  <circle cx="480" cy="130" r="16" fill="#161636" stroke="#72C4B2" stroke-opacity="0.3" stroke-width="1.5"/>
+  <circle cx="480" cy="130" r="6" fill="#72C4B2" fill-opacity="0.12"/>
+  <circle cx="460" cy="80" r="12" fill="#161636" stroke="#6BA3E8" stroke-opacity="0.25" stroke-width="1"/>
+  <circle cx="460" cy="80" r="4" fill="#6BA3E8" fill-opacity="0.15"/>
+  <!-- Top star/destination -->
+  <circle cx="400" cy="100" r="10" fill="#161636" stroke="#6BA3E8" stroke-opacity="0.5" stroke-width="2"/>
+  <circle cx="400" cy="100" r="4" fill="#6BA3E8" fill-opacity="0.3"/>
+  <!-- Growth arrow -->
+  <path d="M550 350 L550 180" stroke="#6BA3E8" stroke-opacity="0.1" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M544 190 L550 178 L556 190" stroke="#6BA3E8" stroke-opacity="0.15" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <!-- Floating -->
+  <circle cx="120" cy="100" r="2.5" fill="#6BA3E8" fill-opacity="0.2"/>
+  <circle cx="700" cy="80" r="2" fill="#72C4B2" fill-opacity="0.2"/>
+  <circle cx="100" cy="400" r="3" fill="#6BA3E8" fill-opacity="0.15"/>
+  <circle cx="720" cy="400" r="2.5" fill="#72C4B2" fill-opacity="0.15"/>
+</svg>

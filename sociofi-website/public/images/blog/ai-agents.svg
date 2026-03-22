@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="800" y2="450" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0C0C1D"/>
+      <stop offset="100%" stop-color="#111128"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="400" cy="225" r="280" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#8B5CF6" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#8B5CF6" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#bg)"/>
+  <rect width="800" height="450" fill="url(#glow)"/>
+  <!-- Grid -->
+  <g stroke="#8B5CF6" stroke-opacity="0.03" stroke-width="0.5">
+    <line x1="0" y1="90" x2="800" y2="90"/><line x1="0" y1="180" x2="800" y2="180"/>
+    <line x1="0" y1="270" x2="800" y2="270"/><line x1="0" y1="360" x2="800" y2="360"/>
+    <line x1="200" y1="0" x2="200" y2="450"/><line x1="400" y1="0" x2="400" y2="450"/>
+    <line x1="600" y1="0" x2="600" y2="450"/>
+  </g>
+  <!-- Neural network nodes -->
+  <!-- Layer 1 -->
+  <circle cx="200" cy="120" r="14" fill="#161636" stroke="#8B5CF6" stroke-opacity="0.4" stroke-width="1.5"/>
+  <circle cx="200" cy="225" r="14" fill="#161636" stroke="#8B5CF6" stroke-opacity="0.5" stroke-width="1.5"/>
+  <circle cx="200" cy="330" r="14" fill="#161636" stroke="#8B5CF6" stroke-opacity="0.4" stroke-width="1.5"/>
+  <!-- Layer 2 -->
+  <circle cx="400" cy="150" r="18" fill="#161636" stroke="#72C4B2" stroke-opacity="0.5" stroke-width="1.5"/>
+  <circle cx="400" cy="300" r="18" fill="#161636" stroke="#72C4B2" stroke-opacity="0.5" stroke-width="1.5"/>
+  <!-- Layer 3 - central brain -->
+  <circle cx="400" cy="225" r="28" fill="#161636" stroke="#8B5CF6" stroke-opacity="0.6" stroke-width="2"/>
+  <circle cx="400" cy="225" r="16" fill="#8B5CF6" fill-opacity="0.15"/>
+  <circle cx="400" cy="225" r="6" fill="#8B5CF6" fill-opacity="0.5"/>
+  <!-- Layer 4 -->
+  <circle cx="600" cy="150" r="18" fill="#161636" stroke="#72C4B2" stroke-opacity="0.5" stroke-width="1.5"/>
+  <circle cx="600" cy="300" r="18" fill="#161636" stroke="#72C4B2" stroke-opacity="0.5" stroke-width="1.5"/>
+  <!-- Layer 5 -->
+  <circle cx="680" cy="180" r="12" fill="#161636" stroke="#8B5CF6" stroke-opacity="0.35" stroke-width="1"/>
+  <circle cx="680" cy="270" r="12" fill="#161636" stroke="#8B5CF6" stroke-opacity="0.35" stroke-width="1"/>
+  <!-- Connections -->
+  <g stroke-width="1" stroke-opacity="0.12">
+    <line x1="214" y1="120" x2="382" y2="150" stroke="#8B5CF6"/>
+    <line x1="214" y1="120" x2="382" y2="225" stroke="#8B5CF6"/>
+    <line x1="214" y1="225" x2="382" y2="150" stroke="#72C4B2"/>
+    <line x1="214" y1="225" x2="382" y2="225" stroke="#8B5CF6"/>
+    <line x1="214" y1="225" x2="382" y2="300" stroke="#72C4B2"/>
+    <line x1="214" y1="330" x2="382" y2="225" stroke="#8B5CF6"/>
+    <line x1="214" y1="330" x2="382" y2="300" stroke="#8B5CF6"/>
+    <line x1="418" y1="150" x2="582" y2="150" stroke="#72C4B2"/>
+    <line x1="418" y1="225" x2="582" y2="150" stroke="#8B5CF6"/>
+    <line x1="418" y1="225" x2="582" y2="300" stroke="#8B5CF6"/>
+    <line x1="418" y1="300" x2="582" y2="300" stroke="#72C4B2"/>
+    <line x1="618" y1="150" x2="668" y2="180" stroke="#8B5CF6"/>
+    <line x1="618" y1="300" x2="668" y2="270" stroke="#8B5CF6"/>
+  </g>
+  <!-- Data flow particles -->
+  <circle cx="300" cy="172" r="3" fill="#8B5CF6" fill-opacity="0.5"/>
+  <circle cx="500" cy="185" r="2.5" fill="#72C4B2" fill-opacity="0.5"/>
+  <circle cx="310" cy="262" r="2" fill="#72C4B2" fill-opacity="0.4"/>
+  <circle cx="500" cy="260" r="3" fill="#8B5CF6" fill-opacity="0.4"/>
+  <!-- Outer dots -->
+  <circle cx="100" cy="100" r="2" fill="#8B5CF6" fill-opacity="0.2"/>
+  <circle cx="730" cy="100" r="2" fill="#72C4B2" fill-opacity="0.25"/>
+  <circle cx="80" cy="380" r="3" fill="#8B5CF6" fill-opacity="0.15"/>
+  <circle cx="740" cy="370" r="2.5" fill="#72C4B2" fill-opacity="0.2"/>
+</svg>

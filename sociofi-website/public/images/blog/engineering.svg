@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="800" y2="450" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0C0C1D"/>
+      <stop offset="100%" stop-color="#111128"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="400" cy="225" r="300" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#7B6FE8" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#7B6FE8" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#bg)"/>
+  <rect width="800" height="450" fill="url(#glow)"/>
+  <!-- Architecture diagram -->
+  <!-- Top layer boxes -->
+  <rect x="250" y="60" width="100" height="50" rx="8" fill="#161636" stroke="#7B6FE8" stroke-opacity="0.35" stroke-width="1"/>
+  <rect x="350" y="60" width="100" height="50" rx="8" fill="#161636" stroke="#7B6FE8" stroke-opacity="0.35" stroke-width="1"/>
+  <rect x="450" y="60" width="100" height="50" rx="8" fill="#161636" stroke="#7B6FE8" stroke-opacity="0.35" stroke-width="1"/>
+  <!-- Bars inside -->
+  <rect x="268" y="78" width="60" height="5" rx="2.5" fill="#7B6FE8" fill-opacity="0.3"/>
+  <rect x="268" y="89" width="40" height="5" rx="2.5" fill="#72C4B2" fill-opacity="0.25"/>
+  <rect x="368" y="78" width="55" height="5" rx="2.5" fill="#7B6FE8" fill-opacity="0.3"/>
+  <rect x="368" y="89" width="70" height="5" rx="2.5" fill="#72C4B2" fill-opacity="0.25"/>
+  <rect x="468" y="78" width="65" height="5" rx="2.5" fill="#7B6FE8" fill-opacity="0.3"/>
+  <rect x="468" y="89" width="45" height="5" rx="2.5" fill="#72C4B2" fill-opacity="0.25"/>
+  <!-- Arrow down -->
+  <line x1="400" y1="110" x2="400" y2="150" stroke="#7B6FE8" stroke-opacity="0.2" stroke-width="1.5"/>
+  <path d="M394 144 L400 152 L406 144" stroke="#7B6FE8" stroke-opacity="0.3" stroke-width="1.5" fill="none"/>
+  <!-- Middle layer - API Gateway -->
+  <rect x="280" y="155" width="240" height="55" rx="10" fill="#161636" stroke="#72C4B2" stroke-opacity="0.4" stroke-width="1.5"/>
+  <rect x="300" y="172" width="80" height="6" rx="3" fill="#72C4B2" fill-opacity="0.35"/>
+  <rect x="300" y="184" width="55" height="6" rx="3" fill="#7B6FE8" fill-opacity="0.25"/>
+  <!-- Branch arrows -->
+  <line x1="340" y1="210" x2="240" y2="260" stroke="#7B6FE8" stroke-opacity="0.15" stroke-width="1"/>
+  <line x1="400" y1="210" x2="400" y2="260" stroke="#72C4B2" stroke-opacity="0.2" stroke-width="1.5"/>
+  <line x1="460" y1="210" x2="560" y2="260" stroke="#7B6FE8" stroke-opacity="0.15" stroke-width="1"/>
+  <!-- Service boxes -->
+  <rect x="170" y="265" width="140" height="70" rx="10" fill="#161636" stroke="#7B6FE8" stroke-opacity="0.3" stroke-width="1"/>
+  <rect x="330" y="265" width="140" height="70" rx="10" fill="#161636" stroke="#72C4B2" stroke-opacity="0.4" stroke-width="1.5"/>
+  <rect x="490" y="265" width="140" height="70" rx="10" fill="#161636" stroke="#7B6FE8" stroke-opacity="0.3" stroke-width="1"/>
+  <!-- Service box content -->
+  <rect x="190" y="282" width="50" height="5" rx="2.5" fill="#7B6FE8" fill-opacity="0.3"/>
+  <rect x="190" y="293" width="90" height="5" rx="2.5" fill="#72C4B2" fill-opacity="0.2"/>
+  <rect x="190" y="304" width="70" height="5" rx="2.5" fill="#7B6FE8" fill-opacity="0.15"/>
+  <rect x="350" y="282" width="60" height="5" rx="2.5" fill="#72C4B2" fill-opacity="0.35"/>
+  <rect x="350" y="293" width="100" height="5" rx="2.5" fill="#7B6FE8" fill-opacity="0.25"/>
+  <rect x="350" y="304" width="80" height="5" rx="2.5" fill="#72C4B2" fill-opacity="0.2"/>
+  <rect x="510" y="282" width="55" height="5" rx="2.5" fill="#7B6FE8" fill-opacity="0.3"/>
+  <rect x="510" y="293" width="85" height="5" rx="2.5" fill="#72C4B2" fill-opacity="0.2"/>
+  <rect x="510" y="304" width="65" height="5" rx="2.5" fill="#7B6FE8" fill-opacity="0.15"/>
+  <!-- Database cylinders -->
+  <line x1="240" y1="335" x2="240" y2="380" stroke="#7B6FE8" stroke-opacity="0.12" stroke-width="1"/>
+  <line x1="400" y1="335" x2="400" y2="380" stroke="#72C4B2" stroke-opacity="0.15" stroke-width="1"/>
+  <line x1="560" y1="335" x2="560" y2="380" stroke="#7B6FE8" stroke-opacity="0.12" stroke-width="1"/>
+  <ellipse cx="240" cy="388" rx="30" ry="10" fill="#161636" stroke="#7B6FE8" stroke-opacity="0.25" stroke-width="1"/>
+  <ellipse cx="400" cy="388" rx="30" ry="10" fill="#161636" stroke="#72C4B2" stroke-opacity="0.3" stroke-width="1"/>
+  <ellipse cx="560" cy="388" rx="30" ry="10" fill="#161636" stroke="#7B6FE8" stroke-opacity="0.25" stroke-width="1"/>
+  <!-- Floating dots -->
+  <circle cx="100" cy="80" r="2" fill="#7B6FE8" fill-opacity="0.25"/>
+  <circle cx="720" cy="120" r="3" fill="#72C4B2" fill-opacity="0.2"/>
+  <circle cx="80" cy="350" r="2.5" fill="#7B6FE8" fill-opacity="0.2"/>
+  <circle cx="730" cy="380" r="2" fill="#72C4B2" fill-opacity="0.25"/>
+</svg>

@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="800" y2="450" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0C0C1D"/>
+      <stop offset="100%" stop-color="#111128"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="400" cy="225" r="280" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#4DBFA8" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#4DBFA8" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#bg)"/>
+  <rect width="800" height="450" fill="url(#glow)"/>
+  <!-- Shield -->
+  <path d="M400 80 L500 130 L500 250 Q500 320 400 370 Q300 320 300 250 L300 130 Z" fill="#161636" stroke="#4DBFA8" stroke-opacity="0.3" stroke-width="1.5"/>
+  <path d="M400 80 L500 130 L500 250 Q500 320 400 370 Q300 320 300 250 L300 130 Z" fill="#4DBFA8" fill-opacity="0.03"/>
+  <!-- Check mark inside shield -->
+  <path d="M360 225 L390 255 L445 190" stroke="#4DBFA8" stroke-opacity="0.5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- Signal arcs (services logo modifier) -->
+  <path d="M240 180 Q240 120 300 100" stroke="#4DBFA8" stroke-opacity="0.15" stroke-width="1.5" fill="none"/>
+  <path d="M220 200 Q220 110 300 80" stroke="#4DBFA8" stroke-opacity="0.1" stroke-width="1.5" fill="none"/>
+  <path d="M560 180 Q560 120 500 100" stroke="#4DBFA8" stroke-opacity="0.15" stroke-width="1.5" fill="none"/>
+  <path d="M580 200 Q580 110 500 80" stroke="#4DBFA8" stroke-opacity="0.1" stroke-width="1.5" fill="none"/>
+  <!-- Monitor dashboard below shield -->
+  <rect x="250" y="390" width="300" height="5" rx="2.5" fill="#4DBFA8" fill-opacity="0.08"/>
+  <!-- Monitoring dots -->
+  <circle cx="180" cy="300" r="6" fill="none" stroke="#4DBFA8" stroke-opacity="0.2" stroke-width="1"/>
+  <circle cx="180" cy="300" r="2" fill="#4DBFA8" fill-opacity="0.4"/>
+  <circle cx="620" cy="300" r="6" fill="none" stroke="#4DBFA8" stroke-opacity="0.2" stroke-width="1"/>
+  <circle cx="620" cy="300" r="2" fill="#4DBFA8" fill-opacity="0.4"/>
+  <!-- Connection lines -->
+  <line x1="186" y1="300" x2="300" y2="250" stroke="#4DBFA8" stroke-opacity="0.06" stroke-width="0.8"/>
+  <line x1="614" y1="300" x2="500" y2="250" stroke="#4DBFA8" stroke-opacity="0.06" stroke-width="0.8"/>
+  <!-- Pulse rings -->
+  <circle cx="400" cy="225" r="160" fill="none" stroke="#4DBFA8" stroke-opacity="0.04" stroke-width="1"/>
+  <circle cx="400" cy="225" r="200" fill="none" stroke="#4DBFA8" stroke-opacity="0.025" stroke-width="1"/>
+  <!-- Floating -->
+  <circle cx="120" cy="100" r="2" fill="#4DBFA8" fill-opacity="0.25"/>
+  <circle cx="700" cy="80" r="3" fill="#3A589E" fill-opacity="0.2"/>
+  <circle cx="100" cy="400" r="2.5" fill="#4DBFA8" fill-opacity="0.15"/>
+  <circle cx="720" cy="400" r="2" fill="#72C4B2" fill-opacity="0.2"/>
+</svg>

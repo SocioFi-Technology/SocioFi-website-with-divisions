@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="800" y2="450" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0C0C1D"/><stop offset="100%" stop-color="#111128"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="400" cy="225" r="280" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#8B5CF6" stop-opacity="0.1"/><stop offset="100%" stop-color="#E8B84D" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#bg)"/><rect width="800" height="450" fill="url(#glow)"/>
+  <!-- Agent workflow diagram -->
+  <!-- Input -->
+  <rect x="120" y="190" width="100" height="60" rx="10" fill="#161636" stroke="#E8B84D" stroke-opacity="0.25" stroke-width="1"/>
+  <rect x="135" y="208" width="50" height="5" rx="2.5" fill="#E8B84D" fill-opacity="0.25"/>
+  <rect x="135" y="220" width="70" height="4" rx="2" fill="#E8B84D" fill-opacity="0.12"/>
+  <!-- Arrow -->
+  <line x1="220" y1="220" x2="270" y2="220" stroke="#8B5CF6" stroke-opacity="0.15" stroke-width="1"/>
+  <path d="M264 215 L272 220 L264 225" stroke="#8B5CF6" stroke-opacity="0.2" stroke-width="1" fill="none"/>
+  <!-- Agent 1 -->
+  <circle cx="320" cy="220" r="28" fill="#161636" stroke="#8B5CF6" stroke-opacity="0.4" stroke-width="1.5"/>
+  <circle cx="320" cy="220" r="10" fill="#8B5CF6" fill-opacity="0.12"/>
+  <rect x="306" y="260" width="28" height="4" rx="2" fill="#8B5CF6" fill-opacity="0.2"/>
+  <!-- Arrow -->
+  <line x1="348" y1="220" x2="398" y2="220" stroke="#8B5CF6" stroke-opacity="0.15" stroke-width="1"/>
+  <path d="M392 215 L400 220 L392 225" stroke="#8B5CF6" stroke-opacity="0.2" stroke-width="1" fill="none"/>
+  <!-- Agent 2 (central, larger) -->
+  <circle cx="450" cy="220" r="36" fill="#161636" stroke="#E8B84D" stroke-opacity="0.4" stroke-width="2"/>
+  <circle cx="450" cy="220" r="16" fill="#E8B84D" fill-opacity="0.1"/>
+  <circle cx="450" cy="220" r="6" fill="#E8B84D" fill-opacity="0.3"/>
+  <rect x="432" y="268" width="36" height="4" rx="2" fill="#E8B84D" fill-opacity="0.2"/>
+  <!-- Branch up -->
+  <line x1="450" y1="184" x2="450" y2="130" stroke="#8B5CF6" stroke-opacity="0.1" stroke-width="1"/>
+  <circle cx="450" cy="110" r="20" fill="#161636" stroke="#8B5CF6" stroke-opacity="0.25" stroke-width="1"/>
+  <circle cx="450" cy="110" r="7" fill="#8B5CF6" fill-opacity="0.1"/>
+  <!-- Branch down -->
+  <line x1="450" y1="256" x2="450" y2="310" stroke="#72C4B2" stroke-opacity="0.1" stroke-width="1"/>
+  <circle cx="450" cy="330" r="20" fill="#161636" stroke="#72C4B2" stroke-opacity="0.25" stroke-width="1"/>
+  <circle cx="450" cy="330" r="7" fill="#72C4B2" fill-opacity="0.1"/>
+  <!-- Arrow right -->
+  <line x1="486" y1="220" x2="536" y2="220" stroke="#8B5CF6" stroke-opacity="0.15" stroke-width="1"/>
+  <path d="M530 215 L538 220 L530 225" stroke="#8B5CF6" stroke-opacity="0.2" stroke-width="1" fill="none"/>
+  <!-- Agent 3 -->
+  <circle cx="580" cy="220" r="28" fill="#161636" stroke="#72C4B2" stroke-opacity="0.35" stroke-width="1.5"/>
+  <circle cx="580" cy="220" r="10" fill="#72C4B2" fill-opacity="0.12"/>
+  <rect x="566" y="260" width="28" height="4" rx="2" fill="#72C4B2" fill-opacity="0.2"/>
+  <!-- Arrow to output -->
+  <line x1="608" y1="220" x2="658" y2="220" stroke="#72C4B2" stroke-opacity="0.15" stroke-width="1"/>
+  <path d="M652 215 L660 220 L652 225" stroke="#72C4B2" stroke-opacity="0.2" stroke-width="1" fill="none"/>
+  <!-- Output -->
+  <rect x="665" y="190" width="100" height="60" rx="10" fill="#161636" stroke="#72C4B2" stroke-opacity="0.25" stroke-width="1"/>
+  <rect x="680" y="208" width="55" height="5" rx="2.5" fill="#72C4B2" fill-opacity="0.25"/>
+  <rect x="680" y="220" width="70" height="4" rx="2" fill="#72C4B2" fill-opacity="0.12"/>
+  <circle cx="100" cy="100" r="2" fill="#8B5CF6" fill-opacity="0.2"/>
+  <circle cx="730" cy="380" r="2.5" fill="#72C4B2" fill-opacity="0.15"/>
+</svg>

@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="800" y2="450" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0C0C1D"/>
+      <stop offset="100%" stop-color="#111128"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="400" cy="200" r="280" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#4DBFA8" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#4DBFA8" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#bg)"/>
+  <rect width="800" height="450" fill="url(#glow)"/>
+  <!-- SocioFi chevron mark (large, centered) -->
+  <g opacity="0.08">
+    <path d="M320 140 L400 225 L320 310" stroke="#4DBFA8" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <path d="M380 140 L460 225 L380 310" stroke="#3A589E" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </g>
+  <!-- Team nodes in orbit -->
+  <circle cx="400" cy="225" r="120" fill="none" stroke="#4DBFA8" stroke-opacity="0.06" stroke-width="1" stroke-dasharray="8 6"/>
+  <circle cx="400" cy="225" r="180" fill="none" stroke="#3A589E" stroke-opacity="0.04" stroke-width="1" stroke-dasharray="6 8"/>
+  <!-- Team member circles -->
+  <circle cx="400" cy="105" r="16" fill="#161636" stroke="#4DBFA8" stroke-opacity="0.45" stroke-width="1.5"/>
+  <circle cx="400" cy="105" r="6" fill="#4DBFA8" fill-opacity="0.2"/>
+  <circle cx="504" cy="165" r="14" fill="#161636" stroke="#3A589E" stroke-opacity="0.4" stroke-width="1.5"/>
+  <circle cx="504" cy="165" r="5" fill="#3A589E" fill-opacity="0.2"/>
+  <circle cx="520" cy="255" r="16" fill="#161636" stroke="#4DBFA8" stroke-opacity="0.45" stroke-width="1.5"/>
+  <circle cx="520" cy="255" r="6" fill="#4DBFA8" fill-opacity="0.2"/>
+  <circle cx="460" cy="335" r="14" fill="#161636" stroke="#72C4B2" stroke-opacity="0.4" stroke-width="1.5"/>
+  <circle cx="460" cy="335" r="5" fill="#72C4B2" fill-opacity="0.2"/>
+  <circle cx="340" cy="335" r="14" fill="#161636" stroke="#3A589E" stroke-opacity="0.4" stroke-width="1.5"/>
+  <circle cx="340" cy="335" r="5" fill="#3A589E" fill-opacity="0.2"/>
+  <circle cx="280" cy="255" r="16" fill="#161636" stroke="#4DBFA8" stroke-opacity="0.45" stroke-width="1.5"/>
+  <circle cx="280" cy="255" r="6" fill="#4DBFA8" fill-opacity="0.2"/>
+  <circle cx="296" cy="165" r="14" fill="#161636" stroke="#72C4B2" stroke-opacity="0.4" stroke-width="1.5"/>
+  <circle cx="296" cy="165" r="5" fill="#72C4B2" fill-opacity="0.2"/>
+  <!-- Connection lines between nodes -->
+  <g stroke-opacity="0.06" stroke-width="0.8">
+    <line x1="400" y1="121" x2="504" y2="151" stroke="#4DBFA8"/>
+    <line x1="504" y1="179" x2="520" y2="239" stroke="#3A589E"/>
+    <line x1="520" y1="271" x2="460" y2="321" stroke="#4DBFA8"/>
+    <line x1="460" y1="335" x2="340" y2="335" stroke="#72C4B2"/>
+    <line x1="340" y1="321" x2="280" y2="271" stroke="#3A589E"/>
+    <line x1="280" y1="239" x2="296" y2="179" stroke="#4DBFA8"/>
+    <line x1="296" y1="151" x2="400" y2="121" stroke="#72C4B2"/>
+  </g>
+  <!-- Central hub -->
+  <circle cx="400" cy="225" r="22" fill="#161636" stroke="#4DBFA8" stroke-opacity="0.5" stroke-width="2"/>
+  <circle cx="400" cy="225" r="10" fill="#4DBFA8" fill-opacity="0.15"/>
+  <!-- Outer floating dots -->
+  <circle cx="160" cy="90" r="2.5" fill="#4DBFA8" fill-opacity="0.2"/>
+  <circle cx="650" cy="80" r="2" fill="#3A589E" fill-opacity="0.3"/>
+  <circle cx="700" cy="380" r="3" fill="#4DBFA8" fill-opacity="0.15"/>
+  <circle cx="110" cy="370" r="2" fill="#72C4B2" fill-opacity="0.2"/>
+</svg>

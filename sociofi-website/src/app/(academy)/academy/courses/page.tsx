@@ -521,10 +521,11 @@ function ArrowRight({ size = 12 }: { size?: number }) {
 function CourseCard({ course }: { course: typeof COURSES[0] }) {
   return (
     <motion.div layout className="ac-course-card" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96 }} transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}>
-      <div className="ac-course-thumb" style={{ background: course.gradient }}>
-        <span className="ac-price-badge">${course.price}</span>
-        <span className="ac-duration-badge">{course.duration}</span>
-        <span className="ac-available-dot" />
+      <div className="ac-course-thumb" style={{ background: course.gradient, overflow: 'hidden' }}>
+        <img src={`/images/courses/${course.category}.svg`} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+        <span className="ac-price-badge" style={{ zIndex: 1 }}>${course.price}</span>
+        <span className="ac-duration-badge" style={{ zIndex: 1 }}>{course.duration}</span>
+        <span className="ac-available-dot" style={{ zIndex: 1 }} />
       </div>
       <div className="ac-course-body">
         <div className="ac-audience-tag">{AUDIENCE_LABEL[course.audience]}</div>

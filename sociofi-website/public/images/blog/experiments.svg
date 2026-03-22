@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="800" y2="450" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0C0C1D"/>
+      <stop offset="100%" stop-color="#111128"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="400" cy="220" r="260" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#E05555" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#E05555" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#bg)"/>
+  <rect width="800" height="450" fill="url(#glow)"/>
+  <!-- Flask / beaker shape -->
+  <path d="M350 100 L350 200 L280 350 Q270 375 295 385 L505 385 Q530 375 520 350 L450 200 L450 100" stroke="#E05555" stroke-opacity="0.3" stroke-width="1.5" fill="none" stroke-linejoin="round"/>
+  <line x1="340" y1="100" x2="460" y2="100" stroke="#E05555" stroke-opacity="0.25" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- Liquid level -->
+  <path d="M310 280 Q340 265 370 275 Q400 285 430 270 Q460 260 490 280 L520 350 Q530 375 505 385 L295 385 Q270 375 280 350 Z" fill="#E05555" fill-opacity="0.06" stroke="#E05555" stroke-opacity="0.1" stroke-width="0.5"/>
+  <!-- Bubbles -->
+  <circle cx="370" cy="310" r="8" fill="none" stroke="#E05555" stroke-opacity="0.2" stroke-width="1"/>
+  <circle cx="410" cy="330" r="12" fill="none" stroke="#72C4B2" stroke-opacity="0.15" stroke-width="1"/>
+  <circle cx="430" cy="300" r="6" fill="none" stroke="#E05555" stroke-opacity="0.25" stroke-width="1"/>
+  <circle cx="380" cy="345" r="5" fill="none" stroke="#72C4B2" stroke-opacity="0.2" stroke-width="1"/>
+  <circle cx="350" cy="360" r="4" fill="#E05555" fill-opacity="0.1"/>
+  <circle cx="450" cy="350" r="3" fill="#72C4B2" fill-opacity="0.1"/>
+  <!-- Rising particles from flask -->
+  <circle cx="380" cy="80" r="3" fill="#E05555" fill-opacity="0.3"/>
+  <circle cx="410" cy="60" r="2" fill="#72C4B2" fill-opacity="0.25"/>
+  <circle cx="395" cy="45" r="2.5" fill="#E05555" fill-opacity="0.2"/>
+  <circle cx="420" cy="35" r="1.5" fill="#72C4B2" fill-opacity="0.2"/>
+  <!-- Molecule structures around -->
+  <!-- Left molecule -->
+  <circle cx="180" cy="180" r="10" fill="#161636" stroke="#E05555" stroke-opacity="0.3" stroke-width="1"/>
+  <circle cx="150" cy="210" r="8" fill="#161636" stroke="#72C4B2" stroke-opacity="0.25" stroke-width="1"/>
+  <circle cx="210" cy="210" r="8" fill="#161636" stroke="#E05555" stroke-opacity="0.25" stroke-width="1"/>
+  <line x1="174" y1="188" x2="156" y2="204" stroke="#E05555" stroke-opacity="0.12" stroke-width="1"/>
+  <line x1="186" y1="188" x2="204" y2="204" stroke="#E05555" stroke-opacity="0.12" stroke-width="1"/>
+  <!-- Right molecule -->
+  <circle cx="620" cy="160" r="10" fill="#161636" stroke="#72C4B2" stroke-opacity="0.3" stroke-width="1"/>
+  <circle cx="650" cy="190" r="8" fill="#161636" stroke="#E05555" stroke-opacity="0.25" stroke-width="1"/>
+  <circle cx="590" cy="190" r="8" fill="#161636" stroke="#72C4B2" stroke-opacity="0.25" stroke-width="1"/>
+  <line x1="626" y1="168" x2="644" y2="184" stroke="#72C4B2" stroke-opacity="0.12" stroke-width="1"/>
+  <line x1="614" y1="168" x2="596" y2="184" stroke="#72C4B2" stroke-opacity="0.12" stroke-width="1"/>
+  <!-- DNA-like helix hint -->
+  <path d="M620 260 Q640 280 620 300 Q600 320 620 340 Q640 360 620 380" stroke="#E05555" stroke-opacity="0.1" stroke-width="1.5" fill="none"/>
+  <path d="M640 260 Q620 280 640 300 Q660 320 640 340 Q620 360 640 380" stroke="#72C4B2" stroke-opacity="0.08" stroke-width="1.5" fill="none"/>
+  <!-- Dots -->
+  <circle cx="100" cy="100" r="2" fill="#E05555" fill-opacity="0.2"/>
+  <circle cx="720" cy="90" r="2.5" fill="#72C4B2" fill-opacity="0.2"/>
+  <circle cx="90" cy="400" r="3" fill="#E05555" fill-opacity="0.15"/>
+  <circle cx="730" cy="410" r="2" fill="#72C4B2" fill-opacity="0.18"/>
+</svg>

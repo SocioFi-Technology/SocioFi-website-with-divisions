@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="800" y2="450" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0C0C1D"/>
+      <stop offset="100%" stop-color="#111128"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="400" cy="225" r="300" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#72C4B2" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#72C4B2" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#bg)"/>
+  <rect width="800" height="450" fill="url(#glow)"/>
+  <!-- Design canvas -->
+  <rect x="200" y="60" width="400" height="280" rx="14" fill="#161636" stroke="#72C4B2" stroke-opacity="0.15" stroke-width="1"/>
+  <!-- Toolbar -->
+  <rect x="200" y="60" width="400" height="36" rx="14" fill="#1a1a3a"/>
+  <rect x="220" y="73" width="40" height="10" rx="3" fill="#72C4B2" fill-opacity="0.2"/>
+  <rect x="270" y="73" width="40" height="10" rx="3" fill="#3A589E" fill-opacity="0.15"/>
+  <rect x="320" y="73" width="40" height="10" rx="3" fill="#72C4B2" fill-opacity="0.1"/>
+  <!-- Design elements on canvas -->
+  <!-- Rectangle shape -->
+  <rect x="240" y="120" width="140" height="80" rx="8" fill="none" stroke="#72C4B2" stroke-opacity="0.35" stroke-width="1.5" stroke-dasharray="6 3"/>
+  <!-- Selection handles -->
+  <rect x="236" y="116" width="8" height="8" rx="2" fill="#72C4B2" fill-opacity="0.5"/>
+  <rect x="376" y="116" width="8" height="8" rx="2" fill="#72C4B2" fill-opacity="0.5"/>
+  <rect x="236" y="196" width="8" height="8" rx="2" fill="#72C4B2" fill-opacity="0.5"/>
+  <rect x="376" y="196" width="8" height="8" rx="2" fill="#72C4B2" fill-opacity="0.5"/>
+  <!-- Circle shape -->
+  <circle cx="480" cy="160" r="45" fill="none" stroke="#3A589E" stroke-opacity="0.3" stroke-width="1.5"/>
+  <circle cx="480" cy="160" r="45" fill="#3A589E" fill-opacity="0.04"/>
+  <!-- Text lines on canvas -->
+  <rect x="240" y="230" width="180" height="8" rx="4" fill="#72C4B2" fill-opacity="0.2"/>
+  <rect x="240" y="248" width="130" height="6" rx="3" fill="#3A589E" fill-opacity="0.15"/>
+  <rect x="240" y="264" width="160" height="6" rx="3" fill="#72C4B2" fill-opacity="0.1"/>
+  <!-- Color palette panel -->
+  <rect x="440" y="230" width="140" height="80" rx="8" fill="#0C0C1D" stroke="#72C4B2" stroke-opacity="0.1" stroke-width="0.5"/>
+  <circle cx="465" cy="255" r="10" fill="#72C4B2" fill-opacity="0.4"/>
+  <circle cx="495" cy="255" r="10" fill="#3A589E" fill-opacity="0.4"/>
+  <circle cx="525" cy="255" r="10" fill="#A3DFD2" fill-opacity="0.3"/>
+  <circle cx="555" cy="255" r="10" fill="#4A6CB8" fill-opacity="0.3"/>
+  <rect x="455" y="280" width="110" height="5" rx="2.5" fill="#72C4B2" fill-opacity="0.1"/>
+  <rect x="455" y="292" width="80" height="5" rx="2.5" fill="#3A589E" fill-opacity="0.08"/>
+  <!-- Corner brackets (studio logo modifier) -->
+  <path d="M225 370 L225 355 L240 355" stroke="#72C4B2" stroke-opacity="0.4" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <path d="M575 370 L575 355 L560 355" stroke="#72C4B2" stroke-opacity="0.4" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <path d="M225 380 L225 395 L240 395" stroke="#72C4B2" stroke-opacity="0.4" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <path d="M575 380 L575 395 L560 395" stroke="#72C4B2" stroke-opacity="0.4" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <!-- Floating -->
+  <circle cx="120" cy="120" r="3" fill="#72C4B2" fill-opacity="0.2"/>
+  <circle cx="700" cy="100" r="2" fill="#3A589E" fill-opacity="0.25"/>
+  <circle cx="100" cy="380" r="2.5" fill="#72C4B2" fill-opacity="0.15"/>
+  <circle cx="720" cy="370" r="3" fill="#A3DFD2" fill-opacity="0.2"/>
+</svg>

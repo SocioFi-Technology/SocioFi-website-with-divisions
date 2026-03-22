@@ -43,6 +43,18 @@ export interface BlogPost {
 
 // ── Category Config ───────────────────────────────────────────────────────────
 
+// Map category → SVG illustration path
+export const CATEGORY_IMAGES: Record<BlogCategory, string> = {
+  'ai-development': '/images/blog/ai-development.svg',
+  'ai-agents': '/images/blog/ai-agents.svg',
+  engineering: '/images/blog/engineering.svg',
+  business: '/images/blog/business.svg',
+  'case-studies': '/images/blog/case-studies.svg',
+  tutorials: '/images/blog/tutorials.svg',
+  company: '/images/blog/company.svg',
+  experiments: '/images/blog/experiments.svg',
+};
+
 export const CATEGORY_CONFIG: Record<BlogCategory, { label: string; color: string; description: string }> = {
   'ai-development': {
     label: 'AI Development',
