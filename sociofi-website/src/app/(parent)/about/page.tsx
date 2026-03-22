@@ -1,12 +1,11 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import type { Metadata } from 'next';
 import Container from '@/components/shared/Container';
 import SectionHeader from '@/components/shared/SectionHeader';
 import ScrollReveal, { StaggerChildren, StaggerItem } from '@/components/shared/ScrollReveal';
 import CTASection from '@/components/shared/CTASection';
 import { LogoMark } from '@/components/shared/Logo';
+import AboutSubNav from '@/components/about/AboutSubNav';
 import type { DivisionSlug } from '@/lib/divisions';
 
 // ── Agent avatar SVGs ─────────────────────────────────────────────────────────
@@ -235,50 +234,6 @@ function AgentAvatar({ agentId, size = 64 }: { agentId: string; size?: number })
 
 // ── Subpage nav ───────────────────────────────────────────────────────────────
 
-const SUBPAGES = [
-  { label: 'Overview', href: '/about' },
-  { label: 'Full Team', href: '/about/team' },
-  { label: 'Our Story', href: '/about/story' },
-  { label: 'Values', href: '/about/values' },
-  { label: 'Timeline', href: '/about/timeline' },
-  { label: 'Press Kit', href: '/about/press' },
-];
-
-function SubNav({ active }: { active: string }) {
-  return (
-    <div style={{
-      borderBottom: '1px solid var(--border)',
-      background: 'var(--bg-2)',
-      position: 'sticky', top: 72, zIndex: 40,
-    }}>
-      <Container>
-        <div style={{ display: 'flex', gap: 0, overflowX: 'auto', scrollbarWidth: 'none' }}>
-          {SUBPAGES.map((p) => (
-            <a
-              key={p.href}
-              href={p.href}
-              style={{
-                fontFamily: 'var(--font-mono)',
-                fontSize: '0.72rem',
-                fontWeight: 500,
-                letterSpacing: '0.06em',
-                textTransform: 'uppercase',
-                color: p.href === active ? 'var(--teal)' : 'var(--text-muted)',
-                padding: '14px 20px',
-                borderBottom: p.href === active ? '2px solid var(--teal)' : '2px solid transparent',
-                textDecoration: 'none',
-                whiteSpace: 'nowrap',
-                transition: 'color 0.2s',
-              }}
-            >
-              {p.label}
-            </a>
-          ))}
-        </div>
-      </Container>
-    </div>
-  );
-}
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
@@ -300,10 +255,52 @@ export default function AboutPage() {
         .division-node:hover { transform: scale(1.05); }
         .supervisor-card { opacity: 0.7; }
         .supervisor-card:hover { opacity: 0.9; }
+
+        /* ── About page mobile ── */
+        @media (max-width: 640px) {
+          .about-founder-cards {
+            grid-template-columns: 1fr !important;
+          }
+          .about-founder-card-inner {
+            padding: 28px 24px !important;
+          }
+          .about-founder-avatar-circle {
+            width: 56px !important; height: 56px !important;
+            font-size: 1rem !important;
+          }
+          .about-stats-row {
+            gap: 20px 28px !important;
+          }
+          .about-metrics-row {
+            gap: 20px 28px !important;
+          }
+          .about-agent-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .about-division-grid {
+            grid-template-columns: 1fr 1fr !important;
+          }
+          .about-supervisor-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .about-values-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .about-timeline-inner {
+            max-width: 100% !important;
+          }
+          .about-flow-steps {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+          }
+        }
+        @media (max-width: 768px) {
+          .about-hero { padding-top: 120px !important; padding-bottom: 64px !important; }
+        }
       `}</style>
 
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <section style={{
+      <section className="about-hero" style={{
         paddingTop: 160, paddingBottom: 100,
         background: 'var(--bg)',
         position: 'relative', overflow: 'hidden',
@@ -383,7 +380,7 @@ export default function AboutPage() {
         </Container>
       </section>
 
-      <SubNav active="/about" />
+      <AboutSubNav active="/about" />
 
       {/* ── The Origin ───────────────────────────────────────────────────── */}
       <section style={{ paddingBlock: 'var(--space-section)', background: 'var(--bg)' }}>
@@ -453,7 +450,7 @@ export default function AboutPage() {
             />
           </ScrollReveal>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: 48 }}>
+          <div className="about-division-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: 48 }}>
             <StaggerChildren>
             {DIVISIONS.map((div) => (
               <StaggerItem key={div.slug}>
@@ -524,7 +521,7 @@ export default function AboutPage() {
             <p className="sec-label" style={{ marginBottom: 24 }}>The Founders — Human</p>
           </ScrollReveal>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: 24, marginBottom: 80 }}>
+          <div className="about-founder-cards" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24, marginBottom: 80 }}>
             {/* Arifur */}
             <ScrollReveal direction="right">
               <div style={{
@@ -624,7 +621,7 @@ export default function AboutPage() {
           </ScrollReveal>
 
           {/* Agent grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 16, marginBottom: 48 }}>
+          <div className="about-agent-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 16, marginBottom: 48 }}>
             <StaggerChildren>
             {AGENTS.map((agent) => {
               const avatarColor = AGENT_AVATARS[agent.id]?.color || '#72C4B2';
@@ -721,7 +718,7 @@ export default function AboutPage() {
             </p>
           </ScrollReveal>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 14, marginBottom: 32 }}>
+          <div className="about-supervisor-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 14, marginBottom: 32 }}>
             <StaggerChildren>
             {SUPERVISORS.map((s) => (
               <StaggerItem key={s.division}>
@@ -838,7 +835,7 @@ export default function AboutPage() {
             />
           </ScrollReveal>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
+          <div className="about-values-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 16 }}>
             <StaggerChildren>
             {VALUES.map((val, i) => (
               <StaggerItem key={i}>

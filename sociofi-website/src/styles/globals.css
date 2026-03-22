@@ -1449,3 +1449,139 @@ pre code {
   -ms-overflow-style: none;
 }
 .scrollbar-hide::-webkit-scrollbar { display: none; }
+
+
+/* ═══════════════════════════════════════
+   ABOUT SUBNAV
+   ═══════════════════════════════════════ */
+
+.about-subnav-list {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.about-subnav-list::-webkit-scrollbar { display: none; }
+
+.about-subnav-link {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 14px 20px;
+  border-bottom: 2px solid transparent;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.2s;
+  flex-shrink: 0;
+}
+.about-subnav-link:hover { color: var(--text-secondary); }
+.about-subnav-link.active {
+  color: var(--teal);
+  border-bottom-color: var(--teal);
+}
+
+@media (max-width: 768px) {
+  .about-subnav-link {
+    font-size: 0.66rem;
+    padding: 12px 14px;
+  }
+}
+
+/* ═══════════════════════════════════════
+   ABOUT PAGES — MOBILE RESPONSIVE
+   ═══════════════════════════════════════ */
+
+/* Founder cards — stack on mobile */
+@media (max-width: 640px) {
+  .about-founder-card-inner {
+    grid-template-columns: 1fr !important;
+  }
+  .about-founder-avatar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+}
+
+/* Team page: founder profile grid */
+@media (max-width: 768px) {
+  .about-founder-profile {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+    text-align: center;
+  }
+  .about-founder-profile .founder-avatar-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+/* Team page: agent alternating layout */
+@media (max-width: 900px) {
+  .about-agent-section-grid {
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+  }
+  .about-agent-section-grid .agent-avatar-col {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+    text-align: left !important;
+  }
+  /* On mobile hide the right-side avatar duplicate (odd items) */
+  .about-agent-section-grid .agent-avatar-col-right {
+    display: none;
+  }
+}
+
+/* Values page: number + content grid */
+@media (max-width: 640px) {
+  .about-values-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0 !important;
+  }
+  .about-values-num {
+    display: none;
+  }
+}
+
+/* Timeline: tighten on mobile */
+@media (max-width: 640px) {
+  .about-timeline-event {
+    gap: 16px !important;
+  }
+  .about-timeline-dot-col {
+    width: 32px !important;
+  }
+}
+
+/* Values page: number + content grid — hide number col on mobile */
+@media (max-width: 640px) {
+  .about-value-item-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .about-value-item-grid > div:first-child {
+    display: none;
+  }
+}
+
+/* Team page: founder profile padding on mobile */
+@media (max-width: 768px) {
+  .about-founder-profile {
+    padding: 28px !important;
+  }
+}
+
+/* Team page: agent section padding on mobile */
+@media (max-width: 640px) {
+  .agent-section {
+    padding-block: 40px !important;
+  }
+}

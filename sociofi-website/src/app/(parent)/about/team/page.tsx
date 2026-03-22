@@ -1,6 +1,7 @@
 'use client';
 
 import Container from '@/components/shared/Container';
+import AboutSubNav from '@/components/about/AboutSubNav';
 import SectionHeader from '@/components/shared/SectionHeader';
 import ScrollReveal, { StaggerChildren, StaggerItem } from '@/components/shared/ScrollReveal';
 import CTASection from '@/components/shared/CTASection';
@@ -249,35 +250,7 @@ const DIVISION_COVERAGE = [
 
 // ── SubNav ────────────────────────────────────────────────────────────────────
 
-const SUBPAGES = [
-  { label: 'Overview', href: '/about' },
-  { label: 'Full Team', href: '/about/team' },
-  { label: 'Our Story', href: '/about/story' },
-  { label: 'Values', href: '/about/values' },
-  { label: 'Timeline', href: '/about/timeline' },
-  { label: 'Press Kit', href: '/about/press' },
-];
 
-function SubNav({ active }: { active: string }) {
-  return (
-    <div style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg-2)', position: 'sticky', top: 72, zIndex: 40 }}>
-      <Container>
-        <div style={{ display: 'flex', gap: 0, overflowX: 'auto', scrollbarWidth: 'none' }}>
-          {SUBPAGES.map((p) => (
-            <a key={p.href} href={p.href} style={{
-              fontFamily: 'var(--font-mono)', fontSize: '0.72rem', fontWeight: 500, letterSpacing: '0.06em',
-              textTransform: 'uppercase',
-              color: p.href === active ? 'var(--teal)' : 'var(--text-muted)',
-              padding: '14px 20px',
-              borderBottom: p.href === active ? '2px solid var(--teal)' : '2px solid transparent',
-              textDecoration: 'none', whiteSpace: 'nowrap', transition: 'color 0.2s',
-            }}>{p.label}</a>
-          ))}
-        </div>
-      </Container>
-    </div>
-  );
-}
 
 // ── Agent Avatar ──────────────────────────────────────────────────────────────
 
@@ -308,6 +281,26 @@ export default function TeamPage() {
         @keyframes nowPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
         .agent-section:nth-child(even) { background: var(--bg-2); }
         .agent-section:nth-child(odd) { background: var(--bg); }
+
+        /* Team page mobile */
+        @media (max-width: 768px) {
+          .team-founder-profile {
+            grid-template-columns: 1fr !important;
+            padding: 28px 24px !important;
+            gap: 20px !important;
+          }
+          .team-founder-avatar { margin: 0 auto; }
+          .team-agent-grid {
+            grid-template-columns: 1fr !important;
+            gap: 28px !important;
+          }
+          .team-agent-avatar-col { text-align: center; }
+          .team-coverage-table { font-size: 0.76rem !important; }
+          .team-hero { padding-top: 120px !important; padding-bottom: 60px !important; }
+        }
+        @media (max-width: 480px) {
+          .team-coverage-table td, .team-coverage-table th { padding: 10px 8px !important; }
+        }
       `}</style>
 
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
@@ -342,7 +335,7 @@ export default function TeamPage() {
         </Container>
       </section>
 
-      <SubNav active="/about/team" />
+      <AboutSubNav active="/about/team" />
 
       {/* ── Layer 1: Founders ─────────────────────────────────────────────── */}
       <section style={{ paddingBlock: 'var(--space-section)', background: 'var(--bg-2)' }}>
@@ -354,7 +347,7 @@ export default function TeamPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 40 }}>
             {/* Arifur */}
             <ScrollReveal>
-              <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: '48px', display: 'grid', gridTemplateColumns: 'auto 1fr', gap: 40, alignItems: 'start' }}>
+              <div className="about-founder-profile" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: '48px', display: 'grid', gridTemplateColumns: 'auto 1fr', gap: 40, alignItems: 'start' }}>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ width: 120, height: 120, borderRadius: '50%', background: 'linear-gradient(135deg, var(--navy) 0%, var(--teal) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-headline)', fontWeight: 800, fontSize: '2rem', color: 'white', marginBottom: 12 }}>AR</div>
                   <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', color: 'var(--teal)', border: '1px solid var(--teal)', borderRadius: 'var(--radius-full)', padding: '2px 10px' }}>HUMAN — FOUNDER</span>
@@ -387,7 +380,7 @@ export default function TeamPage() {
 
             {/* Kamrul */}
             <ScrollReveal>
-              <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: '48px', display: 'grid', gridTemplateColumns: 'auto 1fr', gap: 40, alignItems: 'start' }}>
+              <div className="about-founder-profile" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: '48px', display: 'grid', gridTemplateColumns: 'auto 1fr', gap: 40, alignItems: 'start' }}>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ width: 120, height: 120, borderRadius: '50%', background: 'linear-gradient(135deg, #7B6FE8 0%, #4A6CB8 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-headline)', fontWeight: 800, fontSize: '2rem', color: 'white', marginBottom: 12 }}>KH</div>
                   <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', color: 'var(--teal)', border: '1px solid var(--teal)', borderRadius: 'var(--radius-full)', padding: '2px 10px' }}>HUMAN — FOUNDER</span>
@@ -454,7 +447,7 @@ export default function TeamPage() {
             style={{ paddingBlock: 64 }}
           >
             <Container>
-              <div style={{ display: 'grid', gridTemplateColumns: isEven ? '280px 1fr' : '1fr 280px', gap: 48, alignItems: 'start' }}>
+              <div className="about-agent-section-grid" style={{ display: 'grid', gridTemplateColumns: isEven ? '280px 1fr' : '1fr 280px', gap: 48, alignItems: 'start' }}>
                 {/* Avatar side */}
                 {isEven && (
                   <ScrollReveal direction="right">

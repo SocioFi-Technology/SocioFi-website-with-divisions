@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Container from '@/components/shared/Container';
+import AboutSubNav from '@/components/about/AboutSubNav';
 import ScrollReveal from '@/components/shared/ScrollReveal';
 import CTASection from '@/components/shared/CTASection';
 
@@ -8,35 +9,7 @@ export const metadata: Metadata = {
   description: 'How two BUET graduates built an AI-native company from Dhaka — and why the team page lists 13 AI agents alongside the founders.',
 };
 
-const SUBPAGES = [
-  { label: 'Overview', href: '/about' },
-  { label: 'Full Team', href: '/about/team' },
-  { label: 'Our Story', href: '/about/story' },
-  { label: 'Values', href: '/about/values' },
-  { label: 'Timeline', href: '/about/timeline' },
-  { label: 'Press Kit', href: '/about/press' },
-];
 
-function SubNav({ active }: { active: string }) {
-  return (
-    <div style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg-2)', position: 'sticky', top: 72, zIndex: 40 }}>
-      <Container>
-        <div style={{ display: 'flex', gap: 0, overflowX: 'auto', scrollbarWidth: 'none' } as React.CSSProperties}>
-          {SUBPAGES.map((p) => (
-            <a key={p.href} href={p.href} style={{
-              fontFamily: 'var(--font-mono)', fontSize: '0.72rem', fontWeight: 500, letterSpacing: '0.06em',
-              textTransform: 'uppercase',
-              color: p.href === active ? 'var(--teal)' : 'var(--text-muted)',
-              padding: '14px 20px',
-              borderBottom: p.href === active ? '2px solid var(--teal)' : '2px solid transparent',
-              textDecoration: 'none', whiteSpace: 'nowrap', transition: 'color 0.2s',
-            }}>{p.label}</a>
-          ))}
-        </div>
-      </Container>
-    </div>
-  );
-}
 
 const CHAPTERS = [
   {
@@ -186,7 +159,7 @@ export default function StoryPage() {
         </Container>
       </section>
 
-      <SubNav active="/about/story" />
+      <AboutSubNav active="/about/story" />
 
       {/* ── Chapters ─────────────────────────────────────────────────────── */}
       {CHAPTERS.map((chapter, i) => (

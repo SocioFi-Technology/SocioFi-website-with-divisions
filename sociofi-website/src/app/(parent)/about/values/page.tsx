@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Container from '@/components/shared/Container';
+import AboutSubNav from '@/components/about/AboutSubNav';
 import SectionHeader from '@/components/shared/SectionHeader';
 import ScrollReveal from '@/components/shared/ScrollReveal';
 import CTASection from '@/components/shared/CTASection';
@@ -9,33 +10,7 @@ export const metadata: Metadata = {
   description: 'Six things we won\'t compromise on. The principles behind every decision at SocioFi Technology.',
 };
 
-const SUBPAGES = [
-  { label: 'Overview', href: '/about' },
-  { label: 'Full Team', href: '/about/team' },
-  { label: 'Our Story', href: '/about/story' },
-  { label: 'Values', href: '/about/values' },
-  { label: 'Timeline', href: '/about/timeline' },
-  { label: 'Press Kit', href: '/about/press' },
-];
 
-function SubNav({ active }: { active: string }) {
-  return (
-    <div style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg-2)', position: 'sticky', top: 72, zIndex: 40 }}>
-      <Container>
-        <div style={{ display: 'flex', gap: 0, overflowX: 'auto', scrollbarWidth: 'none' } as React.CSSProperties}>
-          {SUBPAGES.map((p) => (
-            <a key={p.href} href={p.href} style={{
-              fontFamily: 'var(--font-mono)', fontSize: '0.72rem', fontWeight: 500, letterSpacing: '0.06em',
-              textTransform: 'uppercase', color: p.href === active ? 'var(--teal)' : 'var(--text-muted)',
-              padding: '14px 20px', borderBottom: p.href === active ? '2px solid var(--teal)' : '2px solid transparent',
-              textDecoration: 'none', whiteSpace: 'nowrap', transition: 'color 0.2s',
-            }}>{p.label}</a>
-          ))}
-        </div>
-      </Container>
-    </div>
-  );
-}
 
 const VALUES = [
   {
@@ -152,7 +127,7 @@ export default function ValuesPage() {
         </Container>
       </section>
 
-      <SubNav active="/about/values" />
+      <AboutSubNav active="/about/values" />
 
       {/* ── Values ───────────────────────────────────────────────────────── */}
       {VALUES.map((val, i) => (
@@ -163,7 +138,7 @@ export default function ValuesPage() {
         >
           <Container>
             <ScrollReveal>
-              <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '0 48px', maxWidth: 900, marginInline: 'auto' }}>
+              <div className="about-value-item-grid" style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '0 48px', maxWidth: 900, marginInline: 'auto' }}>
                 {/* Number */}
                 <div style={{ paddingTop: 8 }}>
                   <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'var(--text-muted)', letterSpacing: '0.14em' }}>{val.num}</span>
