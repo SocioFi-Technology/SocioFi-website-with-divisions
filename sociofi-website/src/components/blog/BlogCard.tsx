@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { BlogPost, CATEGORY_CONFIG, CATEGORY_IMAGES, formatPostDate } from '@/lib/blog';
+import { BlogPost, CATEGORY_CONFIG, formatPostDate } from '@/lib/blog';
 
 interface BlogCardProps {
   post: BlogPost;
@@ -76,22 +76,8 @@ export default function BlogCard({ post, accentColor, compact = false }: BlogCar
             height: 180,
             background: `linear-gradient(135deg, ${accent}22 0%, #3A589E33 50%, ${accent}11 100%)`,
             flexShrink: 0,
-            position: 'relative',
-            overflow: 'hidden',
           }}
-        >
-          <img
-            src={CATEGORY_IMAGES[post.category]}
-            alt=""
-            style={{
-              position: 'absolute',
-              inset: 0,
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-            }}
-          />
-        </span>
+        />
       )}
 
       {/* Body */}

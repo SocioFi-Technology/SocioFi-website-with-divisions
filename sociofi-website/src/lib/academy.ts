@@ -966,7 +966,3 @@ export function getCoursesByCategory(category: AcademyCourse['category']): Acade
   return courses.filter((c) => c.category === category);
 }
 
-/** Map course category → SVG illustration path */
-export function getCourseImage(category: AcademyCourse['category']): string {
-  return `/images/courses/${category}.svg`;
-}

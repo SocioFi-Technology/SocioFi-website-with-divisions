@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { motion, useInView } from 'framer-motion';
-import { courses, workshops, getCourseImage } from '@/lib/academy';
+import { courses, workshops } from '@/lib/academy';
 
 // ── Constants ──────────────────────────────────────────────────────────────
 const A = '#E8B84D';
@@ -811,10 +811,9 @@ export default function AcademyPage() {
             {featuredCourses.map((c, i) => (
               <Reveal key={c.slug} delay={i * 0.1}>
                 <Link href={`/academy/courses/${c.slug}`} className="course-tile">
-                  <div className="course-thumb" style={{ background: c.thumbnailGradient, position: 'relative' }}>
-                    <img src={getCourseImage(c.category)} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
-                    <span className="course-thumb-price" style={{ position: 'relative', zIndex: 1 }}>${c.price}</span>
-                    <span className="course-thumb-badge" style={{ position: 'relative', zIndex: 1 }}>{c.duration}</span>
+                  <div className="course-thumb" style={{ background: c.thumbnailGradient }}>
+                    <span className="course-thumb-price">${c.price}</span>
+                    <span className="course-thumb-badge">{c.duration}</span>
                   </div>
                   <div className="course-body">
                     <p className="course-audience">{AUDIENCE_LABELS[c.audience]}</p>

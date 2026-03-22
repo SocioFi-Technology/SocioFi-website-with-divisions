@@ -1057,9 +1057,8 @@ export default function CourseDetailPage() {
             {/* Sidebar / Thumb on hero */}
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.15 }}>
               <div className="acd-thumb-card">
-                <div className="acd-thumb-visual" style={{ background: course.gradient, overflow: 'hidden' }}>
-                  <img src={`/images/courses/${course.category}.svg`} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
-                  <div className="acd-thumb-glow" style={{ zIndex: 1 }} />
+                <div className="acd-thumb-visual" style={{ background: course.gradient }}>
+                  <div className="acd-thumb-glow" />
                 </div>
                 <div className="acd-course-stats">
                   <div className="acd-stat-item"><span className="acd-stat-value">{moduleCount}</span><span className="acd-stat-label">Modules</span></div>
@@ -1193,9 +1192,7 @@ export default function CourseDetailPage() {
                 <div className="acd-related-grid">
                   {related.map(r => (
                     <Link key={r.slug} href={`/academy/courses/${r.slug}`} className="acd-related-card">
-                      <div className="acd-related-thumb" style={{ background: r.gradient, position: 'relative', overflow: 'hidden' }}>
-                        <img src={`/images/courses/${r.category}.svg`} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
-                      </div>
+                      <div className="acd-related-thumb" style={{ background: r.gradient }} />
                       <div className="acd-related-body">
                         <div className="acd-related-tag">{AUDIENCE_LABEL[r.audience]}</div>
                         <div className="acd-related-title">{r.name}</div>
