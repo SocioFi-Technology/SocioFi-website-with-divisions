@@ -966,3 +966,7 @@ export function getCoursesByCategory(category: AcademyCourse['category']): Acade
   return courses.filter((c) => c.category === category);
 }
 
+export function getCourseImage(category: AcademyCourse['category']): string {
+  return `/images/courses/${category}.jpg`;
+}
+

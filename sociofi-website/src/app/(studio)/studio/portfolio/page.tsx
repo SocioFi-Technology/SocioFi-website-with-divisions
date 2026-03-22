@@ -182,6 +182,24 @@ const STYLES = `
     opacity: 0;
     transition: opacity 0.3s;
   }
+
+  .port-card-thumb {
+    width: 100%;
+    height: 180px;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, #3A589E22, ${A}22);
+  }
+  .port-card-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.5s cubic-bezier(0.16,1,0.3,1);
+  }
+  .port-card:hover .port-card-thumb img { transform: scale(1.04); }
   .port-card:hover {
     border-color: var(--border-hover);
     transform: translateY(-6px);
@@ -407,6 +425,7 @@ type Project = {
   specialBadge?: string;
   desc?: string;
   colSpan?: boolean;
+  image?: string;
 };
 
 const PROJECTS: Project[] = [
@@ -425,6 +444,7 @@ const PROJECTS: Project[] = [
       { value: '$3,200', label: 'Total cost' },
     ],
     href: '/studio/portfolio/inboxflow',
+    image: '/images/portfolio/inboxflow.jpg',
   },
   {
     id: 'brightpath',
@@ -440,6 +460,7 @@ const PROJECTS: Project[] = [
       { value: 'ROI in 30 days', label: 'Achieved' },
     ],
     href: '/studio/portfolio/brightpath',
+    image: '/images/portfolio/brightpath.jpg',
   },
   {
     id: 'stylestack',
@@ -453,6 +474,7 @@ const PROJECTS: Project[] = [
       { value: '5x', label: 'Client capacity' },
     ],
     href: '/studio/portfolio/stylestack',
+    image: '/images/portfolio/stylestack.jpg',
   },
   {
     id: 'fabricxai',
@@ -467,6 +489,7 @@ const PROJECTS: Project[] = [
       { value: '22 agents', label: 'AI-powered' },
     ],
     href: '/products/fabricxai',
+    image: '/images/portfolio/nexara.jpg',
   },
   {
     id: 'nexara',
@@ -479,6 +502,7 @@ const PROJECTS: Project[] = [
       { value: '13 agents', label: 'Automated GTM' },
     ],
     href: '/studio/portfolio/nexara',
+    image: '/images/portfolio/nexara.jpg',
   },
 ];
 
@@ -506,6 +530,11 @@ function PortfolioCard({ project }: { project: Project }) {
         className={`port-card${project.colSpan ? ' featured' : ''}`}
         style={{ display: 'flex' }}
       >
+        {project.image && (
+          <div className="port-card-thumb" aria-hidden="true">
+            <img src={project.image} alt="" />
+          </div>
+        )}
         <div className="port-card-top">
           <div className="port-card-badges">
             {project.featured && (

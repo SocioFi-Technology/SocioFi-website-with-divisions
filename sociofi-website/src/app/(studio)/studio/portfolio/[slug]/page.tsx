@@ -242,7 +242,7 @@ const STYLES = `
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: 16px;
-    padding: 28px;
+    overflow: hidden;
     text-decoration: none;
     transition: border-color 0.3s, transform 0.3s;
   }
@@ -250,12 +250,24 @@ const STYLES = `
     border-color: var(--border-hover);
     transform: translateY(-4px);
   }
+  .cs-related-thumb {
+    width: 100%;
+    height: 140px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #3A589E22, ${A}22);
+  }
+  .cs-related-thumb img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    transition: transform 0.5s cubic-bezier(0.16,1,0.3,1);
+  }
+  .cs-related-card:hover .cs-related-thumb img { transform: scale(1.05); }
+  .cs-related-body { padding: 22px 28px 28px; }
   .cs-related-name {
     font-family: ${F.h};
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 700;
     color: var(--text-primary);
-    margin: 0 0 10px;
+    margin: 0 0 8px;
     letter-spacing: -0.01em;
   }
   .cs-related-desc {
@@ -657,8 +669,13 @@ export default function PortfolioSlugPage() {
               <div className="cs-related-grid">
                 {project.related.map((r) => (
                   <Link key={r.slug} href={`/studio/portfolio/${r.slug}`} className="cs-related-card">
-                    <h3 className="cs-related-name">{r.name}</h3>
-                    <p className="cs-related-desc">{r.desc}</p>
+                    <div className="cs-related-thumb" aria-hidden="true">
+                      <img src={`/images/portfolio/${r.slug}.jpg`} alt="" />
+                    </div>
+                    <div className="cs-related-body">
+                      <h3 className="cs-related-name">{r.name}</h3>
+                      <p className="cs-related-desc">{r.desc}</p>
+                    </div>
                   </Link>
                 ))}
               </div>

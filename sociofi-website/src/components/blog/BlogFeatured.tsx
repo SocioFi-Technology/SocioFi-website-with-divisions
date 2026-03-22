@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { BlogPost, CATEGORY_CONFIG, formatPostDate } from '@/lib/blog';
+import { BlogPost, CATEGORY_CONFIG, CATEGORY_IMAGES, formatPostDate } from '@/lib/blog';
 
 interface BlogFeaturedProps {
   post: BlogPost;
@@ -36,6 +36,11 @@ export default function BlogFeatured({ post }: BlogFeaturedProps) {
           overflow: 'hidden',
         }}
       >
+        <img
+          src={CATEGORY_IMAGES[post.category]}
+          alt=""
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+        />
         {/* Featured label bottom-left */}
         <span
           style={{

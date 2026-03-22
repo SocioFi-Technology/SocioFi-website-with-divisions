@@ -43,6 +43,17 @@ export interface BlogPost {
 
 // ── Category Config ───────────────────────────────────────────────────────────
 
+export const CATEGORY_IMAGES: Record<BlogCategory, string> = {
+  'ai-development': '/images/blog/ai-development.jpg',
+  'ai-agents':      '/images/blog/ai-agents.jpg',
+  engineering:      '/images/blog/engineering.jpg',
+  business:         '/images/blog/business.jpg',
+  'case-studies':   '/images/blog/case-studies.jpg',
+  tutorials:        '/images/blog/tutorials.jpg',
+  company:          '/images/blog/company.jpg',
+  experiments:      '/images/blog/experiments.jpg',
+};
+
 export const CATEGORY_CONFIG: Record<BlogCategory, { label: string; color: string; description: string }> = {
   'ai-development': {
     label: 'AI Development',
