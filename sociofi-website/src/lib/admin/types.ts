@@ -549,3 +549,117 @@ export interface ServiceTicket {
   attachments: TicketAttachment[]
   warden: WardenClassification
 }
+
+// ─── Ventures Application System ─────────────────────────────────────────────
+
+export type ApplicationStatus = 'pending' | 'interview' | 'accepted' | 'rejected' | 'waitlisted'
+export type ValidationStatus  = 'paying' | 'waitlist' | 'conversations' | 'none'
+export type CommitmentLevel   = 'full_time' | 'part_time' | 'transitioning'
+export type PartnershipModel  = 'equity' | 'revenue_share' | 'hybrid'
+export type ReviewDecision    = 'accept' | 'reject' | 'waitlist' | 'interview'
+
+export const APPLICATION_STATUS_COLORS: Record<ApplicationStatus, string> = {
+  pending:    '#64748B',
+  interview:  '#6BA3E8',
+  accepted:   '#4ade80',
+  rejected:   '#EF4444',
+  waitlisted: '#E8B84D',
+}
+
+export const VALIDATION_COLORS: Record<ValidationStatus, string> = {
+  paying:        '#4ade80',
+  waitlist:      '#72C4B2',
+  conversations: '#E8B84D',
+  none:          '#EF4444',
+}
+
+export const COMMITMENT_LABELS: Record<CommitmentLevel, string> = {
+  full_time:    'Full-time',
+  part_time:    'Part-time',
+  transitioning: 'Transitioning to full-time',
+}
+
+export const PARTNERSHIP_LABELS: Record<PartnershipModel, string> = {
+  equity:        'Equity stake',
+  revenue_share: 'Revenue share',
+  hybrid:        'Hybrid (equity + revenue share)',
+}
+
+export interface ApplicationAttachment {
+  id: string
+  filename: string
+  size_bytes: number
+  type: 'pitch_deck' | 'financial_model' | 'prototype' | 'other'
+  url: string
+}
+
+export interface ApplicationScores {
+  founder_market_fit:    number  // 1–5, step 0.5
+  demand_validation:     number
+  revenue_model_clarity: number
+  technical_feasibility: number
+  founder_commitment:    number
+}
+
+export interface ApplicationScoreNotes {
+  founder_market_fit?:    string
+  demand_validation?:     string
+  revenue_model_clarity?: string
+  technical_feasibility?: string
+  founder_commitment?:    string
+}
+
+export interface VenturesApplication {
+  id: string
+  status: ApplicationStatus
+  submitted_at: string
+  decision_due: string   // submitted_at + 7 days
+
+  // Step 1 — Founder Profile
+  founder_name:       string
+  founder_email:      string
+  founder_bio:        string
+  founder_linkedin:   string
+  founder_commitment: CommitmentLevel
+
+  // Step 2 — Product
+  product_name:        string
+  product_description: string
+  problem_statement:   string
+  target_customer:     string
+  revenue_model:       string
+  validation_status:   ValidationStatus
+  validation_details:  string
+
+  // Step 3 — Partnership
+  prior_attempts:    string
+  preferred_model:   PartnershipModel
+  growth_plan:       string
+
+  // Step 4 — Additional
+  additional_context?: string
+  attachments:         ApplicationAttachment[]
+
+  // Reviewer scoring (may be partially filled)
+  scores?:      ApplicationScores
+  score_notes?: ApplicationScoreNotes
+  weighted_score?: number  // cached computed value
+
+  // Decision
+  decision?:        ReviewDecision
+  decision_reason?: string
+  decision_at?:     string
+  decision_by?:     string
+
+  // Accepted deal terms
+  deal_model?:             PartnershipModel
+  equity_percent?:         number
+  vesting_schedule?:       string
+  revenue_share_percent?:  number
+  revenue_share_cap?:      string
+  revenue_share_duration?: string
+  upfront_amount?:         number
+
+  // HERALD draft created on rejection
+  rejection_email_id?: string
+}

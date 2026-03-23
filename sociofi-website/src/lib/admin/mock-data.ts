@@ -1,5 +1,5 @@
 import { Submission as LegacySubmission, Ticket, Contact as LegacyContact, ActivityLog } from '@/lib/supabase/types';
-import type { Submission, Contact, ContactActivity, PipelineEntry, CalendarEntry, AgentConfig, ApprovalItem, AgentRun, NewsletterIssue, NewsletterSubscriber, SubscriberList, ServiceTicket } from '@/lib/admin/types'
+import type { Submission, Contact, ContactActivity, PipelineEntry, CalendarEntry, AgentConfig, ApprovalItem, AgentRun, NewsletterIssue, NewsletterSubscriber, SubscriberList, ServiceTicket, VenturesApplication } from '@/lib/admin/types'
 
 const now = Date.now();
 const hoursAgo = (h: number) => new Date(now - h * 3_600_000).toISOString();
@@ -1341,5 +1341,386 @@ export const MOCK_SERVICE_TICKETS: ServiceTicket[] = [
         { id: 'TKT-001', title: 'Production API returning 502 errors — checkout flow broken', resolved_at: daysAgo(0), resolution_notes: 'Connection pool fix' },
       ],
     },
+  },
+]
+
+// ─── Ventures Applications Mock Data ─────────────────────────────────────────
+
+const daysFromNow = (d: number) => new Date(now + d * 86_400_000).toISOString()
+const hoursFromNowVA = (h: number) => new Date(now + h * 3_600_000).toISOString()
+
+export const MOCK_VENTURES_APPLICATIONS: VenturesApplication[] = [
+  // VEN-001 — Priya Sharma — HealthTrack AI — pending, scored, due in 2 days
+  {
+    id: 'VEN-001',
+    status: 'pending',
+    submitted_at: daysAgo(5),
+    decision_due: daysFromNow(2),
+
+    founder_name:       'Priya Sharma',
+    founder_email:      'priya@healthtrackAI.com',
+    founder_bio:        'Ex-clinical research lead at Apollo Hospitals with 8 years in health data. Built internal analytics tools for 3 hospitals. MBBS + MBA. Now obsessed with making health monitoring invisible.',
+    founder_linkedin:   'https://linkedin.com/in/priyasharma-health',
+    founder_commitment: 'full_time',
+
+    product_name:        'HealthTrack AI',
+    product_description: 'Continuous health monitoring platform that uses wearable data + AI to predict metabolic risk 30 days before standard tests flag anything. Targets urban professionals 30–55 with disposable income.',
+    problem_statement:   'By the time a standard blood panel catches a health issue, the patient has had that condition for months. Preventive health is stuck in once-a-year checkups while wearables generate real-time data that nobody is interpreting.',
+    target_customer:     'Urban professionals aged 30–55, health-conscious, already using wearables (Apple Watch, Garmin). Secondary: corporate wellness programs buying in bulk for 200+ employees.',
+    revenue_model:       'B2C subscription at $29/mo. Corporate wellness B2B at $12/seat/mo for 50+ seat packages. Integrations with insurance providers on roadmap for risk-based premium discounts.',
+    validation_status:   'paying',
+    validation_details:  '340 paying subscribers from a waitlist of 1,200. Average 4.8/5 NPS. 3 corporate pilots running — one with 80 employees at a Dhaka-based logistics firm.',
+
+    prior_attempts:    'Raised $80K from a family friend angel in 2024. Built an MVP. Ran a 60-day free pilot with 500 users. Converted 340 to paid. No institutional funding sought yet.',
+    preferred_model:   'equity',
+    growth_plan:       'Use SocioFi partnership to rebuild the backend properly — current stack is fragile. Add automated interpretation layer. Expand to 5 corporate clients by Q3. Hit $15K MRR by end of year. Series A target: 18 months.',
+
+    additional_context: 'We have letters of interest from two insurance companies who want to integrate our risk scoring into their underwriting flow. This is potentially a much larger revenue stream than direct consumer.',
+    attachments: [
+      { id: 'att-001-1', filename: 'HealthTrackAI_PitchDeck_2026.pdf', size_bytes: 4_200_000, type: 'pitch_deck', url: '/mock/att-001-1.pdf' },
+      { id: 'att-001-2', filename: 'HealthTrackAI_FinancialModel_Q1.xlsx', size_bytes: 890_000, type: 'financial_model', url: '/mock/att-001-2.xlsx' },
+    ],
+
+    scores: {
+      founder_market_fit:    4.5,
+      demand_validation:     4.0,
+      revenue_model_clarity: 4.0,
+      technical_feasibility: 4.0,
+      founder_commitment:    5.0,
+    },
+    score_notes: {
+      founder_market_fit:    'Clinical background + 8 years in health data. Rare founder-market fit.',
+      demand_validation:     '340 paying users from cold waitlist is strong signal. Corporate pilots meaningful.',
+      revenue_model_clarity: 'Two clear channels. Insurance integration unclear but promising.',
+      technical_feasibility: 'Current stack fragile per own admission — rebuild needed. Manageable.',
+      founder_commitment:    'Left full-time hospital role. Full-time since Jan 2025.',
+    },
+    weighted_score: 4.2,
+  },
+
+  // VEN-002 — Marco Reyes — BuildFast SaaS — interview, scored, due in 5 days
+  {
+    id: 'VEN-002',
+    status: 'interview',
+    submitted_at: daysAgo(9),
+    decision_due: daysFromNow(5),
+
+    founder_name:       'Marco Reyes',
+    founder_email:      'marco@buildfastsaas.io',
+    founder_bio:        'Full-stack developer, 6 years at product agencies. Built 12 client products. Frustrated by how long it takes to go from idea to deployed app. Started BuildFast as a side project, quit day job 4 months ago.',
+    founder_linkedin:   'https://linkedin.com/in/marcoreyesdev',
+    founder_commitment: 'transitioning',
+
+    product_name:        'BuildFast SaaS',
+    product_description: 'No-code + AI-assisted SaaS builder targeting non-technical founders who want to launch subscription apps without hiring engineers. Drag-and-drop + prompt-to-component generation.',
+    problem_statement:   'Non-technical founders spend 3–6 months and $20K+ to validate a SaaS idea that might not work. BuildFast collapses that to 2 weeks and near-zero technical cost.',
+    target_customer:     'Non-technical founders and consultants who have a validated business idea but can\'t build it. Sweet spot: service businesses wanting to productize their offering.',
+    revenue_model:       'Free tier (1 app, limited traffic) → $49/mo starter → $149/mo growth. Marketplace for premium templates and integrations at 30% cut.',
+    validation_status:   'waitlist',
+    validation_details:  '2,400 waitlist signups from a single ProductHunt launch post. No paid conversions yet — paid tier launching in 6 weeks. 80 beta users actively building.',
+
+    prior_attempts:    'No prior funding. Bootstrapped with personal savings. Side project for 14 months before going full-time 4 months ago.',
+    preferred_model:   'revenue_share',
+    growth_plan:       'Launch paid tier to waitlist in 6 weeks. Target 200 paid users in 90 days. Partner with SocioFi for technical infrastructure and to position as a Studio client acquisition tool.',
+
+    additional_context: 'There\'s a natural partnership angle here — SocioFi Studio gets clients who outgrow BuildFast. I\'m open to a referral arrangement alongside the revenue share.',
+    attachments: [
+      { id: 'att-002-1', filename: 'BuildFast_Deck_March2026.pdf', size_bytes: 3_100_000, type: 'pitch_deck', url: '/mock/att-002-1.pdf' },
+    ],
+
+    scores: {
+      founder_market_fit:    3.5,
+      demand_validation:     3.5,
+      revenue_model_clarity: 4.0,
+      technical_feasibility: 3.5,
+      founder_commitment:    3.5,
+    },
+    score_notes: {
+      founder_market_fit:    'Strong technical background but crowded market. Differentiation unclear vs Bubble, Glide.',
+      demand_validation:     'Waitlist is warm signal but zero paid validation yet. Risk high until conversion.',
+      revenue_model_clarity: 'Freemium model clear and standard for this category.',
+      technical_feasibility: 'Still part-time by own admission — 4 months in but not fully committed.',
+    },
+    weighted_score: 3.6,
+
+    decision: 'interview',
+    decision_reason: 'Strong technical execution, clear vision. Interview to probe differentiation and commitment timeline.',
+    decision_at: daysAgo(2),
+    decision_by: 'Kamrul Hasan',
+  },
+
+  // VEN-003 — Aiko Tanaka — EduMesh — pending, no scores, URGENT (6 hours)
+  {
+    id: 'VEN-003',
+    status: 'pending',
+    submitted_at: daysAgo(7),
+    decision_due: hoursFromNowVA(6),
+
+    founder_name:       'Aiko Tanaka',
+    founder_email:      'aiko@edumesh.co',
+    founder_bio:        'Former curriculum designer at Khan Academy (4 years). MEd from Stanford. Built adaptive learning pilots for 3 school districts in Japan. Speaks Japanese, English, Mandarin. Lives in Singapore.',
+    founder_linkedin:   'https://linkedin.com/in/aikotanaka-edtech',
+    founder_commitment: 'full_time',
+
+    product_name:        'EduMesh',
+    product_description: 'AI-powered adaptive learning platform for K-12 that adjusts lesson difficulty and format in real time based on student comprehension signals. Focuses on Southeast Asian curriculum standards.',
+    problem_statement:   'Southeast Asian schools spend 40% of classroom time on review because teachers can\'t track 35 students simultaneously. Existing adaptive tools are US-centric and culturally tone-deaf.',
+    target_customer:     'Private K-12 schools in Singapore, Malaysia, and Indonesia. Primary buyer is school admin; users are teachers and students. Secondary: government-run ed-tech procurement programs.',
+    revenue_model:       'School licensing at $8/student/month. Minimum 50-student contracts. Curriculum content licensing to publishers. Teacher professional development workshops.',
+    validation_status:   'paying',
+    validation_details:  '4 schools paying — 2 in Singapore, 1 KL, 1 Jakarta. 1,800 active student seats. $14,400 MRR. 3 schools on pilot-to-paid conversion in next 60 days.',
+
+    prior_attempts:    'Seed round: $180K from two Singapore-based angels in 2025. Used to build core platform and onboard first 4 schools.',
+    preferred_model:   'hybrid',
+    growth_plan:       'Use SocioFi partnership to rebuild the AI tutor engine with proper agent architecture. Scale to 20 schools in the region by end of 2026. Target Series A at $1.5M ARR.',
+
+    additional_context: 'Have a letter of intent from the Ministry of Education in one country (cannot disclose yet). This could be a 50,000-seat contract if it lands.',
+    attachments: [
+      { id: 'att-003-1', filename: 'EduMesh_Pitch_2026.pdf', size_bytes: 5_800_000, type: 'pitch_deck', url: '/mock/att-003-1.pdf' },
+      { id: 'att-003-2', filename: 'EduMesh_Revenue_Projections.xlsx', size_bytes: 620_000, type: 'financial_model', url: '/mock/att-003-2.xlsx' },
+    ],
+  },
+
+  // VEN-004 — Samuel Osei — FinTrack BD — rejected, scored low
+  {
+    id: 'VEN-004',
+    status: 'rejected',
+    submitted_at: daysAgo(14),
+    decision_due: daysAgo(7),
+
+    founder_name:       'Samuel Osei',
+    founder_email:      'samuel@fintrackbd.com',
+    founder_bio:        'Accountant turned entrepreneur. 5 years at a Dhaka CA firm. Built a basic expense tracking app for small businesses on weekends. No prior startup experience.',
+    founder_linkedin:   'https://linkedin.com/in/samuelosei-fintech',
+    founder_commitment: 'part_time',
+
+    product_name:        'FinTrack BD',
+    product_description: 'Simple expense tracking and invoicing tool for small businesses in Bangladesh. Mobile-first, BDT currency, bKash integration.',
+    problem_statement:   'Small businesses in Bangladesh use WhatsApp and paper receipts for accounting. No affordable, locally-relevant tool exists.',
+    target_customer:     'Small shop owners and freelancers in Bangladesh. Businesses with 1–10 employees, monthly revenue under BDT 500K.',
+    revenue_model:       'Freemium — basic free, BDT 299/mo premium. Target 10,000 free users, 5% conversion.',
+    validation_status:   'conversations',
+    validation_details:  'Had conversations with 12 small business owners who expressed interest. No signups or paid users yet.',
+
+    prior_attempts:    'None. This is first attempt. No funding.',
+    preferred_model:   'equity',
+    growth_plan:       'Build MVP in 3 months. Launch to 1,000 users. Then raise funding.',
+
+    attachments: [
+      { id: 'att-004-1', filename: 'FinTrackBD_Concept_Deck.pdf', size_bytes: 1_200_000, type: 'pitch_deck', url: '/mock/att-004-1.pdf' },
+    ],
+
+    scores: {
+      founder_market_fit:    2.5,
+      demand_validation:     2.0,
+      revenue_model_clarity: 2.5,
+      technical_feasibility: 2.5,
+      founder_commitment:    2.5,
+    },
+    score_notes: {
+      founder_market_fit:    'Accounting background relevant but no product or startup experience.',
+      demand_validation:     '12 conversations with no signups is very weak validation. Idea-stage only.',
+      revenue_model_clarity: 'BDT 299/mo in Bangladesh is extremely low. Unit economics don\'t work at scale.',
+      founder_commitment:    'Still part-time. No plan to go full-time.',
+    },
+    weighted_score: 2.4,
+
+    decision: 'reject',
+    decision_reason: 'Idea-stage with no validation. Part-time founder. Unit economics in local BDT pricing unlikely to support the partnership model. Recommend applying again in 6–12 months with paying customers.',
+    decision_at: daysAgo(7),
+    decision_by: 'Arifur Rahman',
+    rejection_email_id: 'herald-draft-004',
+  },
+
+  // VEN-005 — Leila Moradi — AgentStack — accepted, scored high, deal set
+  {
+    id: 'VEN-005',
+    status: 'accepted',
+    submitted_at: daysAgo(21),
+    decision_due: daysAgo(14),
+
+    founder_name:       'Leila Moradi',
+    founder_email:      'leila@agentstack.dev',
+    founder_bio:        'AI engineer, ex-Hugging Face (2 years). Built production agent systems at two Y Combinator startups. Deep expertise in LLM orchestration, multi-agent systems, and tool calling frameworks.',
+    founder_linkedin:   'https://linkedin.com/in/leilamoradi-ai',
+    founder_commitment: 'full_time',
+
+    product_name:        'AgentStack',
+    product_description: 'Developer platform for building, testing, and deploying production-ready AI agent systems. Think Vercel but for agents — handles orchestration, memory, tool registries, observability, and rollbacks.',
+    problem_statement:   'Building production AI agents is still a dark art. Engineers prototype in notebooks and hit a wall when they try to deploy — no standardized way to handle retries, memory, multi-agent coordination, or failure modes.',
+    target_customer:     'AI engineers and teams at Series A–C startups building agent-based products. Secondary: enterprises standing up internal automation teams.',
+    revenue_model:       'Usage-based pricing: $0.002 per agent-step on hosted tier. Enterprise flat-fee contracts for on-premises deployments. OSS core drives adoption, paid hosting drives revenue.',
+    validation_status:   'paying',
+    validation_details:  '$8,200 MRR. 42 paying customers. 3 enterprise pilots at $2K–$5K/mo. OSS repo: 4,800 GitHub stars, 210 contributors.',
+
+    prior_attempts:    '$300K pre-seed from South Asia Seed Fund (March 2025). Used to build core platform and grow OSS community.',
+    preferred_model:   'hybrid',
+    growth_plan:       'Partner with SocioFi to deploy AgentStack as the infrastructure layer for NEXUS. Co-sell to SocioFi\'s client base. Target $50K MRR by Q4 2026.',
+
+    additional_context: 'Already using SocioFi Studio for some frontend work. The synergy is obvious — we build the engine, SocioFi builds the vehicles that run on it.',
+    attachments: [
+      { id: 'att-005-1', filename: 'AgentStack_Deck_Feb2026.pdf', size_bytes: 6_400_000, type: 'pitch_deck', url: '/mock/att-005-1.pdf' },
+      { id: 'att-005-2', filename: 'AgentStack_Financial_Model.xlsx', size_bytes: 1_100_000, type: 'financial_model', url: '/mock/att-005-2.xlsx' },
+    ],
+
+    scores: {
+      founder_market_fit:    5.0,
+      demand_validation:     4.5,
+      revenue_model_clarity: 4.5,
+      technical_feasibility: 5.0,
+      founder_commitment:    5.0,
+    },
+    score_notes: {
+      founder_market_fit:    'Ex-Hugging Face, built agents at YC startups. As close to perfect as it gets.',
+      demand_validation:     '$8.2K MRR and 4.8K GitHub stars. Genuine traction.',
+      revenue_model_clarity: 'Usage-based + enterprise is proven in infra space. Clear path.',
+      technical_feasibility: 'She IS the technical competency. Platform already deployed in production.',
+      founder_commitment:    'Full-time since Day 1. No distractions.',
+    },
+    weighted_score: 4.7,
+
+    decision: 'accept',
+    decision_reason: 'Exceptional founder-market fit, real traction, strong strategic alignment with SocioFi NEXUS infrastructure.',
+    decision_at: daysAgo(14),
+    decision_by: 'Kamrul Hasan',
+    deal_model: 'hybrid',
+    equity_percent: 4,
+    vesting_schedule: '4-year vest, 1-year cliff',
+    revenue_share_percent: 8,
+    revenue_share_cap: '$120,000 total',
+    revenue_share_duration: '24 months',
+    upfront_amount: 25000,
+  },
+
+  // VEN-006 — Carlos Vega — DataPipe — waitlisted, scored low-mid
+  {
+    id: 'VEN-006',
+    status: 'waitlisted',
+    submitted_at: daysAgo(11),
+    decision_due: daysAgo(4),
+
+    founder_name:       'Carlos Vega',
+    founder_email:      'carlos@datapipe.io',
+    founder_bio:        'Data analyst at a marketing agency for 6 years. Built internal pipeline tools for clients. Decided to productize the most common one. Part-time on this while still at day job.',
+    founder_linkedin:   'https://linkedin.com/in/carlosvega-data',
+    founder_commitment: 'part_time',
+
+    product_name:        'DataPipe',
+    product_description: 'No-code ETL tool for marketing teams to connect ad platforms, CRMs, and spreadsheets without engineering support. Drag-and-drop pipeline builder with scheduled syncs.',
+    problem_statement:   'Marketing teams waste 10+ hours per week manually exporting and combining data from 5–8 different tools. Existing ETL tools (Fivetran, Stitch) are priced for engineers and enterprises.',
+    target_customer:     'Marketing teams at SMBs (5–50 employees). Decision maker is marketing manager or CMO. No engineering resources.',
+    revenue_model:       '$79/mo per workspace. Annual discount available. Target: 500 workspaces by end of year.',
+    validation_status:   'none',
+    validation_details:  'No paying customers yet. Built a landing page. 180 email signups from a LinkedIn post. Has not done customer interviews.',
+
+    prior_attempts:    'None. First startup attempt. No funding.',
+    preferred_model:   'revenue_share',
+    growth_plan:       'Launch beta in 3 months. Run a 30-day free trial campaign. Convert 5% to paid.',
+
+    attachments: [
+      { id: 'att-006-1', filename: 'DataPipe_Overview.pdf', size_bytes: 980_000, type: 'pitch_deck', url: '/mock/att-006-1.pdf' },
+    ],
+
+    scores: {
+      founder_market_fit:    3.0,
+      demand_validation:     2.0,
+      revenue_model_clarity: 3.5,
+      technical_feasibility: 3.0,
+      founder_commitment:    2.5,
+    },
+    score_notes: {
+      demand_validation:     'Zero paying users and no customer interviews. Idea not validated.',
+      founder_commitment:    'Still part-time. Crowded market (Zapier, Make, n8n all compete here).',
+    },
+    weighted_score: 2.8,
+
+    decision: 'waitlist',
+    decision_reason: 'Market is crowded and differentiation is unclear. Zero validation. Part-time founder. Recommend revisiting when 20+ paying customers and full-time.',
+    decision_at: daysAgo(4),
+    decision_by: 'Arifur Rahman',
+  },
+
+  // VEN-007 — Yuna Park — RetailBot — pending, no scores, 3 days
+  {
+    id: 'VEN-007',
+    status: 'pending',
+    submitted_at: daysAgo(4),
+    decision_due: daysFromNow(3),
+
+    founder_name:       'Yuna Park',
+    founder_email:      'yuna@retailbot.ai',
+    founder_bio:        'Ex-retail operations manager at Lotte (5 years). Ran stores across Korea and Southeast Asia. Now building AI tools to solve the exact problems she lived daily — inventory chaos, staff scheduling, supplier negotiation.',
+    founder_linkedin:   'https://linkedin.com/in/yunapark-retail',
+    founder_commitment: 'transitioning',
+
+    product_name:        'RetailBot',
+    product_description: 'AI operations assistant for independent retailers and small retail chains. Handles inventory prediction, staff scheduling optimization, and supplier price negotiation via automated chat.',
+    problem_statement:   'Independent retailers lose 15–20% margin to inefficiency — over-ordering, under-staffing, and paying above-market supplier prices because they lack the buying power to negotiate. These are solved problems at Walmart. Not at the corner store.',
+    target_customer:     'Independent retail stores and small chains (2–10 locations). Owner-operators in Southeast Asia and Korea. Monthly revenue $50K–$500K.',
+    revenue_model:       '$149/mo per location. ROI pitch: saves an average of $2,000/mo per location within 60 days. Upsell: white-glove supplier network access at $299/mo.',
+    validation_status:   'waitlist',
+    validation_details:  '380 waitlist signups from a Korean retail association newsletter feature. 15 store owners on early access — using the beta, providing feedback. No paid users yet.',
+
+    prior_attempts:    'None. Self-funded prototype. $15K personal savings invested.',
+    preferred_model:   'equity',
+    growth_plan:       'Convert 15 early access users to paid within 60 days. Use SocioFi to build the AI negotiation engine properly. Scale to 100 paid locations in 2026.',
+
+    additional_context: 'The retail association that featured us has 8,000 member stores across Korea, Vietnam, and Malaysia. They\'ve asked about a formal partnership — bulk licensing could be a major channel.',
+    attachments: [
+      { id: 'att-007-1', filename: 'RetailBot_PitchDeck.pdf', size_bytes: 3_700_000, type: 'pitch_deck', url: '/mock/att-007-1.pdf' },
+    ],
+  },
+
+  // VEN-008 — Ravi Krishnan — CloudNest — interview, scored mid-high, 4 days
+  {
+    id: 'VEN-008',
+    status: 'interview',
+    submitted_at: daysAgo(10),
+    decision_due: daysFromNow(4),
+
+    founder_name:       'Ravi Krishnan',
+    founder_email:      'ravi@cloudnest.in',
+    founder_bio:        'DevOps engineer at Razorpay for 4 years. Built and maintained infrastructure handling millions of transactions per day. Deep expertise in Kubernetes, Terraform, and multi-cloud cost optimization.',
+    founder_linkedin:   'https://linkedin.com/in/ravikrishnan-devops',
+    founder_commitment: 'full_time',
+
+    product_name:        'CloudNest',
+    product_description: 'Managed Kubernetes platform for Indian startups — simpler than AWS EKS, cheaper than GCP, with hands-on support included. Positioned as "your DevOps team as a service" for Series A companies that outgrow Heroku but can\'t afford a full infra team.',
+    problem_statement:   'Indian startups hit a wall between Heroku (too limited) and self-managed AWS (too complex and expensive in engineering time). They need an opinionated, managed Kubernetes layer with real humans they can call when things break.',
+    target_customer:     'Series A startups in India with 5–30 engineers. CTOs who are product engineers, not infra specialists. Companies with $1M–$10M ARR outgrowing Heroku or Railway.',
+    revenue_model:       'Flat monthly fee: $800/mo for up to 5 nodes, $1,500/mo for 10 nodes, custom for enterprise. Includes support, monitoring, and 99.9% uptime SLA. No per-seat nonsense.',
+    validation_status:   'paying',
+    validation_details:  '8 paying clients including 2 YC-backed startups. $6,400 MRR. All 8 on annual contracts signed in the past 6 months. 0 churn.',
+
+    prior_attempts:    'Bootstrapped. No funding. All 8 clients from personal network and referrals. Ravi left Razorpay 8 months ago.',
+    preferred_model:   'revenue_share',
+    growth_plan:       'Partner with SocioFi Cloud to expand service offering and cross-sell to each other\'s client bases. Target 25 clients by end of year. $20K MRR milestone.',
+
+    additional_context: 'There is obvious strategic overlap with SocioFi Cloud. I\'m open to a white-label arrangement where CloudNest infrastructure powers SocioFi\'s managed hosting offering.',
+    attachments: [
+      { id: 'att-008-1', filename: 'CloudNest_Deck_2026.pdf', size_bytes: 2_900_000, type: 'pitch_deck', url: '/mock/att-008-1.pdf' },
+      { id: 'att-008-2', filename: 'CloudNest_Client_MRR_Breakdown.xlsx', size_bytes: 340_000, type: 'financial_model', url: '/mock/att-008-2.xlsx' },
+    ],
+
+    scores: {
+      founder_market_fit:    4.5,
+      demand_validation:     4.0,
+      revenue_model_clarity: 4.0,
+      technical_feasibility: 4.0,
+      founder_commitment:    3.5,
+    },
+    score_notes: {
+      founder_market_fit:    'Razorpay DevOps background is ideal. Knows exactly who the customer is because he was them.',
+      demand_validation:     '$6.4K MRR bootstrapped with 0 churn is strong. 8 clients including 2 YC startups.',
+      revenue_model_clarity: 'Flat fee model with clear tiers. Revenue share with SocioFi needs to be structured carefully.',
+      technical_feasibility: 'Platform already running production workloads. No technical risk.',
+      founder_commitment:    'Full-time 8 months in. Commitment solid but newer than others.',
+    },
+    weighted_score: 3.9,
+
+    decision: 'interview',
+    decision_reason: 'Strong traction and strategic overlap with SocioFi Cloud. Interview to explore white-label partnership structure.',
+    decision_at: daysAgo(3),
+    decision_by: 'Kamrul Hasan',
   },
 ]
