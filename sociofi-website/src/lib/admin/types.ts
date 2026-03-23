@@ -663,3 +663,145 @@ export interface VenturesApplication {
   // HERALD draft created on rejection
   rejection_email_id?: string
 }
+
+// ─── Academy System ───────────────────────────────────────────────────────────
+
+export type CourseAudience    = 'founders' | 'leaders' | 'teams' | 'developers' | 'all'
+export type CourseFormat      = 'self_paced' | 'cohort' | 'workshop' | 'live'
+export type EnrollmentStatus  = 'active' | 'completed' | 'paused' | 'cancelled' | 'refunded'
+export type WorkshopFormat    = 'virtual' | 'in_person' | 'hybrid'
+export type SCARLWeekStatus   = 'not_started' | 'in_progress' | 'completed' | 'missed'
+
+export const AUDIENCE_COLORS: Record<CourseAudience, string> = {
+  founders:   '#E8916F',
+  leaders:    '#6BA3E8',
+  teams:      '#4DBFA8',
+  developers: '#7B6FE8',
+  all:        '#64748B',
+}
+
+export const AUDIENCE_LABELS: Record<CourseAudience, string> = {
+  founders:   'Founders',
+  leaders:    'Leaders',
+  teams:      'Teams',
+  developers: 'Developers',
+  all:        'All Audiences',
+}
+
+export const ENROLLMENT_STATUS_COLORS: Record<EnrollmentStatus, string> = {
+  active:    '#4ade80',
+  completed: '#6BA3E8',
+  paused:    '#E8B84D',
+  cancelled: '#64748B',
+  refunded:  '#EF4444',
+}
+
+export interface CourseLesson {
+  id: string
+  title: string
+  duration_min: number
+  type: 'video' | 'reading' | 'quiz' | 'exercise'
+}
+
+export interface CourseModule {
+  id: string
+  title: string
+  order: number
+  lessons: CourseLesson[]
+  total_duration_min: number
+}
+
+export interface Course {
+  id: string
+  title: string
+  slug: string
+  status: 'draft' | 'published' | 'archived'
+  audience: CourseAudience
+  format: CourseFormat
+  price_usd: number
+  stripe_price_id?: string
+  description: string
+  outcomes: string[]
+  prerequisites?: string
+  instructor_name: string
+  instructor_bio?: string
+  modules: CourseModule[]
+  total_duration_min: number
+  enrollment_count: number
+  completion_rate: number   // 0-100
+  avg_rating?: number
+  created_at: string
+  updated_at: string
+  published_at?: string
+  tags: string[]
+  is_free: boolean
+  thumbnail_url?: string
+  mentor_drafted?: boolean
+}
+
+export interface Workshop {
+  id: string
+  title: string
+  slug: string
+  status: 'draft' | 'published' | 'cancelled' | 'completed'
+  format: WorkshopFormat
+  price_usd: number
+  description: string
+  instructor_name: string
+  date: string          // ISO date string
+  time: string          // "14:00 UTC"
+  duration_min: number
+  max_seats: number
+  registered_count: number
+  waitlist_count: number
+  recording_url?: string
+  location?: string      // for in-person
+  meeting_url?: string   // for virtual
+  tags: string[]
+  created_at: string
+  updated_at: string
+}
+
+export interface CourseEnrollment {
+  id: string
+  student_name: string
+  student_email: string
+  course_id?: string
+  course_title?: string
+  workshop_id?: string
+  workshop_title?: string
+  type: 'course' | 'workshop'
+  enrolled_at: string
+  status: EnrollmentStatus
+  progress_percent: number   // 0–100
+  last_activity_at?: string
+  completed_at?: string
+  payment_status: 'paid' | 'free' | 'refunded' | 'pending'
+  payment_amount_usd: number
+  certificate_issued?: boolean
+}
+
+export interface SCARLParticipant {
+  id: string
+  name: string
+  email: string
+  company?: string
+  role: string
+  week_progress: SCARLWeekStatus[]  // array of 6: one per week
+  assessment_scores: (number | null)[]  // 0–100 per week, null if not taken
+  overall_score?: number
+  status: 'active' | 'graduated' | 'dropped'
+}
+
+export interface SCARLCohort {
+  id: string
+  name: string          // e.g. "Cohort 1 — Q2 2026"
+  quarter: string       // "Q2 2026"
+  status: 'upcoming' | 'active' | 'completed'
+  start_date: string
+  end_date: string
+  current_week: number  // 1-6
+  max_participants: number
+  participants: SCARLParticipant[]
+  description: string
+}
