@@ -8,6 +8,7 @@ import {
   formatPostDate,
 } from '@/lib/blog';
 import BlogProgress from '@/components/blog/BlogProgress';
+import { ScribeIcon } from '@/components/blog/ScribeIcon';
 import BlogAuthorCard from '@/components/blog/BlogAuthorCard';
 import BlogShare from '@/components/blog/BlogShare';
 import BlogRelated from '@/components/blog/BlogRelated';
@@ -190,7 +191,7 @@ export default async function BlogPostPage({
               }}
               aria-hidden="true"
             >
-              {post.author.avatarInitials}
+              {post.authorType === 'ai_agent' ? <ScribeIcon size={18} /> : post.author.avatarInitials}
             </span>
             <span>
               <span

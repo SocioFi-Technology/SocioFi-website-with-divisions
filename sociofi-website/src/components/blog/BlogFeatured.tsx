@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { BlogPost, CATEGORY_CONFIG, CATEGORY_IMAGES, formatPostDate } from '@/lib/blog';
+import { ScribeIcon } from '@/components/blog/ScribeIcon';
 
 interface BlogFeaturedProps {
   post: BlogPost;
@@ -199,7 +200,7 @@ export default function BlogFeatured({ post }: BlogFeaturedProps) {
             }}
             aria-hidden="true"
           >
-            {post.author.avatarInitials}
+            {post.authorType === 'ai_agent' ? <ScribeIcon size={14} /> : post.author.avatarInitials}
           </span>
           <span style={{ flex: 1 }}>
             <span

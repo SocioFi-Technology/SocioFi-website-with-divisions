@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { BlogPost, CATEGORY_CONFIG, CATEGORY_IMAGES, formatPostDate } from '@/lib/blog';
+import { ScribeIcon } from '@/components/blog/ScribeIcon';
 
 interface BlogCardProps {
   post: BlogPost;
@@ -7,7 +8,8 @@ interface BlogCardProps {
   compact?: boolean;
 }
 
-function AuthorAvatar({ initials, color }: { initials: string; color: string }) {
+function AuthorAvatar({ initials, color, authorType }: { initials: string; color: string; authorType?: string }) {
+  const isAI = authorType === 'ai_agent';
   return (
     <span
       style={{
@@ -28,7 +30,7 @@ function AuthorAvatar({ initials, color }: { initials: string; color: string }) 
       }}
       aria-hidden="true"
     >
-      {initials}
+      {isAI ? <ScribeIcon size={13} /> : initials}
     </span>
   );
 }
@@ -195,7 +197,7 @@ export default function BlogCard({ post, accentColor, compact = false }: BlogCar
             marginTop: compact ? 10 : 0,
           }}
         >
-          <AuthorAvatar initials={post.author.avatarInitials} color={post.author.accentColor} />
+          <AuthorAvatar initials={post.author.avatarInitials} color={post.author.accentColor} authorType={post.authorType} />
           <span
             style={{
               fontFamily: 'var(--font-body)',

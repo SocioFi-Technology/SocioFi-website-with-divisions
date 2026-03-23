@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { BlogAuthor } from '@/lib/blog';
+import { ScribeIcon } from '@/components/blog/ScribeIcon';
 
 interface BlogAuthorCardProps {
   author: BlogAuthor;
@@ -44,7 +45,7 @@ export default function BlogAuthorCard({ author, compact = false, postCount }: B
         }}
         aria-hidden="true"
       >
-        {author.avatarInitials}
+        {isAI ? <ScribeIcon size={compact ? 20 : 33} /> : author.avatarInitials}
       </div>
 
       {/* Info */}

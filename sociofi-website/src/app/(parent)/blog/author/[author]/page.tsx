@@ -7,6 +7,7 @@ import {
   getPostsByAuthor,
 } from '@/lib/blog';
 import BlogCard from '@/components/blog/BlogCard';
+import { ScribeIcon } from '@/components/blog/ScribeIcon';
 
 // ── Static params ─────────────────────────────────────────────────────────────
 
@@ -120,7 +121,7 @@ export default async function AuthorPage({
               }}
               aria-hidden="true"
             >
-              {author.avatarInitials}
+              {isAI ? <ScribeIcon size={48} /> : author.avatarInitials}
             </div>
 
             <div style={{ flex: 1, minWidth: 200 }}>

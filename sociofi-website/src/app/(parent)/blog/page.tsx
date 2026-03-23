@@ -11,6 +11,7 @@ import {
   CATEGORY_CONFIG,
 } from '@/lib/blog';
 import BlogFeatured from '@/components/blog/BlogFeatured';
+import { ScribeIcon } from '@/components/blog/ScribeIcon';
 import BlogCard from '@/components/blog/BlogCard';
 import BlogCategoryBar from '@/components/blog/BlogCategoryBar';
 import BlogNewsletter from '@/components/blog/BlogNewsletter';
@@ -369,7 +370,7 @@ export default function BlogHubPage() {
                     }}
                     aria-hidden="true"
                   >
-                    {author.avatarInitials}
+                    {author.type === 'ai_agent' ? <ScribeIcon size={18} /> : author.avatarInitials}
                   </span>
                   <span>
                     <span
