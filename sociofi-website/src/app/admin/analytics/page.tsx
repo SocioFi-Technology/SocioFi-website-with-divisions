@@ -1,4 +1,4 @@
-import { MOCK_SUBMISSIONS, MOCK_CONTACTS, MOCK_METRICS, MOCK_TICKETS } from '@/lib/admin/mock-data';
+import { LEGACY_MOCK_SUBMISSIONS as MOCK_SUBMISSIONS, LEGACY_MOCK_CONTACTS as MOCK_CONTACTS, MOCK_METRICS, LEGACY_MOCK_TICKETS as MOCK_TICKETS } from '@/lib/admin/mock-data';
 import { Division, SubmissionStatus } from '@/lib/supabase/types';
 
 /* ── helpers ──────────────────────────────────────────────── */

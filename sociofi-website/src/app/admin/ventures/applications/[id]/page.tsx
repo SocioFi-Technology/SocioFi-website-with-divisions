@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { MOCK_CONTACTS } from '@/lib/admin/mock-data';
+import { LEGACY_MOCK_CONTACTS as MOCK_CONTACTS } from '@/lib/admin/mock-data';
 import {
   MOCK_VENTURES_APPS,
   type VenturesApp,

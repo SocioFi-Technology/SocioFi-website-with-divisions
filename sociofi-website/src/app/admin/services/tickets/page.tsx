@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { MOCK_TICKETS, MOCK_CONTACTS } from '@/lib/admin/mock-data';
+import { LEGACY_MOCK_TICKETS as MOCK_TICKETS, LEGACY_MOCK_CONTACTS as MOCK_CONTACTS } from '@/lib/admin/mock-data';
 import type { Ticket, TicketStatus, TicketPriority } from '@/lib/supabase/types';
 
 /* ─────────────────────────────────────────

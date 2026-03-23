@@ -1,10 +1,11 @@
-import { Submission, Ticket, Contact, ActivityLog } from '@/lib/supabase/types';
+import { Submission as LegacySubmission, Ticket, Contact as LegacyContact, ActivityLog } from '@/lib/supabase/types';
+import type { Submission, Contact, ContactActivity } from '@/lib/admin/types'
 
 const now = Date.now();
 const hoursAgo = (h: number) => new Date(now - h * 3_600_000).toISOString();
 const daysAgo = (d: number) => new Date(now - d * 86_400_000).toISOString();
 
-export const MOCK_CONTACTS: Contact[] = [
+export const LEGACY_MOCK_CONTACTS: LegacyContact[] = [
   {
     id: 'c1', email: 'sarah@techcorp.io', name: 'Sarah Chen', company: 'TechCorp',
     phone: '+1 415 555 0123', role: 'CTO', source: 'organic',
@@ -36,7 +37,7 @@ export const MOCK_CONTACTS: Contact[] = [
   },
 ];
 
-export const MOCK_SUBMISSIONS: Submission[] = [
+export const LEGACY_MOCK_SUBMISSIONS: LegacySubmission[] = [
   {
     id: 's1', contact_id: 'c1', type: 'studio-project', division: 'studio',
     status: 'new', priority: 'high',
@@ -138,7 +139,7 @@ export const MOCK_SUBMISSIONS: Submission[] = [
   },
 ];
 
-export const MOCK_TICKETS: Ticket[] = [
+export const LEGACY_MOCK_TICKETS: Ticket[] = [
   {
     id: 't1', contact_id: 'c5', plan: 'growth',
     type: 'incident', priority: 'p1', title: 'Production API returning 502s — auth service down',
@@ -181,7 +182,7 @@ export const MOCK_TICKETS: Ticket[] = [
   },
 ];
 
-export const MOCK_ACTIVITY: ActivityLog[] = [
+export const LEGACY_MOCK_ACTIVITY: ActivityLog[] = [
   {
     id: 'a1', actor_id: 'tm1', action: 'submission.status_changed',
     entity_type: 'submission', entity_id: 's2',
@@ -232,3 +233,105 @@ export const MOCK_TEAM: { id: string; name: string; role: string; initials: stri
   { id: 'tm1', name: 'Arifur Rahman', role: 'super_admin', initials: 'AR' },
   { id: 'tm2', name: 'Kamrul Hasan', role: 'super_admin', initials: 'KH' },
 ];
+
+// ── New CRM Mock Data ─────────────────────────────────────────────────────
+
+export const MOCK_SUBMISSIONS: Submission[] = [
+  {
+    id: 's1', status: 'new', priority: 'urgent', division: 'studio', type: 'Product Build',
+    contact_name: 'Sarah Chen', contact_email: 'sarah@nexalabs.io', contact_id: 'c1',
+    summary: 'Need to build a SaaS MVP for inventory management — have wireframes and a budget of $30k',
+    assigned_to: undefined, ai_score: 78, created_at: new Date(Date.now() - 2 * 3600000).toISOString(),
+    updated_at: new Date(Date.now() - 2 * 3600000).toISOString(),
+    fields: { budget: '$30,000', timeline: '3 months', stack_preference: 'React + Node', have_wireframes: true, company: 'NexaLabs' },
+    notes: [{ id: 'n1', author: 'INTAKE', author_type: 'agent', content: 'High intent signal. Budget confirmed. Has wireframes. Recommend fast-track to proposal.', created_at: new Date(Date.now() - 1.5 * 3600000).toISOString() }],
+    tags: ['mvp', 'saas', 'high-budget'],
+  },
+  {
+    id: 's2', status: 'reviewed', priority: 'high', division: 'services', type: 'Monitoring Plan',
+    contact_name: 'Marcus Webb', contact_email: 'marcus@techflow.io', contact_id: 'c2',
+    summary: 'Running a production Node.js app with 5k daily users, need 24/7 uptime monitoring + alerting',
+    assigned_to: 'Arifur Rahman', ai_score: 85, created_at: new Date(Date.now() - 5 * 3600000).toISOString(),
+    updated_at: new Date(Date.now() - 3 * 3600000).toISOString(),
+    fields: { app_type: 'Node.js API', daily_users: '5,000', current_uptime: '99.1%', primary_concern: 'Alerting + auto-restart' },
+    notes: [], tags: ['monitoring', 'node', 'production'],
+  },
+  {
+    id: 's3', status: 'in_progress', priority: 'high', division: 'studio', type: 'Rescue Ship',
+    contact_name: 'Priya Sharma', contact_email: 'priya@buildfast.io', contact_id: 'c3',
+    summary: 'AI-generated codebase that is broken in production — crashes on login and cannot deploy',
+    assigned_to: 'Kamrul Hasan', ai_score: 91, created_at: new Date(Date.now() - 24 * 3600000).toISOString(),
+    updated_at: new Date(Date.now() - 6 * 3600000).toISOString(),
+    fields: { stack: 'Next.js + Prisma + PostgreSQL', error_type: 'Runtime crash', ai_tool_used: 'Cursor + Claude', has_tests: false },
+    notes: [
+      { id: 'n2', author: 'Kamrul Hasan', author_type: 'human', content: 'Identified root cause: Prisma client not initialized in serverless context. Estimating 2 days to fix.', created_at: new Date(Date.now() - 4 * 3600000).toISOString() },
+    ],
+    tags: ['rescue', 'nextjs', 'urgent'],
+  },
+  {
+    id: 's4', status: 'new', priority: 'normal', division: 'academy', type: 'Course Enrollment',
+    contact_name: 'David Kim', contact_email: 'david@kimdigital.co', contact_id: 'c4',
+    summary: 'Interested in AI Development Bootcamp for a team of 8 non-technical product managers',
+    assigned_to: undefined, ai_score: 62, created_at: new Date(Date.now() - 8 * 3600000).toISOString(),
+    updated_at: new Date(Date.now() - 8 * 3600000).toISOString(),
+    fields: { team_size: 8, role: 'Product Manager', experience_level: 'Non-technical', preferred_format: 'Workshop' },
+    notes: [], tags: ['team-training', 'workshop'],
+  },
+  {
+    id: 's5', status: 'converted', priority: 'normal', division: 'ventures', type: 'Startup Application',
+    contact_name: 'Leila Novak', contact_email: 'leila@nanofi.io', contact_id: 'c5',
+    summary: 'FinTech startup in pre-seed stage, looking for technical co-founder + equity partnership',
+    assigned_to: 'Arifur Rahman', ai_score: 74, created_at: new Date(Date.now() - 48 * 3600000).toISOString(),
+    updated_at: new Date(Date.now() - 12 * 3600000).toISOString(),
+    fields: { stage: 'Pre-seed', sector: 'FinTech', revenue: '$0', team_size: 2, looking_for: 'Technical co-founder' },
+    notes: [
+      { id: 'n3', author: 'Arifur Rahman', author_type: 'human', content: 'Strong founding team. FinTech experience relevant. Moving to due diligence.', created_at: new Date(Date.now() - 20 * 3600000).toISOString() },
+    ],
+    tags: ['fintech', 'pre-seed', 'equity'],
+  },
+  {
+    id: 's6', status: 'new', priority: 'low', division: 'cloud', type: 'Hosting Assessment',
+    contact_name: 'Tom Okafor', contact_email: 'tom@scale99.io', contact_id: 'c6',
+    summary: 'React + Django app currently on bare metal, needs managed hosting with auto-scaling',
+    assigned_to: undefined, ai_score: 55, created_at: new Date(Date.now() - 3 * 3600000).toISOString(),
+    updated_at: new Date(Date.now() - 3 * 3600000).toISOString(),
+    fields: { current_host: 'Hetzner bare metal', stack: 'React + Django + PostgreSQL', monthly_traffic: '50k req/day' },
+    notes: [], tags: ['cloud', 'django', 'migration'],
+  },
+  {
+    id: 's7', status: 'reviewed', priority: 'high', division: 'products', type: 'Product Demo',
+    contact_name: 'Ana Lima', contact_email: 'ana@productco.io', contact_id: 'c7',
+    summary: 'Evaluating FabricxAI for internal design system automation across 12 product teams',
+    assigned_to: 'Kamrul Hasan', ai_score: 88, created_at: new Date(Date.now() - 6 * 3600000).toISOString(),
+    updated_at: new Date(Date.now() - 2 * 3600000).toISOString(),
+    fields: { team_count: 12, design_tool: 'Figma', current_pain: 'Manual component mapping', budget: '$15k/yr' },
+    notes: [], tags: ['fabricxai', 'enterprise', 'demo'],
+  },
+  {
+    id: 's8', status: 'closed', priority: 'low', division: 'labs', type: 'Research Inquiry',
+    contact_name: 'James Park', contact_email: 'james@researchlabs.io', contact_id: 'c8',
+    summary: 'Academic research partnership inquiry for AI agent behavior study',
+    assigned_to: undefined, ai_score: 38, created_at: new Date(Date.now() - 72 * 3600000).toISOString(),
+    updated_at: new Date(Date.now() - 48 * 3600000).toISOString(),
+    fields: { institution: 'MIT CSAIL', research_area: 'Multi-agent systems', funding: 'NSF Grant' },
+    notes: [], tags: ['research', 'academic'],
+  },
+]
+
+export const MOCK_CONTACTS: Contact[] = [
+  { id: 'c1', name: 'Sarah Chen', email: 'sarah@nexalabs.io', company: 'NexaLabs', phone: '+1 415 555 0142', source: 'Studio Form', stage: 'opportunity', tags: ['mvp', 'saas', 'high-value'], score: 78, assigned_to: undefined, last_activity_at: new Date(Date.now() - 2 * 3600000).toISOString(), created_at: new Date(Date.now() - 2 * 3600000).toISOString(), division_interests: ['studio'] },
+  { id: 'c2', name: 'Marcus Webb', email: 'marcus@techflow.io', company: 'TechFlow Inc', phone: '+44 20 7946 0958', source: 'Services Form', stage: 'qualified', tags: ['monitoring', 'node', 'production'], score: 85, assigned_to: 'Arifur Rahman', last_activity_at: new Date(Date.now() - 3 * 3600000).toISOString(), created_at: new Date(Date.now() - 5 * 3600000).toISOString(), division_interests: ['services'] },
+  { id: 'c3', name: 'Priya Sharma', email: 'priya@buildfast.io', company: 'BuildFast', phone: '+91 98765 43210', source: 'Studio Form', stage: 'client', tags: ['rescue', 'nextjs'], score: 91, assigned_to: 'Kamrul Hasan', last_activity_at: new Date(Date.now() - 6 * 3600000).toISOString(), created_at: new Date(Date.now() - 24 * 3600000).toISOString(), division_interests: ['studio'] },
+  { id: 'c4', name: 'David Kim', email: 'david@kimdigital.co', company: 'Kim Digital', phone: undefined, source: 'Academy Form', stage: 'lead', tags: ['team-training'], score: 62, assigned_to: undefined, last_activity_at: new Date(Date.now() - 8 * 3600000).toISOString(), created_at: new Date(Date.now() - 8 * 3600000).toISOString(), division_interests: ['academy'] },
+  { id: 'c5', name: 'Leila Novak', email: 'leila@nanofi.io', company: 'NanoFi', phone: '+1 650 555 0177', source: 'Ventures Form', stage: 'client', tags: ['fintech', 'pre-seed'], score: 74, assigned_to: 'Arifur Rahman', last_activity_at: new Date(Date.now() - 12 * 3600000).toISOString(), created_at: new Date(Date.now() - 48 * 3600000).toISOString(), division_interests: ['ventures'] },
+  { id: 'c6', name: 'Tom Okafor', email: 'tom@scale99.io', company: 'Scale99', phone: undefined, source: 'Cloud Form', stage: 'lead', tags: ['cloud', 'django'], score: 55, assigned_to: undefined, last_activity_at: new Date(Date.now() - 3 * 3600000).toISOString(), created_at: new Date(Date.now() - 3 * 3600000).toISOString(), division_interests: ['cloud'] },
+  { id: 'c7', name: 'Ana Lima', email: 'ana@productco.io', company: 'ProductCo', phone: '+55 11 9999 8888', source: 'Products Form', stage: 'opportunity', tags: ['fabricxai', 'enterprise'], score: 88, assigned_to: 'Kamrul Hasan', last_activity_at: new Date(Date.now() - 2 * 3600000).toISOString(), created_at: new Date(Date.now() - 6 * 3600000).toISOString(), division_interests: ['products'] },
+  { id: 'c8', name: 'James Park', email: 'james@researchlabs.io', company: 'MIT CSAIL', phone: undefined, source: 'Labs Form', stage: 'lead', tags: ['research'], score: 38, assigned_to: undefined, last_activity_at: new Date(Date.now() - 48 * 3600000).toISOString(), created_at: new Date(Date.now() - 72 * 3600000).toISOString(), division_interests: ['labs'] },
+]
+
+export const MOCK_CONTACT_ACTIVITY: ContactActivity[] = [
+  { id: 'a1', contact_id: 'c3', type: 'submission', division: 'studio', description: 'Submitted Rescue Ship form — Next.js production crash', linked_entity: 'Submission #s3', linked_href: '/admin/submissions', created_at: new Date(Date.now() - 24 * 3600000).toISOString(), actor: 'INTAKE' },
+  { id: 'a2', contact_id: 'c3', type: 'email', division: 'studio', description: 'Welcome email sent — "We got your request, looking into it now"', linked_entity: 'Email #e1', created_at: new Date(Date.now() - 23 * 3600000).toISOString(), actor: 'HERALD' },
+  { id: 'a3', contact_id: 'c3', type: 'pipeline', division: 'studio', description: 'Moved to In Progress — assigned to Kamrul Hasan', created_at: new Date(Date.now() - 20 * 3600000).toISOString(), actor: 'Kamrul Hasan' },
+  { id: 'a4', contact_id: 'c3', type: 'note', description: 'Identified root cause: Prisma client not initialized in serverless context', created_at: new Date(Date.now() - 4 * 3600000).toISOString(), actor: 'Kamrul Hasan' },
+]

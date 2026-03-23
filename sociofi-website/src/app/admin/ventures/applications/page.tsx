@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { MOCK_CONTACTS } from '@/lib/admin/mock-data';
+import { LEGACY_MOCK_CONTACTS as MOCK_CONTACTS } from '@/lib/admin/mock-data';
 
 /* ─────────────────────────────────────────
    Shared Mock Data (matches [id] page)
