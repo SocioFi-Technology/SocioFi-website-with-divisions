@@ -1,629 +1,470 @@
-import Link from 'next/link';
-import { MOCK_METRICS, MOCK_SUBMISSIONS, MOCK_TICKETS, MOCK_ACTIVITY, MOCK_TEAM } from '@/lib/admin/mock-data';
-import type { Metadata } from 'next';
+'use client'
 
-export const metadata: Metadata = {
-  title: 'Dashboard — SocioFi Admin',
-};
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useDashboardData } from '@/lib/admin/use-dashboard-data'
+import { useRealtime } from '@/lib/admin/use-realtime'
+import type { ActivityItem } from '@/lib/admin/use-dashboard-data'
 
-const STYLES = `
-  /* ── KPI Grid ── */
-  .dash-kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    margin-bottom: 24px;
-  }
-  @media (max-width: 1100px) { .dash-kpi-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 560px)  { .dash-kpi-grid { grid-template-columns: 1fr; } }
-
-  .dash-kpi-card {
-    background: #111128;
-    border: 1px solid rgba(89,163,146,0.08);
-    border-radius: 16px;
-    padding: 22px 24px 18px;
-    position: relative;
-    overflow: hidden;
-    transition: border-color 0.2s;
-  }
-  .dash-kpi-card:hover { border-color: rgba(89,163,146,0.16); }
-  .dash-kpi-card::after {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, #3A589E, #59A392);
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
-  .dash-kpi-card:hover::after { opacity: 1; }
-
-  .dash-kpi-label {
-    font-size: 10.5px; font-weight: 600;
-    color: #6B7B9E; text-transform: uppercase; letter-spacing: 0.1em;
-    font-family: 'JetBrains Mono', monospace;
-    margin-bottom: 10px;
-  }
-  .dash-kpi-value {
-    font-family: 'Manrope', sans-serif;
-    font-size: 28px; font-weight: 800;
-    color: #E2E8F0; letter-spacing: -0.03em;
-    line-height: 1;
-    margin-bottom: 10px;
-  }
-  .dash-kpi-value.urgent { color: #F87171; }
-
-  .dash-trend-chip {
-    display: inline-flex; align-items: center; gap: 4px;
-    padding: 2px 8px 2px 6px;
-    border-radius: 100px;
-    font-size: 11px; font-weight: 600;
-    font-family: 'JetBrains Mono', monospace;
-  }
-  .dash-trend-chip.up   { background: rgba(74,222,128,0.12); color: #4ADE80; }
-  .dash-trend-chip.down { background: rgba(248,113,113,0.12); color: #F87171; }
-  .dash-trend-chip.warn { background: rgba(232,145,111,0.15); color: #E8916F; }
-  .dash-trend-chip.neu  { background: rgba(107,123,158,0.12); color: #6B7B9E; }
-
-  /* ── Alert Banner ── */
-  .dash-alert-banner {
-    display: flex; align-items: center; gap: 12px;
-    padding: 12px 18px;
-    background: linear-gradient(90deg, rgba(239,68,68,0.12), rgba(232,145,111,0.08));
-    border: 1px solid rgba(239,68,68,0.2);
-    border-radius: 12px;
-    margin-bottom: 20px;
-    font-size: 13px;
-    color: #FCA5A5;
-    font-family: 'DM Sans', sans-serif;
-  }
-  .dash-alert-link {
-    margin-left: auto;
-    font-size: 12px; font-weight: 600;
-    color: #F87171;
-    text-decoration: none;
-    font-family: 'JetBrains Mono', monospace;
-    white-space: nowrap;
-    opacity: 0.8;
-    transition: opacity 0.15s;
-  }
-  .dash-alert-link:hover { opacity: 1; }
-
-  /* ── Mid Section 60/40 ── */
-  .dash-mid-grid {
-    display: grid;
-    grid-template-columns: 60fr 40fr;
-    gap: 20px;
-    margin-bottom: 24px;
-  }
-  @media (max-width: 900px) { .dash-mid-grid { grid-template-columns: 1fr; } }
-
-  .dash-panel {
-    background: #111128;
-    border: 1px solid rgba(89,163,146,0.08);
-    border-radius: 16px;
-    padding: 22px 24px;
-    overflow: hidden;
-  }
-  .dash-panel-title {
-    font-family: 'Manrope', sans-serif;
-    font-weight: 700; font-size: 14px;
-    color: #E2E8F0; margin-bottom: 20px;
-    letter-spacing: -0.015em;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .dash-panel-sub {
-    font-size: 11px; font-weight: 500;
-    color: #4A5578;
-    font-family: 'JetBrains Mono', monospace;
-    font-weight: 400;
-  }
-
-  /* ── Lead Pipeline Chart ── */
-  .dash-chart-wrap {
-    position: relative;
-  }
-  .dash-chart-svg {
-    width: 100%;
-    display: block;
-  }
-  .dash-chart-days {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 8px;
-    padding: 0 4px;
-  }
-  .dash-chart-day {
-    font-size: 10px;
-    color: #4A5578;
-    font-family: 'JetBrains Mono', monospace;
-    text-align: center;
-    flex: 1;
-  }
-
-  /* ── Activity Feed ── */
-  .dash-activity-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    max-height: 270px;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(89,163,146,0.1) transparent;
-  }
-  .dash-activity-list::-webkit-scrollbar { width: 3px; }
-  .dash-activity-list::-webkit-scrollbar-thumb { background: rgba(89,163,146,0.1); border-radius: 2px; }
-
-  .dash-activity-item {
-    display: flex; align-items: flex-start; gap: 10px;
-    padding: 10px 0;
-    border-bottom: 1px solid rgba(89,163,146,0.05);
-  }
-  .dash-activity-item:last-child { border-bottom: none; }
-
-  .dash-activity-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    flex-shrink: 0; margin-top: 5px;
-  }
-  .dot-status  { background: #59A392; }
-  .dot-assign  { background: #7B9FE8; }
-  .dot-ticket  { background: #F87171; }
-  .dot-contact { background: #E8B84D; }
-  .dot-convert { background: #4ADE80; }
-
-  .dash-actor-circle {
-    width: 26px; height: 26px; border-radius: 50%;
-    background: linear-gradient(135deg, #3A589E, #59A392);
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Manrope', sans-serif;
-    font-weight: 700; font-size: 9px;
-    color: white; flex-shrink: 0;
-  }
-
-  .dash-activity-text {
-    flex: 1; min-width: 0;
-  }
-  .dash-activity-action {
-    font-size: 12.5px; color: #94A3B8;
-    line-height: 1.5;
-  }
-  .dash-activity-action strong { color: #C8D4E8; font-weight: 600; }
-  .dash-activity-time {
-    font-size: 10.5px; color: #4A5578;
-    font-family: 'JetBrains Mono', monospace;
-    margin-top: 2px;
-  }
-
-  /* ── Bottom Tables ── */
-  .dash-bottom-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-  }
-  @media (max-width: 900px) { .dash-bottom-grid { grid-template-columns: 1fr; } }
-
-  .dash-table {
-    background: #111128;
-    border: 1px solid rgba(89,163,146,0.08);
-    border-radius: 16px;
-    overflow: hidden;
-  }
-  .dash-table-title {
-    font-family: 'Manrope', sans-serif;
-    font-weight: 700; font-size: 14px;
-    color: #E2E8F0;
-    letter-spacing: -0.015em;
-    padding: 18px 20px 14px;
-    border-bottom: 1px solid rgba(89,163,146,0.06);
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .dash-table-link {
-    font-size: 11px; font-weight: 500;
-    color: #6B7B9E;
-    text-decoration: none;
-    font-family: 'JetBrains Mono', monospace;
-    transition: color 0.15s;
-  }
-  .dash-table-link:hover { color: #59A392; }
-
-  .dash-table-row {
-    display: flex; align-items: center;
-    padding: 12px 20px 12px 0;
-    border-bottom: 1px solid rgba(89,163,146,0.04);
-    gap: 12px;
-    text-decoration: none;
-    transition: background 0.15s;
-    position: relative;
-    overflow: hidden;
-  }
-  a.dash-table-row { cursor: pointer; }
-  a.dash-table-row:hover { background: rgba(255,255,255,0.02); }
-  .dash-table-row:last-child { border-bottom: none; }
-
-  .dash-priority-bar {
-    width: 3px;
-    align-self: stretch;
-    border-radius: 0 2px 2px 0;
-    flex-shrink: 0;
-  }
-  .bar-urgent { background: #F87171; }
-  .bar-high   { background: #E8916F; }
-  .bar-normal { background: #3A589E; }
-  .bar-low    { background: #4A5578; }
-
-  .dash-row-main { flex: 1; min-width: 0; }
-  .dash-row-name {
-    color: #E2E8F0; font-weight: 500; font-size: 13px;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  }
-  .dash-row-sub {
-    color: #6B7B9E; font-size: 11.5px; margin-top: 1px;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  }
-
-  .dash-badge {
-    display: inline-flex; align-items: center;
-    padding: 3px 9px; border-radius: 100px;
-    font-size: 10.5px; font-weight: 600;
-    font-family: 'JetBrains Mono', monospace;
-    text-transform: uppercase; letter-spacing: 0.04em;
-    white-space: nowrap; flex-shrink: 0;
-  }
-  .badge-new        { background: rgba(58,88,158,0.2);    color: #7B9FE8; }
-  .badge-reviewed   { background: rgba(89,163,146,0.15);  color: #72C4B2; }
-  .badge-in_progress{ background: rgba(232,184,77,0.15);  color: #E8B84D; }
-  .badge-converted  { background: rgba(74,222,128,0.12);  color: #4ADE80; }
-  .badge-closed     { background: rgba(107,123,158,0.15); color: #6B7B9E; }
-  .badge-archived   { background: rgba(107,123,158,0.1);  color: #4A5578; }
-  .badge-open       { background: rgba(58,88,158,0.2);    color: #7B9FE8; }
-  .badge-acknowledged { background: rgba(232,184,77,0.15); color: #E8B84D; }
-  .badge-resolved   { background: rgba(74,222,128,0.12);  color: #4ADE80; }
-
-  .badge-urgent { background: rgba(239,68,68,0.15);  color: #F87171; }
-  .badge-high   { background: rgba(232,145,111,0.15); color: #E8916F; }
-  .badge-normal { background: rgba(58,88,158,0.15);  color: #7B9FE8; }
-  .badge-low    { background: rgba(107,123,158,0.1); color: #6B7B9E; }
-  .badge-p1     { background: rgba(239,68,68,0.15);  color: #F87171; }
-  .badge-p2     { background: rgba(232,145,111,0.15); color: #E8916F; }
-  .badge-p3     { background: rgba(58,88,158,0.15);  color: #7B9FE8; }
-  .badge-p4     { background: rgba(107,123,158,0.1); color: #6B7B9E; }
-
-  .dash-sla-pill {
-    display: inline-flex; align-items: center;
-    padding: 3px 9px; border-radius: 100px;
-    font-size: 10.5px; font-weight: 600;
-    font-family: 'JetBrains Mono', monospace;
-    white-space: nowrap; flex-shrink: 0;
-  }
-  .sla-overdue { background: rgba(239,68,68,0.15); color: #F87171; }
-  .sla-soon    { background: rgba(232,184,77,0.15); color: #E8B84D; }
-  .sla-ok      { background: rgba(74,222,128,0.12); color: #4ADE80; }
-  .sla-none    { background: rgba(107,123,158,0.1); color: #6B7B9E; }
-
-  .dash-time {
-    color: #4A5578; font-size: 11px;
-    font-family: 'JetBrains Mono', monospace;
-    flex-shrink: 0;
-  }
-`;
-
-function timeSince(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'just now';
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  return `${Math.floor(hrs / 24)}d ago`;
+// ── Helpers ──────────────────────────────────────────────────
+function relativeTime(iso: string): string {
+  const diff = (Date.now() - new Date(iso).getTime()) / 1000
+  if (diff < 60) return 'just now'
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`
+  return `${Math.floor(diff / 86400)}d ago`
 }
 
-function slaStatus(deadline?: string): { label: string; cls: string } {
-  if (!deadline) return { label: 'No SLA', cls: 'sla-none' };
-  const diff = new Date(deadline).getTime() - Date.now();
-  if (diff < 0) return { label: 'Overdue', cls: 'sla-overdue' };
-  const mins = Math.floor(diff / 60000);
-  if (mins < 60) return { label: `${mins}m left`, cls: 'sla-soon' };
-  const hrs = Math.floor(mins / 60);
-  return { label: `${hrs}h left`, cls: 'sla-ok' };
+function Trend({ delta }: { delta: number }) {
+  if (delta > 0) return <span style={{ color: '#4ade80', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '2px' }}>↑ {delta}</span>
+  if (delta < 0) return <span style={{ color: '#f87171', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '2px' }}>↓ {Math.abs(delta)}</span>
+  return <span style={{ color: '#64748B', fontSize: '0.75rem' }}>→</span>
 }
 
-function actorInitials(actorId: string): string {
-  const member = MOCK_TEAM.find((t) => t.id === actorId);
-  return member?.initials ?? actorId.slice(0, 2).toUpperCase();
+// ── KPI Card ──────────────────────────────────────────────────
+function KPICard({ label, value, delta, href, amber, pulse }: {
+  label: string; value: number; delta?: number; href: string;
+  amber?: boolean; pulse?: boolean;
+}) {
+  const router = useRouter()
+  return (
+    <div
+      onClick={() => router.push(href)}
+      style={{
+        background: '#12162A',
+        border: `1px solid ${amber ? 'rgba(232,184,77,0.4)' : 'rgba(255,255,255,0.06)'}`,
+        borderRadius: '14px',
+        padding: '20px',
+        cursor: 'pointer',
+        minWidth: '160px',
+        flexShrink: 0,
+        transition: 'all 0.2s',
+        boxShadow: amber ? '0 0 0 1px rgba(232,184,77,0.15)' : 'none',
+        animation: pulse ? 'kpi-pulse 0.5s ease' : 'none',
+      }}
+      onMouseEnter={e => { e.currentTarget.style.borderColor = amber ? 'rgba(232,184,77,0.6)' : 'rgba(89,163,146,0.3)'; e.currentTarget.style.transform = 'translateY(-2px)' }}
+      onMouseLeave={e => { e.currentTarget.style.borderColor = amber ? 'rgba(232,184,77,0.4)' : 'rgba(255,255,255,0.06)'; e.currentTarget.style.transform = 'translateY(0)' }}
+    >
+      <div style={{ fontSize: '2rem', fontWeight: 800, color: '#E2E8F0', lineHeight: 1, fontFamily: "'Syne', sans-serif", letterSpacing: '-0.03em' }}>
+        {value.toLocaleString()}
+      </div>
+      <div style={{ color: '#64748B', fontSize: '0.68rem', fontFamily: "'Fira Code', monospace", textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '6px', marginBottom: '8px' }}>
+        {label}
+      </div>
+      {delta !== undefined && <Trend delta={delta} />}
+    </div>
+  )
 }
 
-function actionDotCls(action: string): string {
-  if (action.includes('status') || action.includes('assign')) return 'dot-status';
-  if (action.includes('ticket')) return 'dot-ticket';
-  if (action.includes('lifecycle')) return 'dot-contact';
-  if (action.includes('convert')) return 'dot-convert';
-  return 'dot-assign';
-}
-
-function formatAction(action: string, details?: Record<string, unknown>): string {
-  if (action === 'submission.status_changed') {
-    return `Submission moved from <strong>${details?.from}</strong> → <strong>${details?.to}</strong>`;
-  }
-  if (action === 'submission.assigned') {
-    const tm = MOCK_TEAM.find((t) => t.id === (details?.assigned_to as string));
-    return `Submission assigned to <strong>${tm?.name ?? details?.assigned_to}</strong>`;
-  }
-  if (action === 'ticket.acknowledged') {
-    return `Ticket <strong>${details?.priority?.toString().toUpperCase()}</strong> acknowledged`;
-  }
-  if (action === 'contact.lifecycle_changed') {
-    return `Contact stage: <strong>${details?.from}</strong> → <strong>${details?.to}</strong>`;
-  }
-  return action.replace('.', ' ');
-}
-
-// 7-day bar chart data (Mon–Sun, representing mock lead pipeline)
-const CHART_DATA = [3, 7, 5, 9, 6, 12, 8];
-const CHART_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-const CHART_MAX = Math.max(...CHART_DATA);
-const CHART_H = 90;
-const CHART_W = 100; // viewBox units, per bar slot
-
-function LeadPipelineChart() {
-  const totalW = CHART_DATA.length * CHART_W;
-  const BAR_W = 40;
-  const GAP = CHART_W;
+// ── Agent Card ──────────────────────────────────────────────────
+function AgentCard({ agent, pulse }: {
+  agent: { id: string; name: string; role: string; status: string; lastRunMinutes: number | null; tasksToday: number; color: string };
+  pulse?: boolean
+}) {
+  const router = useRouter()
+  const statusColor = agent.status === 'active' ? '#4ade80' : agent.status === 'delayed' ? '#E8B84D' : agent.status === 'error' ? '#EF4444' : '#64748B'
+  const lastRun = agent.lastRunMinutes === null ? 'No runs today' : agent.lastRunMinutes < 60 ? `${agent.lastRunMinutes}m ago` : `${Math.floor(agent.lastRunMinutes / 60)}h ago`
 
   return (
-    <div className="dash-chart-wrap">
-      <svg
-        className="dash-chart-svg"
-        viewBox={`0 0 ${totalW} ${CHART_H + 10}`}
-        xmlns="http://www.w3.org/2000/svg"
-        aria-label="Lead pipeline — past 7 days"
-        role="img"
-      >
-        <defs>
-          <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#4A6CB8" stopOpacity="0.9" />
-            <stop offset="100%" stopColor="#59A392" stopOpacity="0.7" />
-          </linearGradient>
-          <linearGradient id="barGradHigh" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#3A589E" />
-            <stop offset="100%" stopColor="#59A392" />
-          </linearGradient>
-        </defs>
-
-        {/* Grid lines */}
-        {[0, 0.33, 0.66, 1].map((frac, i) => (
-          <line
-            key={i}
-            x1={0}
-            y1={CHART_H - CHART_H * frac}
-            x2={totalW}
-            y2={CHART_H - CHART_H * frac}
-            stroke="rgba(89,163,146,0.06)"
-            strokeWidth="1"
-          />
-        ))}
-
-        {CHART_DATA.map((val, i) => {
-          const barH = (val / CHART_MAX) * CHART_H;
-          const x = i * GAP + (GAP - BAR_W) / 2;
-          const y = CHART_H - barH;
-          const isMax = val === CHART_MAX;
-          return (
-            <g key={i}>
-              <rect
-                x={x}
-                y={y}
-                width={BAR_W}
-                height={barH}
-                rx={5}
-                fill={isMax ? 'url(#barGradHigh)' : 'url(#barGrad)'}
-                opacity={isMax ? 1 : 0.75}
-              />
-              <text
-                x={x + BAR_W / 2}
-                y={y - 4}
-                textAnchor="middle"
-                fontSize="11"
-                fill={isMax ? '#72C4B2' : '#4A5578'}
-                fontFamily="JetBrains Mono, monospace"
-                fontWeight={isMax ? '600' : '400'}
-              >
-                {val}
-              </text>
-            </g>
-          );
-        })}
-      </svg>
-      <div className="dash-chart-days">
-        {CHART_DAYS.map((d) => (
-          <div key={d} className="dash-chart-day">{d}</div>
-        ))}
+    <div
+      onClick={() => router.push('/admin/agents')}
+      style={{
+        background: 'rgba(255,255,255,0.02)',
+        border: '1px solid rgba(255,255,255,0.05)',
+        borderRadius: '10px',
+        padding: '12px',
+        cursor: 'pointer',
+        transition: 'all 0.15s',
+        animation: pulse ? 'kpi-pulse 0.5s ease' : 'none',
+      }}
+      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)' }}
+      onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)' }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+        <span style={{ color: agent.color, fontSize: '0.78rem', fontWeight: 700, fontFamily: "'Fira Code', monospace" }}>{agent.name}</span>
+        <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: statusColor, boxShadow: `0 0 6px ${statusColor}`, display: 'inline-block' }} />
+      </div>
+      <div style={{ color: '#64748B', fontSize: '0.68rem', marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{agent.role}</div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ color: '#475569', fontSize: '0.64rem', fontFamily: "'Fira Code', monospace" }}>{lastRun}</span>
+        {agent.tasksToday > 0 && <span style={{ color: '#59A392', fontSize: '0.64rem', fontFamily: "'Fira Code', monospace" }}>{agent.tasksToday} tasks</span>}
       </div>
     </div>
-  );
+  )
 }
 
-export default function AdminDashboard() {
-  const m = MOCK_METRICS;
-
-  const urgentCount = MOCK_SUBMISSIONS.filter(
-    (s) => s.priority === 'urgent' || (s.priority === 'high' && s.status === 'new'),
-  ).length;
-
-  const p1Tickets = MOCK_TICKETS.filter((t) => t.priority === 'p1' && t.status !== 'resolved' && t.status !== 'closed');
-  const hasAlerts = urgentCount > 0 || p1Tickets.length > 0;
-
-  const needsAttention = MOCK_SUBMISSIONS.filter(
-    (s) => s.status === 'new' || s.priority === 'urgent' || s.priority === 'high',
-  ).slice(0, 6);
-
-  const openTickets = MOCK_TICKETS.filter(
-    (t) => t.status !== 'resolved' && t.status !== 'closed',
-  );
-
-  const recentActivity = MOCK_ACTIVITY.slice(0, 8);
+// ── Approval Row ──────────────────────────────────────────────
+function ApprovalRow({ item, onApprove }: {
+  item: { id: string; agent_name: string; action_type: string; subject: string; urgency: string; confidence: number; created_at: string };
+  onApprove: (id: string) => void
+}) {
+  const agentColors: Record<string, string> = {
+    HERALD: '#5BB5E0', SCRIBE: '#7B6FE8', BROKER: '#E8B84D', COMPASS: '#4DBFA8', INTAKE: '#72C4B2',
+  }
+  const urgencyColor = item.urgency === 'high' ? '#EF4444' : item.urgency === 'medium' ? '#E8B84D' : '#64748B'
 
   return (
-    <>
-      <style dangerouslySetInnerHTML={{ __html: STYLES }} />
-
-      {/* ── Alert Banner ── */}
-      {hasAlerts && (
-        <div className="dash-alert-banner" role="alert">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F87171" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ flexShrink: 0 }}>
-            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-          </svg>
-          <span>
-            {urgentCount > 0 && <><strong style={{ color: '#FCA5A5' }}>{urgentCount} urgent submission{urgentCount !== 1 ? 's' : ''}</strong> need immediate review. </>}
-            {p1Tickets.length > 0 && <><strong style={{ color: '#FCA5A5' }}>{p1Tickets.length} P1 ticket{p1Tickets.length !== 1 ? 's' : ''}</strong> active.</>}
-          </span>
-          <Link href="/admin/services/tickets" className="dash-alert-link">
-            View Tickets →
-          </Link>
-        </div>
-      )}
-
-      {/* ── KPI Row ── */}
-      <div className="dash-kpi-grid">
-        <div className="dash-kpi-card">
-          <div className="dash-kpi-label">New Leads (7d)</div>
-          <div className="dash-kpi-value">{m.new_leads_7d}</div>
-          <span className="dash-trend-chip up">
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-              <path d="M5 8V2M2 5l3-3 3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            +{m.new_leads_trend}% vs prior week
-          </span>
-        </div>
-
-        <div className="dash-kpi-card">
-          <div className="dash-kpi-label">Pending Review</div>
-          <div className={`dash-kpi-value${m.pending_review > 5 ? ' urgent' : ''}`}>
-            {m.pending_review}
-          </div>
-          {m.pending_review > 5 ? (
-            <span className="dash-trend-chip warn">Needs attention</span>
-          ) : (
-            <span className="dash-trend-chip neu">In queue</span>
-          )}
-        </div>
-
-        <div className="dash-kpi-card">
-          <div className="dash-kpi-label">Active Projects</div>
-          <div className="dash-kpi-value">{m.active_projects}</div>
-          <span className="dash-trend-chip neu">Studio + Agents</span>
-        </div>
-
-        <div className="dash-kpi-card">
-          <div className="dash-kpi-label">Pipeline Value</div>
-          <div className="dash-kpi-value">${Math.round(m.pipeline_value / 1000)}K</div>
-          <span className="dash-trend-chip up">
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-              <path d="M5 8V2M2 5l3-3 3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            +{m.revenue_trend}% MTD
-          </span>
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: '12px',
+      padding: '12px 0',
+      borderBottom: '1px solid rgba(255,255,255,0.04)',
+    }}>
+      <span style={{
+        background: `${agentColors[item.agent_name] ?? '#59A392'}20`,
+        color: agentColors[item.agent_name] ?? '#59A392',
+        fontSize: '0.62rem', fontWeight: 700, padding: '3px 7px',
+        borderRadius: '4px', fontFamily: "'Fira Code', monospace",
+        flexShrink: 0, letterSpacing: '0.06em',
+      }}>{item.agent_name}</span>
+      <div style={{ flex: 1, overflow: 'hidden' }}>
+        <div style={{ color: '#E2E8F0', fontSize: '0.8rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.subject}</div>
+        <div style={{ display: 'flex', gap: '10px', marginTop: '3px', alignItems: 'center' }}>
+          <span style={{ color: urgencyColor, fontSize: '0.65rem', textTransform: 'uppercase', fontFamily: "'Fira Code', monospace" }}>{item.urgency}</span>
+          <span style={{ color: '#64748B', fontSize: '0.65rem' }}>{item.confidence}% confidence</span>
+          <span style={{ color: '#475569', fontSize: '0.65rem' }}>{relativeTime(item.created_at)}</span>
         </div>
       </div>
+      <button
+        onClick={() => onApprove(item.id)}
+        style={{
+          background: 'rgba(89,163,146,0.15)',
+          border: '1px solid rgba(89,163,146,0.3)',
+          borderRadius: '6px', color: '#59A392',
+          fontSize: '0.72rem', fontWeight: 600,
+          padding: '6px 12px', cursor: 'pointer',
+          transition: 'all 0.15s', flexShrink: 0,
+          fontFamily: "'Outfit', sans-serif",
+        }}
+        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(89,163,146,0.25)' }}
+        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(89,163,146,0.15)' }}
+      >
+        Approve
+      </button>
+    </div>
+  )
+}
 
-      {/* ── Mid Section: Chart + Activity ── */}
-      <div className="dash-mid-grid">
-        <div className="dash-panel">
-          <div className="dash-panel-title">
-            Lead Pipeline
-            <span className="dash-panel-sub">past 7 days</span>
-          </div>
-          <LeadPipelineChart />
+// ── Attention Row ──────────────────────────────────────────────
+function AttentionRow({ item }: { item: { id: string; type: string; priority: string; description: string; time: string; href: string } }) {
+  const router = useRouter()
+  const isRed = item.priority === 'red'
+  const typeLabels: Record<string, string> = { ticket: '[TKT]', submission: '[SUB]', followup: '[FUP]', ventures: '[VEN]', sla: '[SLA]' }
+
+  return (
+    <div
+      onClick={() => router.push(item.href)}
+      style={{
+        display: 'flex', alignItems: 'flex-start', gap: '10px',
+        padding: '12px', borderRadius: '8px',
+        background: isRed ? 'rgba(239,68,68,0.06)' : 'rgba(232,184,77,0.06)',
+        border: `1px solid ${isRed ? 'rgba(239,68,68,0.2)' : 'rgba(232,184,77,0.2)'}`,
+        marginBottom: '8px', cursor: 'pointer',
+        transition: 'all 0.15s',
+      }}
+      onMouseEnter={e => { e.currentTarget.style.background = isRed ? 'rgba(239,68,68,0.1)' : 'rgba(232,184,77,0.1)' }}
+      onMouseLeave={e => { e.currentTarget.style.background = isRed ? 'rgba(239,68,68,0.06)' : 'rgba(232,184,77,0.06)' }}
+    >
+      <span style={{ fontSize: '0.62rem', fontFamily: "'Fira Code', monospace", color: isRed ? '#f87171' : '#E8B84D', flexShrink: 0, marginTop: '2px', fontWeight: 700 }}>{typeLabels[item.type] ?? '[•]'}</span>
+      <div style={{ flex: 1, overflow: 'hidden' }}>
+        <div style={{ color: '#E2E8F0', fontSize: '0.78rem', lineHeight: 1.4 }}>{item.description}</div>
+        <div style={{ color: isRed ? '#f87171' : '#E8B84D', fontSize: '0.68rem', marginTop: '4px', fontFamily: "'Fira Code', monospace" }}>{item.time}</div>
+      </div>
+    </div>
+  )
+}
+
+// ── Activity Row ──────────────────────────────────────────────
+function ActivityRow({ item, isNew }: { item: ActivityItem; isNew: boolean }) {
+  const agentColors: Record<string, string> = {
+    INTAKE: '#72C4B2', SCRIBE: '#7B6FE8', HERALD: '#5BB5E0', WARDEN: '#E8916F',
+    COMPASS: '#4DBFA8', CHRONICLE: '#6BA3E8', SENTINEL: '#E8B84D', BROKER: '#A78BFA',
+    NEXUS: '#59A392', BEACON: '#EF4444', FORGE: '#7B6FE8', ATLAS: '#72C4B2', MIRROR: '#E8916F',
+  }
+
+  const actorColor = item.actor_type === 'agent' ? (agentColors[item.actor] ?? '#59A392') : '#E2E8F0'
+  const avatarBg = item.actor_type === 'agent'
+    ? `${agentColors[item.actor] ?? '#59A392'}25`
+    : 'linear-gradient(135deg, #3A589E, #59A392)'
+  const initials = item.actor_type === 'agent'
+    ? item.actor.slice(0, 2)
+    : item.actor.split(' ').map((n: string) => n[0]).join('').slice(0, 2)
+
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'flex-start', gap: '10px',
+      padding: '10px 0',
+      borderBottom: '1px solid rgba(255,255,255,0.03)',
+      animation: isNew ? 'kpi-pulse 0.5s ease' : 'none',
+    }}>
+      <div style={{
+        width: '28px', height: '28px', borderRadius: '50%', flexShrink: 0,
+        background: avatarBg,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontSize: item.actor_type === 'agent' ? '0.6rem' : '0.7rem',
+        color: item.actor_type === 'agent' ? (agentColors[item.actor] ?? '#59A392') : 'white',
+        fontWeight: 700, fontFamily: "'Fira Code', monospace",
+        border: `1px solid ${item.actor_type === 'agent' ? `${agentColors[item.actor] ?? '#59A392'}40` : 'transparent'}`,
+      }}>
+        {initials}
+      </div>
+      <div style={{ flex: 1, overflow: 'hidden' }}>
+        <div style={{ color: '#94A3B8', fontSize: '0.78rem', lineHeight: 1.4 }}>
+          <span style={{ color: actorColor, fontWeight: 600 }}>
+            {item.actor}
+          </span>
+          {' '}{item.action}
         </div>
+        <div style={{ color: '#475569', fontSize: '0.65rem', marginTop: '3px', fontFamily: "'Fira Code', monospace" }}>{relativeTime(item.created_at)}</div>
+      </div>
+    </div>
+  )
+}
 
-        <div className="dash-panel">
-          <div className="dash-panel-title">
-            Activity Feed
-            <span className="dash-panel-sub">{recentActivity.length} events</span>
+// ── Pipeline Snapshot ──────────────────────────────────────────
+function PipelineSnapshot({ pipeline }: {
+  pipeline: { division: string; color: string; total: number; stages: { label: string; count: number; color: string }[] }[]
+}) {
+  const router = useRouter()
+
+  return (
+    <div style={{
+      background: '#12162A',
+      border: '1px solid rgba(255,255,255,0.06)',
+      borderRadius: '14px',
+      padding: '24px',
+    }}>
+      <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <div style={{ color: '#59A392', fontSize: '0.65rem', fontFamily: "'Fira Code', monospace", textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '4px' }}>— PIPELINE</div>
+          <div style={{ color: '#E2E8F0', fontSize: '1.1rem', fontWeight: 700, fontFamily: "'Syne', sans-serif" }}>Division Pipeline Snapshot</div>
+        </div>
+        <div style={{ color: '#64748B', fontSize: '0.75rem' }}>Click any row to view division</div>
+      </div>
+
+      {pipeline.map(row => (
+        <div
+          key={row.division}
+          onClick={() => router.push(`/admin/divisions/${row.division.toLowerCase()}`)}
+          style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px', cursor: 'pointer' }}
+          onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.opacity = '0.8' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.opacity = '1' }}
+        >
+          <div style={{ width: '80px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ color: row.color, fontSize: '0.75rem', fontWeight: 600 }}>{row.division}</span>
+            <span style={{ color: '#64748B', fontSize: '0.7rem', marginLeft: '6px' }}>{row.total}</span>
           </div>
-          <div className="dash-activity-list">
-            {recentActivity.map((log) => (
-              <div key={log.id} className="dash-activity-item">
-                <span
-                  className={`dash-activity-dot ${actionDotCls(log.action)}`}
-                  aria-hidden="true"
-                />
-                <div className="dash-actor-circle" aria-hidden="true">
-                  {actorInitials(log.actor_id)}
-                </div>
-                <div className="dash-activity-text">
-                  <div
-                    className="dash-activity-action"
-                    dangerouslySetInnerHTML={{ __html: formatAction(log.action, log.details) }}
-                  />
-                  <div className="dash-activity-time">{timeSince(log.created_at)}</div>
-                </div>
+          <div style={{ flex: 1, height: '28px', display: 'flex', borderRadius: '4px', overflow: 'hidden', gap: '1px' }}>
+            {row.stages.map(stage => (
+              <div
+                key={stage.label}
+                title={`${stage.label}: ${stage.count}`}
+                style={{
+                  flex: stage.count,
+                  background: stage.color,
+                  minWidth: stage.count > 0 ? '4px' : '0',
+                  transition: 'flex 0.3s',
+                }}
+              />
+            ))}
+          </div>
+          <div style={{ display: 'flex', gap: '6px', flexShrink: 0, flexWrap: 'wrap' }}>
+            {row.stages.map(stage => (
+              <div key={stage.label} style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '1px', background: stage.color, display: 'inline-block' }} />
+                <span style={{ color: '#475569', fontSize: '0.62rem' }}>{stage.label} {stage.count}</span>
               </div>
             ))}
           </div>
         </div>
+      ))}
+    </div>
+  )
+}
+
+// ── Main Dashboard ──────────────────────────────────────────────
+export default function AdminDashboard() {
+  const { data, addActivity, updateKPI } = useDashboardData()
+  const [newItemIds, setNewItemIds] = useState<Set<string>>(new Set())
+  const [approvals, setApprovals] = useState(data.approvals)
+  const [approvalCount, setApprovalCount] = useState(data.approvals.length)
+
+  // Sync approvals when data loads
+  useEffect(() => {
+    setApprovals(data.approvals)
+    setApprovalCount(data.approvals.length)
+  }, [data.approvals])
+
+  const markNew = (id: string) => {
+    setNewItemIds(s => new Set([...s, id]))
+    setTimeout(() => setNewItemIds(s => { const n = new Set(s); n.delete(id); return n }), 2000)
+  }
+
+  // Realtime subscriptions
+  useRealtime([
+    {
+      table: 'submissions', event: 'INSERT',
+      callback: () => {
+        updateKPI({ newLeads: (data.kpi.newLeads ?? 0) + 1 })
+        markNew('kpi-leads')
+      },
+    },
+    {
+      table: 'approval_queue', event: 'INSERT',
+      callback: (payload) => {
+        const item = payload.new as typeof data.approvals[0]
+        setApprovals(prev => [item, ...prev.slice(0, 4)])
+        setApprovalCount(c => c + 1)
+        markNew('kpi-approval')
+      },
+    },
+    {
+      table: 'activity_log', event: 'INSERT',
+      callback: (payload) => {
+        const item = payload.new as ActivityItem
+        addActivity(item)
+        markNew(item.id)
+      },
+    },
+  ])
+
+  const handleApprove = (id: string) => {
+    setApprovals(prev => prev.filter(a => a.id !== id))
+    setApprovalCount(c => Math.max(0, c - 1))
+  }
+
+  const hasAgentError = data.agents.some(a => a.status === 'error')
+
+  if (data.loading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh', color: '#64748B' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ width: '40px', height: '40px', border: '3px solid rgba(89,163,146,0.2)', borderTopColor: '#59A392', borderRadius: '50%', margin: '0 auto 16px', animation: 'spin 1s linear infinite' }} />
+          <div style={{ fontSize: '0.85rem' }}>Loading dashboard data…</div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <>
+      <style>{`
+        @keyframes kpi-pulse {
+          0% { box-shadow: 0 0 0 0 rgba(89,163,146,0.4); }
+          70% { box-shadow: 0 0 0 10px rgba(89,163,146,0); }
+          100% { box-shadow: 0 0 0 0 rgba(89,163,146,0); }
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+      `}</style>
+
+      {/* Section label + title */}
+      <div style={{ marginBottom: '24px' }}>
+        <div style={{ color: '#59A392', fontSize: '0.65rem', fontFamily: "'Fira Code', monospace", textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '4px' }}>— OVERVIEW</div>
+        <h1 style={{ color: '#E2E8F0', fontSize: '1.4rem', fontWeight: 700, fontFamily: "'Syne', sans-serif", margin: 0, letterSpacing: '-0.02em' }}>Dashboard</h1>
+        <p style={{ color: '#64748B', fontSize: '0.82rem', marginTop: '4px', margin: '4px 0 0 0' }}>
+          {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+        </p>
       </div>
 
-      {/* ── Bottom Tables ── */}
-      <div className="dash-bottom-grid">
-        {/* Needs Attention */}
-        <div className="dash-table">
-          <div className="dash-table-title">
-            Needs Attention
-            <Link href="/admin/submissions" className="dash-table-link">View all →</Link>
-          </div>
-          {needsAttention.map((sub) => (
-            <Link
-              key={sub.id}
-              href={`/admin/submissions?id=${sub.id}`}
-              className="dash-table-row"
-            >
-              <span className={`dash-priority-bar bar-${sub.priority}`} aria-hidden="true" />
-              <div className="dash-row-main">
-                <div className="dash-row-name">
-                  {sub.contact?.name ?? (sub.data.name as string) ?? '—'}
-                </div>
-                <div className="dash-row-sub">
-                  {sub.division} · {sub.type}
-                </div>
+      {/* KPI Cards — scrollable row */}
+      <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '4px', marginBottom: '28px', scrollbarWidth: 'none' }}>
+        <KPICard label="New Leads (7d)" value={data.kpi.newLeads} delta={data.kpi.newLeadsDelta} href="/admin/submissions" pulse={newItemIds.has('kpi-leads')} />
+        <KPICard label="Pending Review" value={data.kpi.pendingReview} href="/admin/agents/queue" amber={data.kpi.pendingReview > 5} pulse={newItemIds.has('kpi-approval')} />
+        <KPICard label="Active Projects" value={data.kpi.activeProjects} delta={data.kpi.activeProjectsDelta} href="/admin/divisions/studio" />
+        <KPICard label="Active Agents" value={data.kpi.activeAgents} href="/admin/agents" />
+        <KPICard label="Open Tickets" value={data.kpi.openTickets} delta={data.kpi.openTicketsDelta} href="/admin/tickets" amber={data.kpi.openTickets > 10} />
+        <KPICard label="Services Clients" value={data.kpi.servicesClients} href="/admin/divisions/services" />
+        <KPICard label="Revenue (MTD)" value={0} href="/admin/analytics" />
+        <KPICard label="Ventures Apps" value={data.kpi.venturesApps} href="/admin/submissions" />
+      </div>
+
+      {/* Two-column layout */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px', alignItems: 'start' }}>
+
+        {/* Left column */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+
+          {/* NEXUS Agent Status */}
+          <div style={{
+            background: '#12162A',
+            border: `1px solid ${hasAgentError ? 'rgba(251,191,36,0.3)' : 'rgba(255,255,255,0.06)'}`,
+            borderRadius: '14px', padding: '20px',
+            boxShadow: hasAgentError ? '0 0 20px rgba(251,191,36,0.08)' : 'none',
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <div>
+                <div style={{ color: '#59A392', fontSize: '0.65rem', fontFamily: "'Fira Code', monospace", textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '4px' }}>— AGENTS</div>
+                <div style={{ color: '#E2E8F0', fontSize: '0.95rem', fontWeight: 700, fontFamily: "'Syne', sans-serif" }}>NEXUS Agent Status</div>
               </div>
-              <span className={`dash-badge badge-${sub.status}`}>
-                {sub.status.replace('_', ' ')}
-              </span>
-              <span className={`dash-badge badge-${sub.priority}`}>{sub.priority}</span>
-              <span className="dash-time">{timeSince(sub.created_at)}</span>
-            </Link>
-          ))}
+              {hasAgentError && (
+                <span style={{ background: 'rgba(251,191,36,0.15)', border: '1px solid rgba(251,191,36,0.3)', color: '#E8B84D', fontSize: '0.68rem', fontFamily: "'Fira Code', monospace", padding: '4px 10px', borderRadius: '6px' }}>
+                  Attention needed
+                </span>
+              )}
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+              {data.agents.map(agent => (
+                <AgentCard key={agent.id} agent={agent} pulse={newItemIds.has(agent.id)} />
+              ))}
+            </div>
+          </div>
+
+          {/* Approval Queue Preview */}
+          <div style={{ background: '#12162A', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '14px', padding: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+              <div>
+                <div style={{ color: '#59A392', fontSize: '0.65rem', fontFamily: "'Fira Code', monospace", textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '4px' }}>— APPROVALS</div>
+                <div style={{ color: '#E2E8F0', fontSize: '0.95rem', fontWeight: 700, fontFamily: "'Syne', sans-serif" }}>Approval Queue</div>
+              </div>
+              <a href="/admin/agents/queue" style={{ color: '#59A392', fontSize: '0.78rem', textDecoration: 'none' }}>
+                View all ({approvalCount} pending) →
+              </a>
+            </div>
+            {approvals.slice(0, 5).map(item => (
+              <ApprovalRow key={item.id} item={item} onApprove={handleApprove} />
+            ))}
+            {approvals.length === 0 && (
+              <div style={{ padding: '20px 0', textAlign: 'center', color: '#64748B', fontSize: '0.82rem' }}>All caught up — no pending approvals</div>
+            )}
+          </div>
         </div>
 
-        {/* Open Tickets */}
-        <div className="dash-table">
-          <div className="dash-table-title">
-            Open Tickets
-            <Link href="/admin/services/tickets" className="dash-table-link">View all →</Link>
+        {/* Right column */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+
+          {/* Needs Attention */}
+          <div style={{ background: '#12162A', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '14px', padding: '20px' }}>
+            <div style={{ marginBottom: '16px' }}>
+              <div style={{ color: '#59A392', fontSize: '0.65rem', fontFamily: "'Fira Code', monospace", textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '4px' }}>— PRIORITY</div>
+              <div style={{ color: '#E2E8F0', fontSize: '0.95rem', fontWeight: 700, fontFamily: "'Syne', sans-serif" }}>Needs Attention</div>
+            </div>
+            {data.attention.map(item => (
+              <AttentionRow key={item.id} item={item} />
+            ))}
           </div>
-          {openTickets.map((ticket) => {
-            const sla = slaStatus(ticket.sla_response_deadline);
-            return (
-              <div key={ticket.id} className="dash-table-row" style={{ paddingLeft: 20 }}>
-                <div className="dash-row-main">
-                  <div className="dash-row-name">{ticket.title}</div>
-                  {ticket.plan && (
-                    <div className="dash-row-sub">Plan: {ticket.plan} · {ticket.type}</div>
-                  )}
+
+          {/* Activity Feed */}
+          <div style={{ background: '#12162A', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '14px', padding: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+              <div>
+                <div style={{ color: '#59A392', fontSize: '0.65rem', fontFamily: "'Fira Code', monospace", textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '4px' }}>— LIVE</div>
+                <div style={{ color: '#E2E8F0', fontSize: '0.95rem', fontWeight: 700, fontFamily: "'Syne', sans-serif", display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  Recent Activity
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#4ade80', display: 'inline-block', boxShadow: '0 0 6px #4ade80' }} />
                 </div>
-                <span className={`dash-sla-pill ${sla.cls}`}>{sla.label}</span>
-                <span className={`dash-badge badge-${ticket.status}`}>
-                  {ticket.status.replace('_', ' ')}
-                </span>
-                <span className={`dash-badge badge-${ticket.priority}`}>
-                  {ticket.priority.toUpperCase()}
-                </span>
               </div>
-            );
-          })}
+              <a href="/admin/activity" style={{ color: '#59A392', fontSize: '0.78rem', textDecoration: 'none' }}>View all →</a>
+            </div>
+            <div style={{ maxHeight: '380px', overflowY: 'auto', paddingRight: '4px' }}>
+              {data.activity.map(item => (
+                <ActivityRow key={item.id} item={item} isNew={newItemIds.has(item.id)} />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Pipeline Snapshot */}
+      <PipelineSnapshot pipeline={data.pipeline} />
     </>
-  );
+  )
 }
