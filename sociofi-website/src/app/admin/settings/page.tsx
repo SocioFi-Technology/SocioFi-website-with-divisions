@@ -1,1018 +1,1171 @@
-'use client';
+'use client'
 
-import React, { useState } from 'react';
+import React, { useState } from 'react'
 
+/* ─────────────────────────────────────────────────────────── */
+/* Types                                                       */
+/* ─────────────────────────────────────────────────────────── */
+
+type SettingsTab = 'notifications' | 'integrations' | 'nexus' | 'data' | 'billing'
+type ApprovalMode = 'manual' | 'semi-auto' | 'auto'
+
+interface AgentOverride {
+  name: string
+  color: string
+  enabled: boolean
+  schedule: string
+  approval: 'inherit' | 'manual' | 'semi-auto' | 'auto'
+  lastModified: string
+}
+
+interface DeletionRequest {
+  email: string
+  received: string
+  status: 'pending' | 'processed'
+}
+
+interface Invoice {
+  id: string
+  client: string
+  amount: number
+  date: string
+  status: 'paid' | 'pending' | 'overdue'
+}
+
+/* ─────────────────────────────────────────────────────────── */
+/* Constants & Mock Data                                       */
+/* ─────────────────────────────────────────────────────────── */
+
+const DIVISION_LIST = ['studio', 'services', 'labs', 'products', 'academy', 'ventures', 'cloud']
+
+const DIVISION_COLORS: Record<string, string> = {
+  studio: '#72C4B2', services: '#4DBFA8', labs: '#7B6FE8',
+  products: '#E8916F', academy: '#E8B84D', ventures: '#6BA3E8', cloud: '#5BB5E0',
+}
+
+const AGENT_NAMES_16 = [
+  'NEXUS', 'INTAKE', 'HERALD', 'SCRIBE', 'OVERSEER', 'PATCHER',
+  'ARCHITECT', 'FORGE', 'SENTINEL', 'ATLAS', 'CHRONICLE', 'MENTOR',
+  'SCOUT', 'SURVEYOR', 'RELAY', 'AUDITOR',
+]
+
+const AGENT_COLORS: Record<string, string> = {
+  NEXUS: '#E8B84D', INTAKE: '#72C4B2', HERALD: '#6BA3E8', SCRIBE: '#A78BFA',
+  OVERSEER: '#4DBFA8', PATCHER: '#E8916F', ARCHITECT: '#5BB5E0', FORGE: '#EF4444',
+  SENTINEL: '#59A392', ATLAS: '#7B6FE8', CHRONICLE: '#4ade80', MENTOR: '#E8B84D',
+  SCOUT: '#72C4B2', SURVEYOR: '#6BA3E8', RELAY: '#E8916F', AUDITOR: '#4ade80',
+}
+
+const AGENT_SCHEDULES: Record<string, string> = {
+  NEXUS: 'Continuous', INTAKE: 'Every 5 min', HERALD: 'Every 15 min', SCRIBE: 'Every 30 min',
+  OVERSEER: 'Every 10 min', PATCHER: 'Daily 03:00', ARCHITECT: 'On demand', FORGE: 'Every hour',
+  SENTINEL: 'Continuous', ATLAS: 'Every 6h', CHRONICLE: 'Daily 00:00', MENTOR: 'Weekly',
+  SCOUT: 'Every 2h', SURVEYOR: 'Daily 08:00', RELAY: 'Every 5 min', AUDITOR: 'Daily 06:00',
+}
+
+const INIT_AGENT_OVERRIDES: AgentOverride[] = AGENT_NAMES_16.map((name, i) => ({
+  name,
+  color: AGENT_COLORS[name] || '#64748B',
+  enabled: i !== 7, // FORGE disabled by default for demo
+  schedule: AGENT_SCHEDULES[name] || 'Every hour',
+  approval: 'inherit',
+  lastModified: new Date(Date.now() - Math.random() * 7 * 86400000).toISOString(),
+}))
+
+const INIT_DIV_EMAILS: Record<string, string[]> = {
+  studio:   ['studio@sociofi.io', 'nadia@sociofi.io'],
+  services: ['services@sociofi.io', 'rafi@sociofi.io'],
+  labs:     ['labs@sociofi.io'],
+  products: ['products@sociofi.io'],
+  academy:  ['academy@sociofi.io', 'nadia@sociofi.io'],
+  ventures: ['ventures@sociofi.io', 'arifur@sociofi.io'],
+  cloud:    ['cloud@sociofi.io', 'rafi@sociofi.io'],
+}
+
+const INIT_DIV_CHANNELS: Record<string, string> = {
+  studio: '#studio-notifs', services: '#services-alerts', labs: '#labs-feed',
+  products: '#products-notifs', academy: '#academy-updates', ventures: '#ventures-leads', cloud: '#cloud-alerts',
+}
+
+const MOCK_DELETION_REQUESTS: DeletionRequest[] = [
+  { email: 'user1@example.com', received: new Date(Date.now() - 3 * 86400000).toISOString(), status: 'pending' },
+  { email: 'user2@client.com',  received: new Date(Date.now() - 8 * 86400000).toISOString(), status: 'processed' },
+  { email: 'user3@test.io',     received: new Date(Date.now() - 1 * 86400000).toISOString(), status: 'pending' },
+]
+
+const MOCK_INVOICES: Invoice[] = [
+  { id: 'INV-2401', client: 'TechVentures Ltd',   amount: 8400,  date: '2026-03-10', status: 'paid'    },
+  { id: 'INV-2402', client: 'GrowthLabs Inc',     amount: 3200,  date: '2026-03-12', status: 'paid'    },
+  { id: 'INV-2403', client: 'StartupForge',        amount: 1600,  date: '2026-03-14', status: 'pending' },
+  { id: 'INV-2404', client: 'NovaCloud Systems',  amount: 5800,  date: '2026-03-15', status: 'paid'    },
+  { id: 'INV-2405', client: 'Meridian Digital',   amount: 2400,  date: '2026-03-17', status: 'overdue' },
+  { id: 'INV-2406', client: 'Apex Analytics',     amount: 4100,  date: '2026-03-18', status: 'paid'    },
+  { id: 'INV-2407', client: 'BlueSky Ventures',   amount: 9600,  date: '2026-03-20', status: 'pending' },
+  { id: 'INV-2408', client: 'FounderHQ',          amount: 2200,  date: '2026-03-22', status: 'paid'    },
+]
+
+const MOCK_SUBS = [
+  { client: 'TechVentures Ltd',  plan: 'Scale',      service: 'NEXUS Agent Suite',  mrr: 4200, status: 'active', next: '2026-04-10' },
+  { client: 'GrowthLabs Inc',    plan: 'Growth',     service: 'Studio Services',    mrr: 1600, status: 'active', next: '2026-04-12' },
+  { client: 'NovaCloud Systems', plan: 'Enterprise', service: 'Cloud Managed',      mrr: 5800, status: 'active', next: '2026-04-15' },
+  { client: 'Apex Analytics',    plan: 'Starter',    service: 'Monitoring Suite',   mrr: 800,  status: 'active', next: '2026-04-18' },
+  { client: 'BlueSky Ventures',  plan: 'Scale',      service: 'NEXUS + Studio',     mrr: 6200, status: 'active', next: '2026-04-20' },
+]
+
+const PLAN_COLORS: Record<string, string> = {
+  starter: '#64748B', growth: '#6BA3E8', scale: '#7B6FE8', enterprise: '#E8B84D',
+}
+
+/* ─────────────────────────────────────────────────────────── */
+/* Helpers                                                     */
+/* ─────────────────────────────────────────────────────────── */
+
+function rel(iso: string): string {
+  const diff = (Date.now() - new Date(iso).getTime()) / 1000
+  if (diff < 60)    return 'just now'
+  if (diff < 3600)  return `${Math.floor(diff / 60)}m ago`
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`
+  return `${Math.floor(diff / 86400)}d ago`
+}
+
+function downloadCSV(filename: string, rows: Record<string, unknown>[]) {
+  if (!rows.length) return
+  const headers = Object.keys(rows[0])
+  const csv = [
+    headers.join(','),
+    ...rows.map(r => headers.map(h => JSON.stringify(r[h] ?? '')).join(',')),
+  ].join('\n')
+  const blob = new Blob([csv], { type: 'text/csv' })
+  const url  = URL.createObjectURL(blob)
+  const a = document.createElement('a'); a.href = url; a.download = filename; a.click()
+  URL.revokeObjectURL(url)
+}
+
+function fmt(n: number) { return '$' + n.toLocaleString() }
+
+/* ─────────────────────────────────────────────────────────── */
+/* Styles                                                      */
 /* ─────────────────────────────────────────────────────────── */
 
 const STYLES = `
-  .sett-root {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-  }
+  .ss-root { display: flex; flex-direction: column; gap: 24px; }
+  .ss-title { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: #E2E8F0; letter-spacing: -0.02em; margin-bottom: 4px; }
+  .ss-sub   { font-size: 13px; color: #64748B; }
 
-  /* ── Page header ── */
-  .sett-page-title {
-    font-family: 'Manrope', sans-serif;
-    font-size: 22px;
-    font-weight: 800;
-    color: var(--adm-text);
-    letter-spacing: -0.02em;
-    margin-bottom: 4px;
-  }
-  .sett-page-sub {
-    font-size: 13px;
-    color: var(--adm-muted);
-  }
+  /* Tabs */
+  .ss-tabs { display: flex; gap: 4px; background: #12162A; border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 4px; width: fit-content; flex-wrap: wrap; }
+  .ss-tab  { padding: 7px 16px; border-radius: 7px; font-size: 0.82rem; font-weight: 600; font-family: 'Syne', sans-serif; cursor: pointer; border: none; background: transparent; color: #64748B; transition: all 0.18s; white-space: nowrap; }
+  .ss-tab.active { background: rgba(255,255,255,0.07); color: #E2E8F0; }
+  .ss-tab:hover:not(.active) { color: #94A3B8; }
 
-  /* ── Tabs ── */
-  .sett-tabs {
-    display: flex;
-    gap: 4px;
-    border-bottom: 1px solid var(--adm-border);
-    padding-bottom: 0;
-  }
-  .sett-tab {
-    padding: 9px 16px;
-    font-size: 13.5px;
-    font-weight: 500;
-    color: var(--adm-muted);
-    background: none;
-    border: none;
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    margin-bottom: -1px;
-    transition: color 0.2s, border-color 0.2s;
-    font-family: 'DM Sans', sans-serif;
-  }
-  .sett-tab:hover { color: var(--adm-text); }
-  .sett-tab.active {
-    color: var(--adm-text);
-    border-bottom-color: var(--adm-accent);
-  }
+  /* Cards / sections */
+  .ss-card { background: #12162A; border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; overflow: hidden; }
+  .ss-card-header { padding: 18px 22px; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .ss-card-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: #E2E8F0; }
+  .ss-card-sub   { font-size: 12px; color: #64748B; margin-top: 2px; }
+  .ss-card-body  { padding: 18px 22px; }
 
-  /* ── Card ── */
-  .sett-card {
-    background: var(--adm-bg2);
-    border: 1px solid var(--adm-border);
-    border-radius: 14px;
-    overflow: hidden;
-  }
-  .sett-card-header {
-    padding: 20px 24px 16px;
-    border-bottom: 1px solid var(--adm-border);
-  }
-  .sett-card-title {
-    font-family: 'Manrope', sans-serif;
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--adm-text);
-    margin-bottom: 3px;
-  }
-  .sett-card-desc {
-    font-size: 12.5px;
-    color: var(--adm-muted);
-  }
-  .sett-card-body {
-    padding: 20px 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-  }
+  /* Table */
+  .ss-table { width: 100%; border-collapse: collapse; }
+  .ss-table thead tr { border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .ss-table thead th { padding: 10px 14px; text-align: left; font-size: 0.7rem; font-weight: 600; color: #64748B; text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; }
+  .ss-table tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .ss-table tbody tr:last-child { border-bottom: none; }
+  .ss-table tbody tr:hover { background: rgba(255,255,255,0.015); }
+  .ss-table tbody td { padding: 12px 14px; font-size: 0.82rem; color: #94A3B8; vertical-align: middle; }
 
-  /* ── Form fields ── */
-  .sett-field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-  .sett-label {
-    font-size: 12.5px;
-    font-weight: 600;
-    color: var(--adm-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    font-family: 'JetBrains Mono', monospace;
-  }
-  .sett-input {
-    width: 100%;
-    max-width: 460px;
-    padding: 9px 14px;
-    background: var(--adm-bg);
-    border: 1px solid var(--adm-border);
-    border-radius: 9px;
-    color: var(--adm-text);
-    font-size: 13.5px;
-    font-family: 'DM Sans', sans-serif;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .sett-input:focus { border-color: var(--adm-teal); }
-  .sett-input:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
-  .sett-select {
-    width: 100%;
-    max-width: 260px;
-    padding: 9px 14px;
-    background: var(--adm-bg);
-    border: 1px solid var(--adm-border);
-    border-radius: 9px;
-    color: var(--adm-text);
-    font-size: 13.5px;
-    font-family: 'DM Sans', sans-serif;
-    outline: none;
-    cursor: pointer;
-    transition: border-color 0.2s;
-    appearance: none;
-    -webkit-appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7B9E' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    padding-right: 32px;
-  }
-  .sett-select:focus { border-color: var(--adm-teal); }
+  /* Inputs */
+  .ss-input { padding: 8px 12px; background: #0a0e1a; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #E2E8F0; font-size: 0.83rem; font-family: 'Outfit', sans-serif; outline: none; transition: border-color 0.15s; box-sizing: border-box; }
+  .ss-input:focus { border-color: rgba(89,163,146,0.4); }
+  .ss-input-full { width: 100%; }
+  .ss-select { padding: 8px 12px; background: #0a0e1a; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #E2E8F0; font-size: 0.83rem; font-family: 'Outfit', sans-serif; outline: none; cursor: pointer; appearance: none; box-sizing: border-box; }
 
-  /* ── Toggle switch ── */
-  .sett-toggle-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-    padding: 14px 0;
-    border-bottom: 1px solid var(--adm-border);
-  }
-  .sett-toggle-row:last-of-type { border-bottom: none; }
-  .sett-toggle-info { flex: 1; }
-  .sett-toggle-title {
-    font-size: 13.5px;
-    font-weight: 500;
-    color: var(--adm-text);
-    margin-bottom: 2px;
-  }
-  .sett-toggle-desc {
-    font-size: 12px;
-    color: var(--adm-muted);
-  }
-  .sett-toggle {
-    position: relative;
-    width: 40px;
-    height: 22px;
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-  .sett-toggle input { opacity: 0; width: 0; height: 0; }
-  .sett-toggle-track {
-    position: absolute;
-    inset: 0;
-    border-radius: 100px;
-    background: rgba(255,255,255,0.1);
-    cursor: pointer;
-    transition: background 0.25s;
-  }
-  .sett-toggle input:checked + .sett-toggle-track {
-    background: var(--adm-teal);
-  }
-  .sett-toggle-track::after {
-    content: '';
-    position: absolute;
-    top: 3px; left: 3px;
-    width: 16px; height: 16px;
-    border-radius: 50%;
-    background: white;
-    transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
-  }
-  .sett-toggle input:checked + .sett-toggle-track::after {
-    transform: translateX(18px);
-  }
+  /* Buttons */
+  .ss-btn       { padding: 7px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); color: #94A3B8; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+  .ss-btn:hover { border-color: rgba(255,255,255,0.2); color: #E2E8F0; }
+  .ss-btn-primary       { padding: 8px 16px; border-radius: 8px; border: none; background: linear-gradient(135deg, #3A589E, #59A392); color: #fff; font-size: 0.82rem; font-weight: 700; font-family: 'Syne', sans-serif; cursor: pointer; transition: opacity 0.15s; white-space: nowrap; }
+  .ss-btn-primary:hover { opacity: 0.88; }
+  .ss-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .ss-btn-danger        { padding: 7px 14px; border-radius: 8px; border: 1px solid rgba(239,68,68,0.3); background: rgba(239,68,68,0.08); color: #EF4444; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+  .ss-btn-danger:hover  { background: rgba(239,68,68,0.15); }
+  .ss-btn-success       { padding: 7px 14px; border-radius: 8px; border: 1px solid rgba(74,222,128,0.3); background: rgba(74,222,128,0.08); color: #4ade80; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.15s; }
 
-  /* ── Email tag input ── */
-  .sett-tag-input-wrap {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    padding: 8px 12px;
-    background: var(--adm-bg);
-    border: 1px solid var(--adm-border);
-    border-radius: 9px;
-    max-width: 460px;
-    min-height: 44px;
-    align-items: center;
-    transition: border-color 0.2s;
-  }
-  .sett-tag-input-wrap:focus-within { border-color: var(--adm-teal); }
-  .sett-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 2px 8px 2px 10px;
-    background: rgba(89,163,146,0.12);
-    border: 1px solid rgba(89,163,146,0.2);
-    border-radius: 100px;
-    font-size: 12px;
-    color: var(--adm-teal);
-    font-family: 'JetBrains Mono', monospace;
-  }
-  .sett-tag-remove {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--adm-teal);
-    opacity: 0.6;
-    padding: 0;
-    line-height: 1;
-    transition: opacity 0.15s;
-    display: flex; align-items: center;
-  }
-  .sett-tag-remove:hover { opacity: 1; }
-  .sett-tag-bare-input {
-    flex: 1;
-    min-width: 160px;
-    background: none;
-    border: none;
-    outline: none;
-    color: var(--adm-text);
-    font-size: 13px;
-    font-family: 'DM Sans', sans-serif;
-  }
+  /* Toggle */
+  .toggle-track { width: 40px; height: 22px; border-radius: 11px; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); position: relative; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
+  .toggle-track.on { background: #4ade80; }
+  .toggle-thumb { width: 16px; height: 16px; border-radius: 50%; background: white; position: absolute; top: 2px; left: 3px; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+  .toggle-track.on .toggle-thumb { transform: translateX(18px); }
 
-  /* ── Integration cards ── */
-  .sett-integrations-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 14px;
-  }
-  .sett-int-card {
-    background: var(--adm-bg);
-    border: 1px solid var(--adm-border);
-    border-radius: 12px;
-    padding: 18px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    transition: border-color 0.2s;
-  }
-  .sett-int-card:hover { border-color: var(--adm-border-hover); }
-  .sett-int-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .sett-int-logo {
-    width: 40px; height: 40px;
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Manrope', sans-serif;
-    font-weight: 800;
-    font-size: 14px;
-    color: white;
-    flex-shrink: 0;
-  }
-  .sett-int-name {
-    font-family: 'Manrope', sans-serif;
-    font-weight: 700;
-    font-size: 14px;
-    color: var(--adm-text);
-    margin-bottom: 2px;
-  }
-  .sett-int-sub {
-    font-size: 11.5px;
-    color: var(--adm-muted);
-  }
-  .sett-status-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 3px 9px;
-    border-radius: 100px;
-    font-size: 11px;
-    font-weight: 600;
-    font-family: 'JetBrains Mono', monospace;
-  }
-  .sett-status-badge.connected {
-    background: rgba(74,222,128,0.1);
-    color: #4ADE80;
-    border: 1px solid rgba(74,222,128,0.2);
-  }
-  .sett-status-badge.configure {
-    background: rgba(232,184,77,0.1);
-    color: #E8B84D;
-    border: 1px solid rgba(232,184,77,0.2);
-  }
-  .sett-status-badge.disconnected {
-    background: rgba(107,123,158,0.1);
-    color: var(--adm-muted);
-    border: 1px solid rgba(107,123,158,0.15);
-  }
-  .sett-status-badge.soon {
-    background: rgba(139,92,246,0.1);
-    color: #A78BFA;
-    border: 1px solid rgba(139,92,246,0.2);
-  }
-  .sett-int-detail {
-    font-size: 11.5px;
-    color: var(--adm-muted);
-    font-family: 'JetBrains Mono', monospace;
-    line-height: 1.6;
-  }
-  .sett-int-btn {
-    padding: 7px 14px;
-    border-radius: 8px;
-    font-size: 12.5px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-family: 'DM Sans', sans-serif;
-    border: 1px solid var(--adm-border);
-    background: none;
-    color: var(--adm-muted);
-    align-self: flex-start;
-  }
-  .sett-int-btn:hover { border-color: var(--adm-border-hover); color: var(--adm-text); }
-  .sett-int-btn.primary {
-    background: linear-gradient(135deg, var(--adm-accent), var(--adm-teal));
-    border-color: transparent;
-    color: white;
-  }
-  .sett-int-btn.primary:hover { opacity: 0.9; transform: translateY(-1px); }
-  .sett-int-btn:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
+  /* Section label */
+  .ss-section-label { font-size: 0.7rem; font-weight: 600; color: #64748B; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; margin-top: 4px; }
 
-  /* ── Security ── */
-  .sett-security-section {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-  }
-  .sett-2fa-row {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    flex-wrap: wrap;
-  }
-  .sett-2fa-info { flex: 1; }
-  .sett-2fa-title {
-    font-size: 13.5px;
-    font-weight: 600;
-    color: var(--adm-text);
-    margin-bottom: 3px;
-  }
-  .sett-2fa-desc { font-size: 12.5px; color: var(--adm-muted); }
+  /* Grid layouts */
+  .ss-grid-2  { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .ss-grid-3  { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 900px) { .ss-grid-2 { grid-template-columns: 1fr; } .ss-grid-3 { grid-template-columns: 1fr; } }
 
-  .sett-sessions-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-    border: 1px solid var(--adm-border);
-    border-radius: 10px;
-    overflow: hidden;
-  }
-  .sett-session-item {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 12px 16px;
-    background: var(--adm-bg);
-    transition: background 0.15s;
-  }
-  .sett-session-item:not(:last-child) {
-    border-bottom: 1px solid var(--adm-border);
-  }
-  .sett-session-icon {
-    width: 34px; height: 34px;
-    border-radius: 8px;
-    background: rgba(89,163,146,0.08);
-    display: flex; align-items: center; justify-content: center;
-    color: var(--adm-teal);
-    flex-shrink: 0;
-  }
-  .sett-session-info { flex: 1; }
-  .sett-session-name {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--adm-text);
-    margin-bottom: 2px;
-  }
-  .sett-session-meta { font-size: 11.5px; color: var(--adm-muted); }
-  .sett-session-current {
-    font-size: 10.5px;
-    font-weight: 600;
-    color: #4ADE80;
-    background: rgba(74,222,128,0.1);
-    padding: 2px 7px;
-    border-radius: 100px;
-    font-family: 'JetBrains Mono', monospace;
-  }
-  .sett-revoke-btn {
-    background: none;
-    border: 1px solid rgba(248,113,113,0.2);
-    color: #F87171;
-    padding: 5px 12px;
-    border-radius: 7px;
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.15s;
-    font-family: 'DM Sans', sans-serif;
-  }
-  .sett-revoke-btn:hover { background: rgba(248,113,113,0.08); }
+  /* Email tag input */
+  .ss-tag-input-wrap { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; background: #0a0e1a; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; min-height: 42px; align-items: flex-start; cursor: text; }
+  .ss-tag-input-wrap:focus-within { border-color: rgba(89,163,146,0.4); }
+  .ss-tag   { display: inline-flex; align-items: center; gap: 5px; background: rgba(89,163,146,0.12); border: 1px solid rgba(89,163,146,0.25); color: #72C4B2; padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; }
+  .ss-tag-x { background: none; border: none; color: #59A392; cursor: pointer; padding: 0; font-size: 14px; line-height: 1; display: flex; align-items: center; }
+  .ss-tag-text-input { background: transparent; border: none; outline: none; color: #E2E8F0; font-size: 0.82rem; font-family: 'Outfit', sans-serif; flex: 1; min-width: 120px; }
 
-  .sett-api-table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  .sett-api-table th {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--adm-muted);
-    text-align: left;
-    padding: 0 12px 10px;
-    font-family: 'JetBrains Mono', monospace;
-    border-bottom: 1px solid var(--adm-border);
-  }
-  .sett-api-table td {
-    padding: 12px;
-    font-size: 13px;
-    color: var(--adm-text);
-    border-bottom: 1px solid var(--adm-border);
-  }
-  .sett-api-table tr:last-child td { border-bottom: none; }
-  .sett-api-key-mask {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    color: var(--adm-muted);
-    background: var(--adm-bg);
-    padding: 3px 8px;
-    border-radius: 5px;
-    border: 1px solid var(--adm-border);
-  }
+  /* Integration card */
+  .ss-int-card  { background: #0d1121; border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 14px; transition: border-color 0.2s; }
+  .ss-int-card:hover { border-color: rgba(255,255,255,0.1); }
+  .ss-int-icon  { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 800; font-family: 'Syne', sans-serif; flex-shrink: 0; }
+  .ss-int-name  { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: #E2E8F0; }
+  .ss-int-detail { font-size: 0.78rem; color: #64748B; font-family: monospace; word-break: break-all; }
+  .ss-status-connected    { display: inline-flex; align-items: center; gap: 5px; background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.25); color: #4ade80; padding: 2px 9px; border-radius: 100px; font-size: 0.7rem; font-weight: 600; }
+  .ss-status-error        { display: inline-flex; align-items: center; gap: 5px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25); color: #EF4444; padding: 2px 9px; border-radius: 100px; font-size: 0.7rem; font-weight: 600; }
+  .ss-status-disconnected { display: inline-flex; align-items: center; gap: 5px; background: rgba(100,116,139,0.1); border: 1px solid rgba(100,116,139,0.25); color: #64748B; padding: 2px 9px; border-radius: 100px; font-size: 0.7rem; font-weight: 600; }
 
-  /* ── Buttons ── */
-  .sett-btn-primary {
-    padding: 9px 20px;
-    background: linear-gradient(135deg, var(--adm-accent), var(--adm-teal));
-    color: white;
-    border: none;
-    border-radius: 9px;
-    font-size: 13.5px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
-    transition: opacity 0.2s, transform 0.2s;
-    align-self: flex-start;
-  }
-  .sett-btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+  /* NEXUS master card */
+  .ss-nexus-master { background: #12162A; border: 1px solid rgba(89,163,146,0.2); border-radius: 14px; padding: 22px 26px; display: flex; align-items: center; justify-content: space-between; gap: 16px; transition: all 0.3s; flex-wrap: wrap; }
+  .ss-nexus-master.off { background: rgba(239,68,68,0.06); border-color: rgba(239,68,68,0.25); }
+  .ss-nexus-status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 100px; font-size: 0.72rem; font-weight: 600; }
+  .ss-nexus-warning { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); border-radius: 10px; padding: 12px 16px; color: #EF4444; font-size: 0.83rem; margin-top: 8px; }
 
-  .sett-btn-ghost {
-    padding: 9px 18px;
-    background: none;
-    color: var(--adm-muted);
-    border: 1px solid var(--adm-border);
-    border-radius: 9px;
-    font-size: 13.5px;
-    font-weight: 500;
-    cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
-    transition: all 0.2s;
-  }
-  .sett-btn-ghost:hover { border-color: var(--adm-border-hover); color: var(--adm-text); }
+  /* Radio cards */
+  .ss-radio-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  @media (max-width: 800px) { .ss-radio-cards { grid-template-columns: 1fr; } }
+  .ss-radio-card { border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px 16px; cursor: pointer; transition: all 0.15s; }
+  .ss-radio-card.selected { border-color: rgba(89,163,146,0.5); background: rgba(89,163,146,0.06); }
+  .ss-radio-card:hover:not(.selected) { border-color: rgba(255,255,255,0.14); }
+  .ss-radio-label  { font-size: 0.85rem; font-weight: 700; color: #E2E8F0; margin-bottom: 4px; font-family: 'Syne', sans-serif; }
+  .ss-radio-detail { font-size: 0.75rem; color: #64748B; }
 
-  /* ── Toast ── */
-  .sett-toast {
-    position: fixed;
-    bottom: 28px;
-    right: 28px;
-    padding: 12px 20px;
-    background: var(--adm-bg2);
-    border: 1px solid rgba(74,222,128,0.25);
-    border-radius: 12px;
-    color: #4ADE80;
-    font-size: 13.5px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-    z-index: 2000;
-    animation: toastIn 0.35s cubic-bezier(0.34,1.56,0.64,1);
-  }
-  @keyframes toastIn {
-    from { opacity: 0; transform: translateY(16px) scale(0.96); }
-    to   { opacity: 1; transform: translateY(0) scale(1); }
-  }
+  /* Slider */
+  .ss-slider { width: 100%; accent-color: #59A392; cursor: pointer; }
+  .ss-slider-value { font-family: 'Fira Code', monospace; font-size: 0.9rem; color: #72C4B2; font-weight: 600; }
 
-  /* ── Sub-section label ── */
-  .sett-section-label {
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--adm-muted);
-    font-family: 'JetBrains Mono', monospace;
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--adm-border);
-    margin-bottom: 2px;
-  }
+  /* Export cards */
+  .ss-export-card { background: #0d1121; border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+  .ss-export-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: #E2E8F0; }
+  .ss-export-desc  { font-size: 0.78rem; color: #64748B; line-height: 1.5; }
 
-  .sett-row {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-`;
+  /* Revenue cards */
+  .ss-rev-card  { background: #0d1121; border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 20px; }
+  .ss-rev-label { font-size: 0.72rem; color: #64748B; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+  .ss-rev-value { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; color: #E2E8F0; letter-spacing: -0.02em; }
 
-/* ── Types ── */
-interface ToastMsg {
-  id: number;
-  text: string;
-}
+  /* Info box */
+  .ss-info-box { background: rgba(107,163,232,0.06); border: 1px solid rgba(107,163,232,0.2); border-radius: 10px; padding: 13px 16px; font-size: 0.8rem; color: #94A3B8; line-height: 1.55; }
 
-type Tab = 'general' | 'notifications' | 'integrations' | 'security';
+  /* Confirmation dialog */
+  .ss-confirm-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 1100; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px); }
+  .ss-confirm-box  { background: #12162A; border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; width: 100%; max-width: 400px; padding: 24px; }
+  .ss-confirm-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: #E2E8F0; margin-bottom: 10px; }
+  .ss-confirm-text  { font-size: 0.83rem; color: #94A3B8; line-height: 1.55; margin-bottom: 18px; }
+  .ss-confirm-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+  /* Invoice modal */
+  .ss-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px); }
+  .ss-modal { background: #12162A; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; width: 100%; max-width: 460px; overflow: hidden; }
+  .ss-modal-header { padding: 20px 22px 16px; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center; }
+  .ss-modal-title  { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: #E2E8F0; }
+  .ss-modal-close  { width: 28px; height: 28px; border-radius: 7px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #64748B; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+  .ss-modal-close:hover { color: #E2E8F0; }
+  .ss-modal-body   { padding: 18px 22px; display: flex; flex-direction: column; gap: 16px; }
+  .ss-modal-footer { padding: 14px 22px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; gap: 10px; justify-content: flex-end; }
+  .ss-field-label  { font-size: 0.77rem; font-weight: 600; color: #94A3B8; margin-bottom: 6px; display: block; }
+
+  @keyframes ssFadeIn { from { opacity: 0; transform: scale(0.97) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+  .ss-modal { animation: ssFadeIn 0.2s ease; }
+  .ss-confirm-box { animation: ssFadeIn 0.18s ease; }
+`
 
 /* ─────────────────────────────────────────────────────────── */
+/* Toggle Component                                            */
+/* ─────────────────────────────────────────────────────────── */
 
-function Toast({ msg, onDone }: { msg: ToastMsg; onDone: () => void }) {
-  React.useEffect(() => {
-    const t = setTimeout(onDone, 3000);
-    return () => clearTimeout(t);
-  }, [onDone]);
+function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void }) {
   return (
-    <div className="sett-toast">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="20 6 9 17 4 12"/>
-      </svg>
-      {msg.text}
+    <div className={`toggle-track${on ? ' on' : ''}`} onClick={() => onChange(!on)}
+      role="switch" aria-checked={on} tabIndex={0}
+      onKeyDown={e => e.key === ' ' && onChange(!on)}>
+      <div className="toggle-thumb" />
     </div>
-  );
+  )
 }
 
-/* ── General Tab ── */
-function GeneralTab({ onSave }: { onSave: () => void }) {
-  const [form, setForm] = useState({
-    company: 'SocioFi Technology',
-    url: 'https://sociofitechnology.com',
-    tz: 'Asia/Dhaka',
-    dateFormat: 'YYYY-MM-DD',
-    lang: 'en',
-  });
+/* ─────────────────────────────────────────────────────────── */
+/* Email Tag Input                                             */
+/* ─────────────────────────────────────────────────────────── */
+
+function EmailTagInput({ tags, onChange }: { tags: string[]; onChange: (t: string[]) => void }) {
+  const [val, setVal] = useState('')
+  const addTag = () => {
+    const t = val.trim()
+    if (t && !tags.includes(t)) onChange([...tags, t])
+    setVal('')
+  }
+  const handleKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addTag() }
+    if (e.key === 'Backspace' && !val && tags.length) onChange(tags.slice(0, -1))
+  }
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      <div className="sett-card">
-        <div className="sett-card-header">
-          <div className="sett-card-title">General Settings</div>
-          <div className="sett-card-desc">Manage your workspace identity and regional preferences.</div>
-        </div>
-        <div className="sett-card-body">
-          <div className="sett-field">
-            <label className="sett-label">Company Name</label>
-            <input
-              className="sett-input"
-              value={form.company}
-              onChange={(e) => setForm((f) => ({ ...f, company: e.target.value }))}
-            />
-          </div>
-          <div className="sett-field">
-            <label className="sett-label">Admin Site URL</label>
-            <input
-              className="sett-input"
-              type="url"
-              value={form.url}
-              onChange={(e) => setForm((f) => ({ ...f, url: e.target.value }))}
-            />
-          </div>
-          <div className="sett-row">
-            <div className="sett-field">
-              <label className="sett-label">Timezone</label>
-              <select
-                className="sett-select"
-                value={form.tz}
-                onChange={(e) => setForm((f) => ({ ...f, tz: e.target.value }))}
-              >
-                <option value="UTC">UTC</option>
-                <option value="Asia/Dhaka">Asia/Dhaka (GMT+6)</option>
-                <option value="America/New_York">America/New_York (EST)</option>
-                <option value="Europe/London">Europe/London (GMT)</option>
-              </select>
-            </div>
-            <div className="sett-field">
-              <label className="sett-label">Date Format</label>
-              <select
-                className="sett-select"
-                value={form.dateFormat}
-                onChange={(e) => setForm((f) => ({ ...f, dateFormat: e.target.value }))}
-              >
-                <option value="MM/DD/YYYY">MM/DD/YYYY</option>
-                <option value="DD/MM/YYYY">DD/MM/YYYY</option>
-                <option value="YYYY-MM-DD">YYYY-MM-DD</option>
-              </select>
-            </div>
-          </div>
-          <div className="sett-field">
-            <label className="sett-label">Language</label>
-            <input className="sett-input" value="English" disabled style={{ maxWidth: 200 }} />
-          </div>
-          <button className="sett-btn-primary" onClick={onSave}>Save General Settings</button>
-        </div>
-      </div>
+    <div className="ss-tag-input-wrap" onClick={() => document.getElementById('tag-input')?.focus()}>
+      {tags.map(t => (
+        <span key={t} className="ss-tag">
+          {t}
+          <button className="ss-tag-x" onClick={e => { e.stopPropagation(); onChange(tags.filter(x => x !== t)) }} aria-label={`Remove ${t}`}>×</button>
+        </span>
+      ))}
+      <input id="tag-input" className="ss-tag-text-input" placeholder="Add email, press Enter" value={val}
+        onChange={e => setVal(e.target.value)} onKeyDown={handleKey} onBlur={addTag} />
     </div>
-  );
+  )
 }
 
-/* ── Notifications Tab ── */
-function NotificationsTab({ onSave }: { onSave: () => void }) {
-  const [toggles, setToggles] = useState({
-    newSubmission: true,
-    p1Ticket: true,
-    venturesApp: true,
-    dailyDigest: false,
-    weeklyReport: true,
-  });
-  const [emails, setEmails] = useState<string[]>(['arifur@sociofitechnology.com', 'kamrul@sociofitechnology.com']);
-  const [emailInput, setEmailInput] = useState('');
+/* ─────────────────────────────────────────────────────────── */
+/* Notifications Tab                                           */
+/* ─────────────────────────────────────────────────────────── */
 
-  const addEmail = () => {
-    const trimmed = emailInput.trim();
-    if (trimmed && !emails.includes(trimmed)) {
-      setEmails((e) => [...e, trimmed]);
-      setEmailInput('');
-    }
-  };
-  const removeEmail = (em: string) => setEmails((e) => e.filter((x) => x !== em));
+function NotificationsTab() {
+  const [divEmails, setDivEmails] = useState<Record<string, string[]>>(INIT_DIV_EMAILS)
+  const [divChannels, setDivChannels] = useState<Record<string, string>>(INIT_DIV_CHANNELS)
+  const [globalWebhook] = useState('https://hooks.slack.com/services/T0ABC/B0DEF/••••••••xyz')
+  const [digestOn, setDigestOn] = useState(true)
+  const [digestTime, setDigestTime] = useState('08:00')
+  const [digestRecipients, setDigestRecipients] = useState(['arifur@sociofi.io', 'kamrul@sociofi.io'])
+  const [editingDivEmail, setEditingDivEmail] = useState<string | null>(null)
+  const [testStates, setTestStates] = useState<Record<string, string>>({})
 
-  const Toggle = ({ id, label, desc }: { id: keyof typeof toggles; label: string; desc: string }) => (
-    <div className="sett-toggle-row">
-      <div className="sett-toggle-info">
-        <div className="sett-toggle-title">{label}</div>
-        <div className="sett-toggle-desc">{desc}</div>
-      </div>
-      <label className="sett-toggle">
-        <input
-          type="checkbox"
-          checked={toggles[id]}
-          onChange={(e) => setToggles((t) => ({ ...t, [id]: e.target.checked }))}
-        />
-        <span className="sett-toggle-track" />
-      </label>
-    </div>
-  );
+  const [events, setEvents] = useState({
+    new_lead:     { on: true,  via: 'Both'  },
+    lead_changed: { on: true,  via: 'Email' },
+    ticket_new:   { on: true,  via: 'Slack' },
+    sla_warn:     { on: true,  via: 'Both'  },
+    sla_breach:   { on: true,  via: 'Both'  },
+    agent_failed: { on: true,  via: 'Both'  },
+    agent_pending:{ on: true,  via: 'Both'  },
+    venture_app:  { on: true,  via: 'Email' },
+  })
+
+  const EVENT_LABELS: Record<string, string> = {
+    new_lead: 'New lead received', lead_changed: 'Lead status changed',
+    ticket_new: 'Ticket created', sla_warn: 'SLA warning (2h to breach)',
+    sla_breach: 'SLA breach', agent_failed: 'Agent run failed',
+    agent_pending: 'Agent output pending approval', venture_app: 'New venture application',
+  }
+
+  const testSlack = async (div: string) => {
+    setTestStates(s => ({ ...s, [div]: 'sending' }))
+    await new Promise(r => setTimeout(r, 1500))
+    setTestStates(s => ({ ...s, [div]: 'sent' }))
+    setTimeout(() => setTestStates(s => { const n = { ...s }; delete n[div]; return n }), 3000)
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      <div className="sett-card">
-        <div className="sett-card-header">
-          <div className="sett-card-title">Email Notifications</div>
-          <div className="sett-card-desc">Choose which events trigger email alerts to the team.</div>
+      {/* Division Email Recipients */}
+      <div className="ss-card">
+        <div className="ss-card-header">
+          <div>
+            <div className="ss-card-title">Division Email Recipients</div>
+            <div className="ss-card-sub">Per-division notification recipients</div>
+          </div>
         </div>
-        <div className="sett-card-body">
-          <Toggle id="newSubmission" label="New submission received" desc="Email alert when any form submission comes in." />
-          <Toggle id="p1Ticket" label="P1 ticket created" desc="Email + SMS placeholder when a critical incident ticket is opened." />
-          <Toggle id="venturesApp" label="Ventures application received" desc="Email alert when a startup applies via the Ventures division." />
-          <Toggle id="dailyDigest" label="Daily digest email" desc="Summary of the day's activity, sent at 8:00 AM." />
-          <Toggle id="weeklyReport" label="Weekly report" desc="Full weekly rollup every Monday at 9:00 AM." />
-        </div>
-      </div>
-      <div className="sett-card">
-        <div className="sett-card-header">
-          <div className="sett-card-title">Email Recipients</div>
-          <div className="sett-card-desc">All notification emails are sent to these addresses.</div>
-        </div>
-        <div className="sett-card-body">
-          <div className="sett-field">
-            <label className="sett-label">Recipients</label>
-            <div className="sett-tag-input-wrap">
-              {emails.map((em) => (
-                <span className="sett-tag" key={em}>
-                  {em}
-                  <button
-                    className="sett-tag-remove"
-                    onClick={() => removeEmail(em)}
-                    aria-label={`Remove ${em}`}
-                  >
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
-                      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                    </svg>
+        <table className="ss-table">
+          <thead><tr><th>Division</th><th>Recipients</th><th style={{ width: 80 }}>Edit</th></tr></thead>
+          <tbody>
+            {DIVISION_LIST.map(d => (
+              <tr key={d}>
+                <td>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '3px 10px', borderRadius: 100, background: `${DIVISION_COLORS[d]}15`, border: `1px solid ${DIVISION_COLORS[d]}30`, color: DIVISION_COLORS[d], fontSize: '0.75rem', fontWeight: 600, textTransform: 'capitalize' }}>
+                    <span style={{ width: 7, height: 7, borderRadius: '50%', background: DIVISION_COLORS[d], display: 'inline-block' }} />
+                    {d}
+                  </span>
+                </td>
+                <td>
+                  {editingDivEmail === d ? (
+                    <EmailTagInput tags={divEmails[d]} onChange={t => setDivEmails(s => ({ ...s, [d]: t }))} />
+                  ) : (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                      {divEmails[d].map(e => (
+                        <span key={e} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 6, padding: '2px 8px', fontSize: '0.75rem', color: '#94A3B8' }}>{e}</span>
+                      ))}
+                    </div>
+                  )}
+                </td>
+                <td>
+                  <button className="ss-btn" onClick={() => setEditingDivEmail(editingDivEmail === d ? null : d)}>
+                    {editingDivEmail === d ? 'Done' : 'Edit'}
                   </button>
-                </span>
-              ))}
-              <input
-                className="sett-tag-bare-input"
-                type="email"
-                placeholder="Add email address…"
-                value={emailInput}
-                onChange={(e) => setEmailInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ',') {
-                    e.preventDefault();
-                    addEmail();
-                  }
-                }}
-              />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Slack Channels */}
+      <div className="ss-card">
+        <div className="ss-card-header">
+          <div><div className="ss-card-title">Slack Channels</div></div>
+        </div>
+        <div className="ss-card-body" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div>
+            <div className="ss-section-label">Global Webhook</div>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <input className="ss-input" style={{ flex: 1 }} type="text" value={globalWebhook} readOnly />
             </div>
-            <div style={{ fontSize: 11.5, color: 'var(--adm-muted)', marginTop: 4 }}>Press Enter or comma to add an address.</div>
           </div>
-          <button className="sett-btn-primary" onClick={onSave}>Save Notification Settings</button>
+          <div>
+            <div className="ss-section-label">Per-Division Channels</div>
+            <table className="ss-table">
+              <thead><tr><th>Division</th><th>Channel</th><th style={{ width: 120 }}>Test</th></tr></thead>
+              <tbody>
+                {DIVISION_LIST.map(d => (
+                  <tr key={d}>
+                    <td style={{ textTransform: 'capitalize', color: DIVISION_COLORS[d] }}>{d}</td>
+                    <td>
+                      <input className="ss-input" value={divChannels[d]} style={{ width: 180 }}
+                        onChange={e => setDivChannels(s => ({ ...s, [d]: e.target.value }))} />
+                    </td>
+                    <td>
+                      <button className={testStates[d] === 'sent' ? 'ss-btn-success' : 'ss-btn'}
+                        onClick={() => testSlack(d)} disabled={testStates[d] === 'sending'}>
+                        {testStates[d] === 'sending' ? 'Sending...' : testStates[d] === 'sent' ? '✓ Delivered' : 'Test'}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
-    </div>
-  );
-}
 
-/* ── Integrations Tab ── */
-function IntegrationsTab() {
-  const integrations = [
-    {
-      key: 'supabase',
-      name: 'Supabase',
-      sub: 'Database & auth provider',
-      logo: '#1C7737',
-      initial: 'SB',
-      status: 'connected' as const,
-      detail: 'Project: sociofi-admin-prod\nRegion: ap-southeast-1',
-      btnLabel: 'View Dashboard',
-    },
-    {
-      key: 'resend',
-      name: 'Resend',
-      sub: 'Transactional email',
-      logo: '#1A1A2E',
-      initial: 'RE',
-      status: 'configure' as const,
-      btnLabel: 'Configure',
-    },
-    {
-      key: 'stripe',
-      name: 'Stripe',
-      sub: 'Payments & billing',
-      logo: '#6772E5',
-      initial: 'ST',
-      status: 'disconnected' as const,
-      btnLabel: 'Connect',
-    },
-    {
-      key: 'plausible',
-      name: 'Plausible',
-      sub: 'Privacy-friendly analytics',
-      logo: '#5850EC',
-      initial: 'PL',
-      status: 'disconnected' as const,
-      btnLabel: 'Connect',
-    },
-    {
-      key: 'slack',
-      name: 'Slack',
-      sub: 'Team notifications',
-      logo: '#4A154B',
-      initial: 'SL',
-      status: 'soon' as const,
-      btnLabel: 'Coming soon',
-      disabled: true,
-    },
-  ];
-
-  const statusLabels: Record<string, string> = {
-    connected: 'Connected',
-    configure: 'Needs setup',
-    disconnected: 'Not connected',
-    soon: 'Coming soon',
-  };
-
-  return (
-    <div className="sett-card" style={{ padding: 24 }}>
-      <div className="sett-card-title" style={{ marginBottom: 6 }}>Integrations</div>
-      <div style={{ fontSize: 12.5, color: 'var(--adm-muted)', marginBottom: 20 }}>
-        Connect external services to power notifications, billing, and analytics.
-      </div>
-      <div className="sett-integrations-grid">
-        {integrations.map((int) => (
-          <div className="sett-int-card" key={int.key}>
-            <div className="sett-int-header">
-              <div className="sett-int-logo" style={{ background: int.logo }}>{int.initial}</div>
-              <div>
-                <div className="sett-int-name">{int.name}</div>
-                <div className="sett-int-sub">{int.sub}</div>
+      {/* Daily Digest */}
+      <div className="ss-card">
+        <div className="ss-card-header">
+          <div><div className="ss-card-title">Daily Digest</div></div>
+          <Toggle on={digestOn} onChange={setDigestOn} />
+        </div>
+        {digestOn && (
+          <div className="ss-card-body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+              <div style={{ flex: '0 0 auto' }}>
+                <div className="ss-section-label">Send Time</div>
+                <input className="ss-input" type="time" value={digestTime} onChange={e => setDigestTime(e.target.value)} />
+                <span style={{ fontSize: '0.73rem', color: '#64748B', marginLeft: 6 }}>UTC</span>
               </div>
             </div>
             <div>
-              <span className={`sett-status-badge ${int.status}`}>
-                {int.status === 'connected' && (
-                  <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
-                )}
-                {statusLabels[int.status]}
-              </span>
+              <div className="ss-section-label">Recipients</div>
+              <EmailTagInput tags={digestRecipients} onChange={setDigestRecipients} />
             </div>
-            {int.detail && (
-              <div className="sett-int-detail" style={{ whiteSpace: 'pre-line' }}>{int.detail}</div>
-            )}
-            <button
-              className={`sett-int-btn${int.status === 'connected' ? '' : ' primary'}`}
-              disabled={int.disabled}
-            >
-              {int.btnLabel}
-            </button>
           </div>
-        ))}
+        )}
+      </div>
+
+      {/* Event Toggles */}
+      <div className="ss-card">
+        <div className="ss-card-header">
+          <div><div className="ss-card-title">Event Notifications</div></div>
+        </div>
+        <div className="ss-card-body">
+          <div className="ss-grid-2" style={{ gap: 12 }}>
+            {(Object.keys(events) as (keyof typeof events)[]).map(key => (
+              <div key={key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, background: '#0d1121', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 10, padding: '12px 14px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <Toggle on={events[key].on} onChange={v => setEvents(s => ({ ...s, [key]: { ...s[key], on: v } }))} />
+                  <span style={{ fontSize: '0.82rem', color: '#94A3B8' }}>{EVENT_LABELS[key]}</span>
+                </div>
+                <select className="ss-select" style={{ width: 80, fontSize: '0.75rem', padding: '4px 8px' }}
+                  value={events[key].via}
+                  onChange={e => setEvents(s => ({ ...s, [key]: { ...s[key], via: e.target.value } }))}>
+                  <option>Email</option>
+                  <option>Slack</option>
+                  <option>Both</option>
+                </select>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
-  );
+  )
 }
 
-/* ── Security Tab ── */
-function SecurityTab({ onSave }: { onSave: () => void }) {
-  const [pwd, setPwd] = useState({ current: '', next: '', confirm: '' });
-  const [twoFA, setTwoFA] = useState(false);
+/* ─────────────────────────────────────────────────────────── */
+/* Integrations Tab                                            */
+/* ─────────────────────────────────────────────────────────── */
+
+function IntegrationsTab() {
+  const [nexusHealth, setNexusHealth] = useState<{ checked: string; ms: number; version: string } | null>(null)
+  const [nexusChecking, setNexusChecking] = useState(false)
+  const [nexusUrl, setNexusUrl] = useState('https://nexus.sociofi.io')
+  const [stripeTest, setStripeTest] = useState(true)
+
+  const checkNexusHealth = async () => {
+    setNexusChecking(true)
+    await new Promise(r => setTimeout(r, 1500))
+    setNexusChecking(false)
+    setNexusHealth({ checked: new Date().toISOString(), ms: 12, version: 'v2.1.4' })
+  }
+
+  const integrations = [
+    {
+      key: 'supabase', name: 'Supabase', letter: 'SB', letterBg: '#3ECF8E', letterColor: '#fff',
+      status: 'connected' as const, detail: 'https://fvqnbkupkzxxxxxxxxxxx.supabase.co',
+      actions: (
+        <button className="ss-btn">Test Connection</button>
+      ),
+    },
+    {
+      key: 'stripe', name: 'Stripe', letter: 'St', letterBg: '#635BFF', letterColor: '#fff',
+      status: 'connected' as const, detail: 'Webhook: https://sociofi.io/api/stripe/webhook',
+      actions: (
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+            <span style={{ fontSize: '0.78rem', color: '#94A3B8' }}>Test Mode</span>
+            <Toggle on={stripeTest} onChange={setStripeTest} />
+          </div>
+          <button className="ss-btn">Test Webhook</button>
+        </div>
+      ),
+    },
+    {
+      key: 'resend', name: 'Resend', letter: 'Re', letterBg: '#000', letterColor: '#fff',
+      status: 'connected' as const, detail: 'API Key: ••••••••••••••••••••••••1a2b',
+      actions: <button className="ss-btn">Rotate Key</button>,
+    },
+    {
+      key: 'slack', name: 'Slack', letter: 'Sl', letterBg: '#4A154B', letterColor: '#fff',
+      status: 'connected' as const, detail: 'Workspace: SocioFi Technology',
+      actions: <button className="ss-btn">Reconnect</button>,
+    },
+    {
+      key: 'nexus', name: 'NEXUS Agent Server', letter: 'NX', letterBg: '#E8B84D22', letterColor: '#E8B84D',
+      status: nexusHealth ? 'connected' as const : 'connected' as const,
+      detail: nexusHealth ? `${nexusHealth.version} — ${nexusHealth.ms}ms · checked ${rel(nexusHealth.checked)}` : 'Last checked: never',
+      actions: (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <input className="ss-input ss-input-full" value={nexusUrl} onChange={e => setNexusUrl(e.target.value)} />
+          <button className="ss-btn" onClick={checkNexusHealth} disabled={nexusChecking}>
+            {nexusChecking ? 'Checking...' : 'Check Health'}
+          </button>
+        </div>
+      ),
+    },
+    {
+      key: 'github', name: 'GitHub', letter: 'GH', letterBg: '#161B22', letterColor: '#E2E8F0',
+      status: 'disconnected' as 'disconnected', detail: 'Not configured',
+      actions: (
+        <button className="ss-btn-primary" style={{ fontSize: '0.78rem', padding: '7px 14px' }}>
+          Connect GitHub
+        </button>
+      ),
+    },
+  ]
+
+  return (
+    <div className="ss-grid-2" style={{ gap: 16 }}>
+      {integrations.map(int => (
+        <div key={int.key} className="ss-int-card">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div className="ss-int-icon" style={{ background: int.letterBg, color: int.letterColor, border: `1px solid ${int.letterBg}80` }}>
+              {int.letter}
+            </div>
+            <div style={{ flex: 1 }}>
+              <div className="ss-int-name">{int.name}</div>
+              <div style={{ marginTop: 5 }}>
+                {int.status === 'connected'
+                  ? <span className="ss-status-connected"><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ade80', display: 'inline-block' }} />Connected</span>
+                  : <span className="ss-status-disconnected">Not connected</span>
+                }
+              </div>
+            </div>
+          </div>
+          <div className="ss-int-detail">{int.detail}</div>
+          {int.actions}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+/* ─────────────────────────────────────────────────────────── */
+/* NEXUS Config Tab                                            */
+/* ─────────────────────────────────────────────────────────── */
+
+function NEXUSTab() {
+  const [masterOn, setMasterOn] = useState(true)
+  const [approvalMode, setApprovalMode] = useState<ApprovalMode>('semi-auto')
+  const [threshold, setThreshold] = useState(92)
+  const [apiKeyMasked] = useState('••••••••••••••••••••sk-ant-1234')
+  const [modelDefault, setModelDefault] = useState('claude-sonnet-4-5')
+  const [modelComplex, setModelComplex] = useState('claude-opus-4-20250514')
+  const [maxCalls, setMaxCalls] = useState(500)
+  const [agents, setAgents] = useState<AgentOverride[]>(INIT_AGENT_OVERRIDES)
+
+  const updateAgent = (idx: number, patch: Partial<AgentOverride>) =>
+    setAgents(prev => prev.map((a, i) => i === idx ? { ...a, ...patch } : a))
+
+  const approvalOptions: { value: ApprovalMode; label: string; desc: string }[] = [
+    { value: 'manual',    label: 'Manual',    desc: 'All outputs require human approval (strict, slowest)' },
+    { value: 'semi-auto', label: 'Semi-Auto', desc: 'Approve only flagged/low-confidence outputs (recommended)' },
+    { value: 'auto',      label: 'Auto',      desc: 'Run without approval (use with caution)' },
+  ]
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      {/* Change password */}
-      <div className="sett-card">
-        <div className="sett-card-header">
-          <div className="sett-card-title">Change Password</div>
-          <div className="sett-card-desc">Update your admin account password.</div>
+      {/* Master control */}
+      <div className={`ss-nexus-master${masterOn ? '' : ' off'}`}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span style={{ fontFamily: "'Syne', sans-serif", fontSize: 16, fontWeight: 800, color: '#E2E8F0' }}>NEXUS Agent System</span>
+            <span className="ss-nexus-status-badge" style={{ background: masterOn ? 'rgba(74,222,128,0.1)' : 'rgba(239,68,68,0.1)', border: `1px solid ${masterOn ? 'rgba(74,222,128,0.25)' : 'rgba(239,68,68,0.25)'}`, color: masterOn ? '#4ade80' : '#EF4444' }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: masterOn ? '#4ade80' : '#EF4444', display: 'inline-block' }} />
+              {masterOn ? 'ACTIVE' : 'PAUSED'}
+            </span>
+          </div>
+          <div style={{ fontSize: '0.82rem', color: masterOn ? '#64748B' : '#EF4444' }}>
+            {masterOn ? 'All 16 agents are operational' : 'All agent runs are paused'}
+          </div>
         </div>
-        <div className="sett-card-body">
-          <div className="sett-field">
-            <label className="sett-label">Current Password</label>
-            <input
-              className="sett-input"
-              type="password"
-              placeholder="••••••••"
-              value={pwd.current}
-              onChange={(e) => setPwd((p) => ({ ...p, current: e.target.value }))}
-            />
-          </div>
-          <div className="sett-field">
-            <label className="sett-label">New Password</label>
-            <input
-              className="sett-input"
-              type="password"
-              placeholder="••••••••"
-              value={pwd.next}
-              onChange={(e) => setPwd((p) => ({ ...p, next: e.target.value }))}
-            />
-          </div>
-          <div className="sett-field">
-            <label className="sett-label">Confirm New Password</label>
-            <input
-              className="sett-input"
-              type="password"
-              placeholder="••••••••"
-              value={pwd.confirm}
-              onChange={(e) => setPwd((p) => ({ ...p, confirm: e.target.value }))}
-            />
-          </div>
-          <button className="sett-btn-primary" onClick={onSave}>Update Password</button>
-        </div>
+        <Toggle on={masterOn} onChange={setMasterOn} />
       </div>
-
-      {/* 2FA */}
-      <div className="sett-card">
-        <div className="sett-card-header">
-          <div className="sett-card-title">Two-Factor Authentication</div>
-          <div className="sett-card-desc">Add an extra layer of security to your account.</div>
+      {!masterOn && (
+        <div className="ss-nexus-warning">
+          All scheduled agent runs are PAUSED. Manual triggers are disabled.
         </div>
-        <div className="sett-card-body">
-          <div className="sett-2fa-row">
-            <div className="sett-2fa-info">
-              <div className="sett-2fa-title">Authenticator App</div>
-              <div className="sett-2fa-desc">Use an app like Google Authenticator or Authy to generate one-time codes.</div>
+      )}
+
+      {/* Default Settings */}
+      <div className="ss-card">
+        <div className="ss-card-header"><div className="ss-card-title">Default Settings</div></div>
+        <div className="ss-card-body" style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
+          {/* Approval mode */}
+          <div>
+            <div className="ss-section-label">Approval Mode</div>
+            <div className="ss-radio-cards">
+              {approvalOptions.map(opt => (
+                <div key={opt.value} className={`ss-radio-card${approvalMode === opt.value ? ' selected' : ''}`}
+                  onClick={() => setApprovalMode(opt.value)}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                    <div style={{ width: 14, height: 14, borderRadius: '50%', border: `2px solid ${approvalMode === opt.value ? '#59A392' : 'rgba(255,255,255,0.2)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {approvalMode === opt.value && <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#59A392' }} />}
+                    </div>
+                    <div className="ss-radio-label">{opt.label}</div>
+                  </div>
+                  <div className="ss-radio-detail">{opt.desc}</div>
+                </div>
+              ))}
             </div>
-            <label className="sett-toggle">
-              <input type="checkbox" checked={twoFA} onChange={(e) => setTwoFA(e.target.checked)} />
-              <span className="sett-toggle-track" />
-            </label>
           </div>
-          {twoFA && (
-            <button className="sett-btn-ghost">Set up 2FA →</button>
-          )}
-        </div>
-      </div>
 
-      {/* Active sessions */}
-      <div className="sett-card">
-        <div className="sett-card-header">
-          <div className="sett-card-title">Active Sessions</div>
-          <div className="sett-card-desc">Devices currently signed into the admin panel.</div>
-        </div>
-        <div className="sett-card-body">
-          <div className="sett-sessions-list">
-            <div className="sett-session-item">
-              <div className="sett-session-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
-                  <line x1="8" y1="21" x2="16" y2="21"/>
-                  <line x1="12" y1="17" x2="12" y2="21"/>
-                </svg>
+          {/* Threshold slider */}
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              <div className="ss-section-label" style={{ marginBottom: 0 }}>Auto-Approve Threshold</div>
+              <span className="ss-slider-value">≥{threshold}% confidence</span>
+            </div>
+            <input type="range" min={70} max={100} value={threshold} onChange={e => setThreshold(Number(e.target.value))} className="ss-slider" />
+            <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: 6 }}>Outputs scoring below this are sent to the approval queue</div>
+          </div>
+
+          {/* Claude API Settings */}
+          <div>
+            <div className="ss-section-label">Claude API Settings</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div>
+                <label className="ss-field-label" style={{ fontSize: '0.77rem', fontWeight: 600, color: '#94A3B8', marginBottom: 6, display: 'block' }}>API Key</label>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <input className="ss-input" style={{ flex: 1 }} value={apiKeyMasked} readOnly type="password" />
+                  <button className="ss-btn">Update Key</button>
+                </div>
               </div>
-              <div className="sett-session-info">
-                <div className="sett-session-name">Chrome on Windows 11</div>
-                <div className="sett-session-meta">Dhaka, Bangladesh · Started just now</div>
+              <div>
+                <label className="ss-field-label" style={{ fontSize: '0.77rem', fontWeight: 600, color: '#94A3B8', marginBottom: 6, display: 'block' }}>Max API Calls / Hour</label>
+                <input className="ss-input ss-input-full" type="number" value={maxCalls} onChange={e => setMaxCalls(Number(e.target.value))} />
               </div>
-              <span className="sett-session-current">Current</span>
+              <div>
+                <label className="ss-field-label" style={{ fontSize: '0.77rem', fontWeight: 600, color: '#94A3B8', marginBottom: 6, display: 'block' }}>Default Tasks Model</label>
+                <select className="ss-select" style={{ width: '100%' }} value={modelDefault} onChange={e => setModelDefault(e.target.value)}>
+                  <option value="claude-sonnet-4-5">claude-sonnet-4-5</option>
+                  <option value="claude-sonnet-4-20250514">claude-sonnet-4-20250514</option>
+                </select>
+              </div>
+              <div>
+                <label className="ss-field-label" style={{ fontSize: '0.77rem', fontWeight: 600, color: '#94A3B8', marginBottom: 6, display: 'block' }}>Complex Tasks Model</label>
+                <select className="ss-select" style={{ width: '100%' }} value={modelComplex} onChange={e => setModelComplex(e.target.value)}>
+                  <option value="claude-opus-4-20250514">claude-opus-4-20250514</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* API Keys */}
-      <div className="sett-card">
-        <div className="sett-card-header">
-          <div className="sett-card-title">API Keys</div>
-          <div className="sett-card-desc">Keys for programmatic access to the admin API.</div>
+      {/* Per-Agent Overrides */}
+      <div className="ss-card">
+        <div className="ss-card-header">
+          <div>
+            <div className="ss-card-title">Per-Agent Overrides</div>
+            <div className="ss-card-sub">Customize behavior for individual agents</div>
+          </div>
         </div>
-        <div className="sett-card-body" style={{ padding: '0 0' }}>
-          <table className="sett-api-table">
+        <div style={{ overflowX: 'auto' }}>
+          <table className="ss-table">
             <thead>
               <tr>
-                <th style={{ paddingLeft: 24, paddingTop: 16 }}>Key Name</th>
-                <th>Created</th>
-                <th>Last Used</th>
-                <th>Actions</th>
+                <th>Agent</th>
+                <th>Enabled</th>
+                <th>Schedule</th>
+                <th>Approval Mode</th>
+                <th>Last Modified</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td style={{ paddingLeft: 24 }}>
-                  <div style={{ fontWeight: 600, marginBottom: 4 }}>Admin CLI Key</div>
-                  <span className="sett-api-key-mask">sk-adm-****-****-xxxx</span>
-                </td>
-                <td style={{ color: 'var(--adm-muted)' }}>Jan 15, 2024</td>
-                <td style={{ color: 'var(--adm-muted)' }}>2 days ago</td>
-                <td>
-                  <button className="sett-revoke-btn">Revoke</button>
-                </td>
-              </tr>
+              {agents.map((agent, idx) => (
+                <tr key={agent.name}>
+                  <td>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 10px', borderRadius: 100, background: `${agent.color}18`, border: `1px solid ${agent.color}30`, color: agent.color, fontSize: '0.75rem', fontWeight: 700, fontFamily: "'Fira Code', monospace" }}>
+                      {agent.name}
+                    </span>
+                  </td>
+                  <td>
+                    <Toggle on={agent.enabled} onChange={v => updateAgent(idx, { enabled: v })} />
+                  </td>
+                  <td style={{ fontSize: '0.78rem', color: '#64748B', whiteSpace: 'nowrap' }}>{agent.schedule}</td>
+                  <td>
+                    <select className="ss-select" style={{ fontSize: '0.78rem', padding: '5px 9px', width: 'auto' }}
+                      value={agent.approval}
+                      onChange={e => updateAgent(idx, { approval: e.target.value as AgentOverride['approval'], lastModified: new Date().toISOString() })}>
+                      <option value="inherit">Inherit</option>
+                      <option value="manual">Manual</option>
+                      <option value="semi-auto">Semi-Auto</option>
+                      <option value="auto">Auto</option>
+                    </select>
+                  </td>
+                  <td style={{ fontSize: '0.75rem', color: '#64748B', whiteSpace: 'nowrap' }}>{rel(agent.lastModified)}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
-          <div style={{ padding: '14px 24px 20px' }}>
-            <button className="sett-btn-ghost" style={{ fontSize: 12.5 }}>
-              + Generate New Key
-            </button>
-          </div>
         </div>
       </div>
     </div>
-  );
+  )
 }
 
-/* ── Main page ── */
+/* ─────────────────────────────────────────────────────────── */
+/* Data Tab                                                    */
+/* ─────────────────────────────────────────────────────────── */
+
+function DataTab() {
+  const [deletionRequests, setDeletionRequests] = useState<DeletionRequest[]>(MOCK_DELETION_REQUESTS)
+  const [confirmDelete, setConfirmDelete] = useState<{ email: string } | null>(null)
+  const [deleting, setDeleting] = useState(false)
+  const [deleted, setDeleted] = useState<Set<string>>(new Set())
+  const [manualEmail, setManualEmail] = useState('')
+  const [manualConfirm, setManualConfirm] = useState<string | null>(null)
+  const [exportDiv, setExportDiv] = useState('all')
+  const [exportStatus, setExportStatus] = useState('all')
+  const [exportFormat, setExportFormat] = useState<'json' | 'csv'>('json')
+  const [backupState, setBackupState] = useState<'idle' | 'queued'>('idle')
+
+  const handleDelete = async (email: string) => {
+    setDeleting(true)
+    await new Promise(r => setTimeout(r, 1500))
+    setDeleting(false)
+    setDeleted(prev => new Set([...prev, email]))
+    setDeletionRequests(prev => prev.map(r => r.email === email ? { ...r, status: 'processed' as const } : r))
+    setConfirmDelete(null)
+    setManualConfirm(null)
+  }
+
+  const triggerBackup = async () => {
+    setBackupState('queued')
+  }
+
+  const mockContacts = [
+    { name: 'Alice Smith', email: 'alice@example.com', division: 'studio', stage: 'lead' },
+    { name: 'Bob Jones',   email: 'bob@example.com',   division: 'services', stage: 'client' },
+  ]
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      {/* Export Tools */}
+      <div className="ss-card">
+        <div className="ss-card-header">
+          <div><div className="ss-card-title">Export Tools</div></div>
+        </div>
+        <div className="ss-card-body">
+          <div className="ss-grid-2" style={{ gap: 14 }}>
+            {/* Export Contacts */}
+            <div className="ss-export-card">
+              <div>
+                <div className="ss-export-title">Export Contacts</div>
+                <div className="ss-export-desc">All contacts with full field data exported as CSV</div>
+              </div>
+              <button className="ss-btn-primary" onClick={() => downloadCSV('contacts.csv', mockContacts)}>
+                Export Contacts
+              </button>
+            </div>
+
+            {/* Export Submissions */}
+            <div className="ss-export-card">
+              <div>
+                <div className="ss-export-title">Export Submissions</div>
+                <div className="ss-export-desc">Filter by division, date range, and status</div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <select className="ss-select ss-input-full" value={exportDiv} onChange={e => setExportDiv(e.target.value)}>
+                  <option value="all">All Divisions</option>
+                  {DIVISION_LIST.map(d => <option key={d} value={d} style={{ textTransform: 'capitalize' }}>{d.charAt(0).toUpperCase() + d.slice(1)}</option>)}
+                </select>
+                <select className="ss-select ss-input-full" value={exportStatus} onChange={e => setExportStatus(e.target.value)}>
+                  <option value="all">All Statuses</option>
+                  <option value="new">New</option>
+                  <option value="in_progress">In Progress</option>
+                  <option value="converted">Converted</option>
+                  <option value="closed">Closed</option>
+                </select>
+                <button className="ss-btn-primary" onClick={() => downloadCSV('submissions.csv', [{ division: exportDiv, status: exportStatus }])}>
+                  Export Submissions
+                </button>
+              </div>
+            </div>
+
+            {/* Export Content */}
+            <div className="ss-export-card">
+              <div>
+                <div className="ss-export-title">Export Content</div>
+                <div className="ss-export-desc">Full CMS backup as JSON or titles/slugs as CSV</div>
+              </div>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <select className="ss-select" style={{ flex: 1 }} value={exportFormat} onChange={e => setExportFormat(e.target.value as 'json' | 'csv')}>
+                  <option value="json">JSON (full backup)</option>
+                  <option value="csv">CSV (titles/slugs only)</option>
+                </select>
+                <button className="ss-btn-primary" onClick={() => downloadCSV('content.csv', [{ format: exportFormat }])}>
+                  Export
+                </button>
+              </div>
+            </div>
+
+            {/* Database Backup */}
+            <div className="ss-export-card">
+              <div>
+                <div className="ss-export-title">Database Backup</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: '0.78rem', color: '#94A3B8' }}>
+                    <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#4ade80', display: 'inline-block' }} />
+                    Last backup: 2 hours ago
+                  </div>
+                  <div style={{ fontSize: '0.78rem', color: '#64748B' }}>Schedule: Daily at 02:00 UTC · Retention: 30 days</div>
+                </div>
+              </div>
+              <button className={backupState === 'queued' ? 'ss-btn-success' : 'ss-btn-primary'}
+                onClick={triggerBackup} disabled={backupState === 'queued'}>
+                {backupState === 'queued' ? '✓ Backup queued' : 'Trigger Backup Now'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* GDPR */}
+      <div className="ss-card">
+        <div className="ss-card-header">
+          <div><div className="ss-card-title">Data Privacy & GDPR</div></div>
+        </div>
+        <div className="ss-card-body" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          {/* Deletion queue */}
+          <div>
+            <div className="ss-section-label">Deletion Request Queue</div>
+            <table className="ss-table">
+              <thead><tr><th>Requester Email</th><th>Received</th><th>Status</th><th>Action</th></tr></thead>
+              <tbody>
+                {deletionRequests.map(req => (
+                  <tr key={req.email}>
+                    <td style={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>{req.email}</td>
+                    <td>{rel(req.received)}</td>
+                    <td>
+                      {req.status === 'pending'
+                        ? <span style={{ background: 'rgba(232,184,77,0.1)', border: '1px solid rgba(232,184,77,0.25)', color: '#E8B84D', padding: '2px 9px', borderRadius: 100, fontSize: '0.7rem', fontWeight: 600 }}>Pending</span>
+                        : <span style={{ background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.25)', color: '#4ade80', padding: '2px 9px', borderRadius: 100, fontSize: '0.7rem', fontWeight: 600 }}>Processed</span>
+                      }
+                    </td>
+                    <td>
+                      {req.status === 'pending'
+                        ? <button className="ss-btn-danger" onClick={() => setConfirmDelete({ email: req.email })}>Process Deletion</button>
+                        : <button className="ss-btn">View Record</button>
+                      }
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Manual deletion */}
+          <div>
+            <div className="ss-section-label">Manual Deletion</div>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <input className="ss-input" style={{ flex: 1 }} type="email" placeholder="Enter email address to delete"
+                value={manualEmail} onChange={e => setManualEmail(e.target.value)} />
+              <button className="ss-btn-danger" onClick={() => manualEmail && setManualConfirm(manualEmail)} disabled={!manualEmail}>
+                Find & Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Deletion Confirm Dialog */}
+      {(confirmDelete || manualConfirm) && (
+        <div className="ss-confirm-overlay" onClick={e => { if (e.target === e.currentTarget) { setConfirmDelete(null); setManualConfirm(null) } }}>
+          <div className="ss-confirm-box">
+            <div className="ss-confirm-title">Confirm Deletion</div>
+            <div className="ss-confirm-text">
+              This will permanently delete all data associated with{' '}
+              <strong style={{ color: '#E2E8F0' }}>{confirmDelete?.email ?? manualConfirm}</strong>.
+              This cannot be undone.
+            </div>
+            <div className="ss-confirm-actions">
+              <button className="ss-btn" onClick={() => { setConfirmDelete(null); setManualConfirm(null) }}>Cancel</button>
+              <button className="ss-btn-danger" disabled={deleting}
+                onClick={() => handleDelete((confirmDelete?.email ?? manualConfirm) as string)}>
+                {deleting ? 'Deleting...' : 'Confirm Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ─────────────────────────────────────────────────────────── */
+/* Billing Tab                                                 */
+/* ─────────────────────────────────────────────────────────── */
+
+function BillingTab() {
+  const [showCreateInvoice, setShowCreateInvoice] = useState(false)
+  const [invClient, setInvClient] = useState('')
+  const [invDesc, setInvDesc] = useState('')
+  const [invAmount, setInvAmount] = useState('')
+  const [invDue, setInvDue] = useState('')
+  const [creating, setCreating] = useState(false)
+  const [createSuccess, setCreateSuccess] = useState(false)
+  const [invoices, setInvoices] = useState<Invoice[]>(MOCK_INVOICES)
+
+  const handleCreate = async () => {
+    setCreating(true)
+    await new Promise(r => setTimeout(r, 1500))
+    const newInv: Invoice = {
+      id: `INV-24${String(invoices.length + 1).padStart(2, '0')}`,
+      client: invClient, amount: Number(invAmount),
+      date: new Date().toISOString().slice(0, 10), status: 'pending',
+    }
+    setInvoices(prev => [newInv, ...prev])
+    setCreating(false)
+    setCreateSuccess(true)
+    setTimeout(() => { setShowCreateInvoice(false); setCreateSuccess(false); setInvClient(''); setInvDesc(''); setInvAmount(''); setInvDue('') }, 1800)
+  }
+
+  const INV_STATUS_COLORS = { paid: '#4ade80', pending: '#E8B84D', overdue: '#EF4444' }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      {/* Revenue Summary */}
+      <div className="ss-grid-3">
+        <div className="ss-rev-card">
+          <div className="ss-rev-label">Monthly Recurring Revenue</div>
+          <div className="ss-rev-value">{fmt(96400)}</div>
+          <div style={{ fontSize: '0.75rem', color: '#4ade80', marginTop: 4 }}>+8.4% vs last month</div>
+        </div>
+        <div className="ss-rev-card">
+          <div className="ss-rev-label">YTD Revenue</div>
+          <div className="ss-rev-value">{fmt(276800)}</div>
+          <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: 4 }}>Q1 2026</div>
+        </div>
+        <div className="ss-rev-card">
+          <div className="ss-rev-label">Annual Run Rate</div>
+          <div className="ss-rev-value">{fmt(1156800)}</div>
+          <div style={{ fontSize: '0.75rem', color: '#6BA3E8', marginTop: 4 }}>Based on current MRR</div>
+        </div>
+      </div>
+
+      {/* Active Subscriptions */}
+      <div className="ss-card">
+        <div className="ss-card-header">
+          <div><div className="ss-card-title">Active Subscriptions</div><div className="ss-card-sub">Services + Agents + Cloud</div></div>
+        </div>
+        <div style={{ overflowX: 'auto' }}>
+          <table className="ss-table">
+            <thead><tr><th>Client</th><th>Plan</th><th>Service</th><th>MRR</th><th>Status</th><th>Next Invoice</th><th>Actions</th></tr></thead>
+            <tbody>
+              {MOCK_SUBS.map((s, i) => (
+                <tr key={i}>
+                  <td style={{ color: '#E2E8F0', fontWeight: 600 }}>{s.client}</td>
+                  <td>
+                    <span style={{ background: `${PLAN_COLORS[s.plan.toLowerCase()] ?? '#64748B'}18`, border: `1px solid ${PLAN_COLORS[s.plan.toLowerCase()] ?? '#64748B'}30`, color: PLAN_COLORS[s.plan.toLowerCase()] ?? '#64748B', padding: '2px 9px', borderRadius: 100, fontSize: '0.72rem', fontWeight: 600 }}>
+                      {s.plan}
+                    </span>
+                  </td>
+                  <td>{s.service}</td>
+                  <td style={{ color: '#4ade80', fontWeight: 600 }}>{fmt(s.mrr)}</td>
+                  <td><span className="ss-status-connected"><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ade80', display: 'inline-block' }} />Active</span></td>
+                  <td style={{ fontSize: '0.78rem', color: '#64748B' }}>{s.next}</td>
+                  <td><button className="ss-btn">View</button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Invoice History */}
+      <div className="ss-card">
+        <div className="ss-card-header">
+          <div><div className="ss-card-title">Invoice History</div></div>
+          <button className="ss-btn-primary" onClick={() => setShowCreateInvoice(true)}>Create Invoice</button>
+        </div>
+        <div style={{ overflowX: 'auto' }}>
+          <table className="ss-table">
+            <thead><tr><th>Invoice #</th><th>Client</th><th>Amount</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+              {invoices.map(inv => (
+                <tr key={inv.id}>
+                  <td style={{ fontFamily: 'monospace', color: '#94A3B8' }}>{inv.id}</td>
+                  <td style={{ color: '#E2E8F0' }}>{inv.client}</td>
+                  <td style={{ color: '#E2E8F0', fontWeight: 600 }}>{fmt(inv.amount)}</td>
+                  <td style={{ fontSize: '0.78rem', color: '#64748B' }}>{inv.date}</td>
+                  <td>
+                    <span style={{ background: `${INV_STATUS_COLORS[inv.status]}18`, border: `1px solid ${INV_STATUS_COLORS[inv.status]}30`, color: INV_STATUS_COLORS[inv.status], padding: '2px 9px', borderRadius: 100, fontSize: '0.72rem', fontWeight: 600, textTransform: 'capitalize' }}>
+                      {inv.status}
+                    </span>
+                  </td>
+                  <td>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <button className="ss-btn">View</button>
+                      {inv.status === 'pending' && <button className="ss-btn-primary" style={{ fontSize: '0.75rem', padding: '5px 10px' }}>Send</button>}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Stripe info */}
+      <div className="ss-info-box">
+        Actual invoice generation and payment collection handled via Stripe. This tool creates draft invoices for internal tracking.
+      </div>
+
+      {/* Create Invoice Modal */}
+      {showCreateInvoice && (
+        <div className="ss-modal-overlay" onClick={e => e.target === e.currentTarget && !creating && setShowCreateInvoice(false)}>
+          <div className="ss-modal">
+            <div className="ss-modal-header">
+              <span className="ss-modal-title">Create Invoice</span>
+              <button className="ss-modal-close" onClick={() => setShowCreateInvoice(false)} aria-label="Close">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                  <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+                </svg>
+              </button>
+            </div>
+            {createSuccess ? (
+              <div style={{ padding: '36px 22px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, textAlign: 'center' }}>
+                <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'rgba(74,222,128,0.12)', border: '1px solid rgba(74,222,128,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M5 13l4 4L19 7" stroke="#4ade80" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                <div style={{ color: '#E2E8F0', fontWeight: 600 }}>Invoice created successfully</div>
+              </div>
+            ) : (
+              <>
+                <div className="ss-modal-body">
+                  <div>
+                    <label className="ss-field-label">Client</label>
+                    <select className="ss-select ss-input-full" value={invClient} onChange={e => setInvClient(e.target.value)}>
+                      <option value="">Select client...</option>
+                      {MOCK_SUBS.map(s => <option key={s.client} value={s.client}>{s.client}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="ss-field-label">Description</label>
+                    <textarea className="ss-input ss-input-full" rows={3} placeholder="Invoice description" value={invDesc}
+                      onChange={e => setInvDesc(e.target.value)}
+                      style={{ resize: 'vertical', fontFamily: "'Outfit', sans-serif", padding: '8px 12px', background: '#0a0e1a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: '#E2E8F0', fontSize: '0.83rem', outline: 'none', boxSizing: 'border-box' }} />
+                  </div>
+                  <div style={{ display: 'flex', gap: 12 }}>
+                    <div style={{ flex: 1 }}>
+                      <label className="ss-field-label">Amount ($)</label>
+                      <input className="ss-input ss-input-full" type="number" placeholder="0.00" value={invAmount} onChange={e => setInvAmount(e.target.value)} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label className="ss-field-label">Due Date</label>
+                      <input className="ss-input ss-input-full" type="date" value={invDue} onChange={e => setInvDue(e.target.value)} />
+                    </div>
+                  </div>
+                </div>
+                <div className="ss-modal-footer">
+                  <button className="ss-btn" onClick={() => setShowCreateInvoice(false)}>Cancel</button>
+                  <button className="ss-btn-primary" onClick={handleCreate} disabled={creating || !invClient || !invAmount}>
+                    {creating ? 'Creating...' : 'Create Invoice'}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ─────────────────────────────────────────────────────────── */
+/* Main Page                                                   */
+/* ─────────────────────────────────────────────────────────── */
+
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState<Tab>('general');
-  const [toasts, setToasts] = useState<ToastMsg[]>([]);
-  let nextId = 0;
+  const [tab, setTab] = useState<SettingsTab>('notifications')
 
-  const addToast = (text: string) => {
-    const id = ++nextId;
-    setToasts((t) => [...t, { id, text }]);
-  };
-  const removeToast = (id: number) => setToasts((t) => t.filter((x) => x.id !== id));
-
-  const TABS: { id: Tab; label: string }[] = [
-    { id: 'general', label: 'General' },
-    { id: 'notifications', label: 'Notifications' },
-    { id: 'integrations', label: 'Integrations' },
-    { id: 'security', label: 'Security' },
-  ];
+  const tabs: { key: SettingsTab; label: string }[] = [
+    { key: 'notifications', label: 'Notifications' },
+    { key: 'integrations',  label: 'Integrations'  },
+    { key: 'nexus',         label: 'NEXUS Config'  },
+    { key: 'data',          label: 'Data'          },
+    { key: 'billing',       label: 'Billing'       },
+  ]
 
   return (
     <>
-      <style dangerouslySetInnerHTML={{ __html: STYLES }} />
-      <div className="sett-root">
-
-        {/* ── Header ── */}
+      <style>{STYLES}</style>
+      <div className="ss-root">
+        {/* Header */}
         <div>
-          <h1 className="sett-page-title">Settings</h1>
-          <p className="sett-page-sub">Manage workspace configuration, notifications, integrations, and security.</p>
+          <div className="ss-title">System Settings</div>
+          <div className="ss-sub">Notifications, integrations, agent config, data, and billing</div>
         </div>
 
-        {/* ── Tabs ── */}
-        <div className="sett-tabs">
-          {TABS.map((t) => (
-            <button
-              key={t.id}
-              className={`sett-tab${activeTab === t.id ? ' active' : ''}`}
-              onClick={() => setActiveTab(t.id)}
-            >
+        {/* Tabs */}
+        <div className="ss-tabs">
+          {tabs.map(t => (
+            <button key={t.key} className={`ss-tab${tab === t.key ? ' active' : ''}`} onClick={() => setTab(t.key)}>
               {t.label}
             </button>
           ))}
         </div>
 
-        {/* ── Tab content ── */}
-        {activeTab === 'general' && <GeneralTab onSave={() => addToast('General settings saved.')} />}
-        {activeTab === 'notifications' && <NotificationsTab onSave={() => addToast('Notification settings saved.')} />}
-        {activeTab === 'integrations' && <IntegrationsTab />}
-        {activeTab === 'security' && <SecurityTab onSave={() => addToast('Security settings updated.')} />}
-
+        {/* Tab content */}
+        {tab === 'notifications' && <NotificationsTab />}
+        {tab === 'integrations'  && <IntegrationsTab />}
+        {tab === 'nexus'         && <NEXUSTab />}
+        {tab === 'data'          && <DataTab />}
+        {tab === 'billing'       && <BillingTab />}
       </div>
-
-      {/* ── Toast stack ── */}
-      {toasts.map((t) => (
-        <Toast key={t.id} msg={t} onDone={() => removeToast(t.id)} />
-      ))}
     </>
-  );
+  )
 }
