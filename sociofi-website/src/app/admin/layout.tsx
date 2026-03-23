@@ -1,6 +1,10 @@
 import type { Metadata } from 'next'
 import AdminShell from '@/components/admin/AdminShell'
 
+// Admin panel is fully dynamic — never statically prerendered.
+// Prevents Supabase client errors during `next build` when env vars are absent.
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'Admin — SocioFi Technology',
   description: 'SocioFi Admin Panel',

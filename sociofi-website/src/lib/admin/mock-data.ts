@@ -1,5 +1,5 @@
 import { Submission as LegacySubmission, Ticket, Contact as LegacyContact, ActivityLog } from '@/lib/supabase/types';
-import type { Submission, Contact, ContactActivity, PipelineEntry } from '@/lib/admin/types'
+import type { Submission, Contact, ContactActivity, PipelineEntry, CalendarEntry, AgentConfig, ApprovalItem, AgentRun } from '@/lib/admin/types'
 
 const now = Date.now();
 const hoursAgo = (h: number) => new Date(now - h * 3_600_000).toISOString();
@@ -527,4 +527,407 @@ export const MOCK_MEDIA: MediaItem[] = [
     folder: 'blog', alt_text: 'Developer at laptop — Studio division hero', width: 800, height: 533,
     uploaded_by: 'SCRIBE', created_at: new Date(Date.now() - 8*86400000).toISOString(),
   },
+]
+
+// ─── Content Calendar Mock Data ───────────────────────────────────────────────
+// Current month = March 2026 (per project date)
+
+const d = (day: number) => `2026-03-${String(day).padStart(2, '0')}`
+const ts = (day: number) => new Date(`2026-03-${String(day).padStart(2, '0')}T10:00:00Z`).toISOString()
+
+export const MOCK_CALENDAR_ENTRIES: CalendarEntry[] = [
+  {
+    id: 'cal1',
+    title: 'Why AI-built apps fail in production',
+    content_type: 'blog_post',
+    category: 'Engineering',
+    division: 'studio',
+    target_date: d(3),
+    status: 'published',
+    assignee: 'scribe',
+    priority: 'important',
+    keywords: ['AI', 'production', 'debugging', 'founders'],
+    outline: '1. The gap between prototype and product\n2. Common failure points\n3. How human oversight fixes it',
+    content_id: 'cnt-001',
+    scribe_stage: 'in_review',
+    created_at: ts(1), updated_at: ts(3),
+  },
+  {
+    id: 'cal2',
+    title: 'Studio client case study: NexaLabs',
+    content_type: 'case_study',
+    category: 'Portfolio',
+    division: 'studio',
+    target_date: d(5),
+    status: 'published',
+    assignee: 'Kamrul Hasan',
+    priority: 'important',
+    keywords: ['case study', 'SaaS', 'product development'],
+    created_at: ts(1), updated_at: ts(5),
+  },
+  {
+    id: 'cal3',
+    title: 'March newsletter: Q2 preview',
+    content_type: 'newsletter',
+    category: 'Company',
+    division: 'studio',
+    target_date: d(7),
+    status: 'published',
+    assignee: 'scribe',
+    priority: 'normal',
+    keywords: ['newsletter', 'Q2', 'updates'],
+    scribe_stage: 'in_review',
+    created_at: ts(2), updated_at: ts(6),
+  },
+  {
+    id: 'cal4',
+    title: 'The founder\'s guide to shipping fast',
+    content_type: 'blog_post',
+    category: 'Founders',
+    division: 'studio',
+    target_date: d(10),
+    status: 'published',
+    assignee: 'scribe',
+    priority: 'normal',
+    keywords: ['founders', 'shipping', 'MVP', 'speed'],
+    scribe_stage: 'draft_ready',
+    created_at: ts(4), updated_at: ts(8),
+  },
+  {
+    id: 'cal5',
+    title: 'Understanding managed hosting SLAs',
+    content_type: 'blog_post',
+    category: 'Cloud',
+    division: 'cloud',
+    target_date: d(12),
+    status: 'review',
+    assignee: 'scribe',
+    priority: 'normal',
+    keywords: ['cloud', 'SLA', 'uptime', 'hosting'],
+    scribe_stage: 'draft_ready',
+    created_at: ts(5), updated_at: ts(10),
+  },
+  {
+    id: 'cal6',
+    title: 'DataSync cloud migration case study',
+    content_type: 'case_study',
+    category: 'Cloud',
+    division: 'cloud',
+    target_date: d(14),
+    status: 'in_progress',
+    assignee: 'Arifur Rahman',
+    priority: 'important',
+    keywords: ['cloud migration', 'AWS', 'case study'],
+    created_at: ts(6), updated_at: ts(12),
+  },
+  {
+    id: 'cal7',
+    title: 'Building autonomous AI agents in 2026',
+    content_type: 'blog_post',
+    category: 'AI',
+    division: 'labs',
+    target_date: d(17),
+    status: 'in_progress',
+    assignee: 'scribe',
+    priority: 'important',
+    keywords: ['AI agents', 'autonomous', 'LLM', 'agentic'],
+    scribe_stage: 'outline_ready',
+    outline: '1. What autonomous agents can do today\n2. Architecture patterns\n3. SocioFi NEXUS system\n4. Future outlook',
+    created_at: ts(7), updated_at: ts(15),
+  },
+  {
+    id: 'cal8',
+    title: 'AI bootcamp Q2 cohort — now open',
+    content_type: 'newsletter',
+    category: 'Academy',
+    division: 'academy',
+    target_date: d(18),
+    status: 'planned',
+    assignee: 'scribe',
+    priority: 'important',
+    keywords: ['bootcamp', 'AI', 'Q2', 'enrolment'],
+    scribe_stage: 'pending',
+    created_at: ts(8), updated_at: ts(8),
+  },
+  {
+    id: 'cal9',
+    title: 'Ventures portfolio spotlight: NexaLabs',
+    content_type: 'case_study',
+    category: 'Ventures',
+    division: 'ventures',
+    target_date: d(20),
+    status: 'planned',
+    assignee: 'Arifur Rahman',
+    priority: 'normal',
+    keywords: ['ventures', 'portfolio', 'startup', 'spotlight'],
+    created_at: ts(9), updated_at: ts(9),
+  },
+  {
+    id: 'cal10',
+    title: 'React Native vs Flutter in 2026',
+    content_type: 'blog_post',
+    category: 'Engineering',
+    division: 'studio',
+    target_date: d(22),
+    status: 'planned',
+    assignee: 'scribe',
+    priority: 'normal',
+    keywords: ['React Native', 'Flutter', 'mobile', '2026'],
+    scribe_stage: 'pending',
+    created_at: ts(10), updated_at: ts(10),
+  },
+  {
+    id: 'cal11',
+    title: 'Free AI tools workshop — April session',
+    content_type: 'workshop',
+    category: 'Academy',
+    division: 'academy',
+    target_date: d(25),
+    status: 'planned',
+    assignee: 'Kamrul Hasan',
+    priority: 'important',
+    keywords: ['workshop', 'AI tools', 'free', 'April'],
+    created_at: ts(11), updated_at: ts(11),
+  },
+  {
+    id: 'cal12',
+    title: 'SocioFi Cloud vs AWS self-managed',
+    content_type: 'blog_post',
+    category: 'Cloud',
+    division: 'cloud',
+    target_date: d(27),
+    status: 'planned',
+    assignee: 'scribe',
+    priority: 'normal',
+    keywords: ['cloud', 'AWS', 'comparison', 'managed hosting'],
+    scribe_stage: 'pending',
+    created_at: ts(12), updated_at: ts(12),
+  },
+  {
+    id: 'cal13',
+    title: 'Open source AI utilities release',
+    content_type: 'blog_post',
+    category: 'Open Source',
+    division: 'labs',
+    target_date: d(29),
+    status: 'planned',
+    assignee: 'Kamrul Hasan',
+    priority: 'normal',
+    keywords: ['open source', 'GitHub', 'AI utilities'],
+    created_at: ts(13), updated_at: ts(13),
+  },
+  {
+    id: 'cal14',
+    title: 'April content plan preview',
+    content_type: 'email',
+    category: 'Company',
+    division: 'studio',
+    target_date: d(31),
+    status: 'planned',
+    assignee: 'scribe',
+    priority: 'normal',
+    keywords: ['email', 'April', 'content plan'],
+    scribe_stage: 'pending',
+    created_at: ts(14), updated_at: ts(14),
+  },
+]
+
+// ─── NEXUS Agent System Mock Data ─────────────────────────────────────────────
+
+export const MOCK_AGENT_CONFIGS: AgentConfig[] = [
+  { name: 'NEXUS',     label: 'NEXUS',     tagline: 'Master orchestrator — coordinates all agents', status: 'active',  last_run: hoursAgo(0.5),  success_rate: 99, tasks_week: 127, approvals_pending: 0,  color: '#3A589E' },
+  { name: 'INTAKE',    label: 'INTAKE',    tagline: 'Qualifies leads and processes form submissions',  status: 'active',  last_run: hoursAgo(0.2),  success_rate: 96, tasks_week: 43,  approvals_pending: 2,  color: '#59A392' },
+  { name: 'HERALD',    label: 'HERALD',    tagline: 'Personalized email outreach and follow-ups',      status: 'running', last_run: hoursAgo(0.1),  success_rate: 94, tasks_week: 31,  approvals_pending: 3,  color: '#6BA3E8' },
+  { name: 'SCRIBE',    label: 'SCRIBE',    tagline: 'Content creation — blog posts and case studies',  status: 'idle',    last_run: hoursAgo(4),    success_rate: 88, tasks_week: 8,   approvals_pending: 2,  color: '#7B6FE8' },
+  { name: 'OVERSEER',  label: 'OVERSEER',  tagline: 'Client app monitoring and incident detection',    status: 'active',  last_run: hoursAgo(0.05), success_rate: 99, tasks_week: 204, approvals_pending: 1,  color: '#E8B84D' },
+  { name: 'PATCHER',   label: 'PATCHER',   tagline: 'Automated bug fixes and dependency updates',      status: 'idle',    last_run: hoursAgo(12),   success_rate: 91, tasks_week: 14,  approvals_pending: 1,  color: '#E8916F' },
+  { name: 'ARCHITECT', label: 'ARCHITECT', tagline: 'System design reviews and architecture checks',   status: 'idle',    last_run: daysAgo(1),     success_rate: 97, tasks_week: 5,   approvals_pending: 0,  color: '#4DBFA8' },
+  { name: 'FORGE',     label: 'FORGE',     tagline: 'Feature development and code generation',         status: 'running', last_run: hoursAgo(1),    success_rate: 89, tasks_week: 19,  approvals_pending: 2,  color: '#72C4B2' },
+  { name: 'SENTINEL',  label: 'SENTINEL',  tagline: 'Security scanning and vulnerability monitoring',  status: 'active',  last_run: hoursAgo(0.3),  success_rate: 99, tasks_week: 56,  approvals_pending: 0,  color: '#EF4444' },
+  { name: 'ATLAS',     label: 'ATLAS',     tagline: 'Cloud infrastructure provisioning and scaling',   status: 'idle',    last_run: daysAgo(2),     success_rate: 98, tasks_week: 7,   approvals_pending: 0,  color: '#5BB5E0' },
+  { name: 'CHRONICLE', label: 'CHRONICLE', tagline: 'Analytics, reporting and performance summaries',  status: 'active',  last_run: hoursAgo(2),    success_rate: 95, tasks_week: 22,  approvals_pending: 1,  color: '#A78BFA' },
+  { name: 'MENTOR',    label: 'MENTOR',    tagline: 'Academy content creation and course updates',     status: 'idle',    last_run: daysAgo(3),     success_rate: 92, tasks_week: 4,   approvals_pending: 0,  color: '#F0D080' },
+  { name: 'SCOUT',     label: 'SCOUT',     tagline: 'Research, competitive intelligence and trends',   status: 'paused',  last_run: daysAgo(5),     success_rate: 87, tasks_week: 2,   approvals_pending: 0,  color: '#94A3B8' },
+]
+
+export const MOCK_APPROVAL_ITEMS: ApprovalItem[] = [
+  // HERALD — email approvals
+  {
+    id: 'appr-001', agent: 'HERALD', action: 'send_email', confidence: 94, priority: 'normal',
+    status: 'pending', title: 'Welcome email to Sarah Chen',
+    context: 'New Studio/Rescue inquiry, AI score 78, mentioned deployment issues — personalized response crafted',
+    payload: {
+      to: 'sarah@techcorp.io', to_name: 'Sarah Chen',
+      subject: 'Welcome, Sarah — Let\'s Talk About Your Deployment Issue',
+      html: `<p>Hi Sarah,</p>
+<p>Thanks for reaching out to SocioFi. I read through your message about the deployment challenges you're running into — this is genuinely one of the most common problems we see with AI-built apps, and it's absolutely fixable.</p>
+<p>Here's the honest picture: the code your AI tool generated is probably quite solid. What's usually missing is the scaffolding around it — proper environment configs, CI/CD, error handling, and someone who knows how to debug at 2am when something breaks.</p>
+<p>That's exactly where our Studio team comes in. We'd love to get on a quick 30-minute call to understand your stack and see if we can help.</p>
+<p><a href="https://sociofi.co/studio/start-project">Book a free intro call →</a></p>
+<p>— Arifur</p>`,
+      division: 'studio', submission_id: 's1',
+    },
+    created_at: hoursAgo(1),
+  },
+  {
+    id: 'appr-002', agent: 'HERALD', action: 'send_email', confidence: 87, priority: 'high',
+    status: 'pending', title: 'Follow-up: James Okafor (Rescue inquiry)',
+    context: 'Rescue inquiry, 3 days no response, AI score 82 — sending gentle follow-up',
+    payload: {
+      to: 'james@founderhq.co', to_name: 'James Okafor',
+      subject: 'Quick follow-up — your rescue project',
+      html: `<p>Hey James,</p>
+<p>Following up on your Rescue Ship inquiry from a few days ago. I know things get busy.</p>
+<p>Your situation — an offshore-built app that works but breaks weekly — is one we've helped fix dozens of times. We can usually stabilize it within 2 weeks and have a clear maintenance plan in place.</p>
+<p>Happy to hop on a 20-minute call this week if that works.</p>
+<p>— Kamrul</p>`,
+      division: 'studio', submission_id: 's2',
+    },
+    created_at: hoursAgo(2),
+  },
+  {
+    id: 'appr-003', agent: 'HERALD', action: 'send_newsletter', confidence: 91, priority: 'normal',
+    status: 'pending', title: 'March newsletter to 847 subscribers',
+    context: 'Monthly newsletter — SCRIBE drafted, HERALD ready to send via Resend',
+    payload: {
+      list: 'main_subscribers', count: 847,
+      subject: 'SocioFi March Update: New Studio Projects + Labs Research Drop',
+      preview_text: 'What we shipped, what we learned, and what\'s coming in April.',
+      html: `<h2>March Update from SocioFi</h2>
+<p>It's been a busy month. Here's what the team has been up to…</p>
+<h3>Studio shipped 3 new products</h3>
+<p>InboxFlow (AI email management), DataSync dashboard upgrade, and a fintech prototype for a Dhaka-based startup…</p>
+<h3>Labs published new research</h3>
+<p>Our deep-dive into autonomous agent memory systems went live. 1,200 reads in the first 48 hours…</p>`,
+    },
+    created_at: hoursAgo(3),
+  },
+  // SCRIBE — content approvals
+  {
+    id: 'appr-004', agent: 'SCRIBE', action: 'publish_content', confidence: 88, priority: 'normal',
+    status: 'pending', title: 'Blog: "Why AI-Generated Code Needs Human Review"',
+    context: 'Scheduled content from March 10 calendar entry · Labs division · Written on-time',
+    payload: {
+      content_type: 'blog_post', division: 'labs', category: 'AI Development',
+      word_count: 1847, reading_time: 10,
+      slug: '/labs/blog/why-ai-generated-code-needs-human-review',
+      excerpt: 'AI coding tools have gotten remarkably good at generating syntactically correct code. But there\'s a growing gap between "it runs" and "it\'s production-ready." Here\'s what human engineers catch that AI tools miss.',
+      preview: `AI coding tools have gotten remarkably good. You describe what you want, and within seconds you have a working function, a complete component, sometimes an entire module.
+
+But here's what we've learned after helping dozens of founders take AI-built prototypes into production: **the code running on your laptop is not the same problem as the code running in production**.
+
+The gap between "it works on my machine" and "it works for 10,000 users at 3am on a Tuesday" is where most AI-built apps fall apart. Not because the AI wrote bad code — but because production environments surface assumptions that development environments hide.
+
+**What AI tools miss (and humans catch):**
+
+1. **Race conditions under load** — AI writes correct single-threaded logic. Production introduces concurrency. An AI tool won't anticipate that your payment webhook handler might be called 50 times simultaneously.
+
+2. **Secret management** — AI-generated code often includes hardcoded credentials, .env examples in the wrong place, or insecure defaults. We fix these before every deployment.`,
+    },
+    created_at: hoursAgo(5),
+  },
+  {
+    id: 'appr-005', agent: 'SCRIBE', action: 'publish_content', confidence: 82, priority: 'normal',
+    status: 'pending', title: 'Case Study: DataSync Cloud Migration',
+    context: 'Calendar entry cal6 · 5 days past target date · Cloud division · Awaiting review',
+    payload: {
+      content_type: 'case_study', division: 'cloud', category: 'Portfolio',
+      word_count: 1240, reading_time: 7,
+      slug: '/cloud/case-studies/datasync-migration',
+      excerpt: 'How DataSync cut their AWS bill by 40% and eliminated 3 weekly incidents by moving to SocioFi managed cloud.',
+      preview: `DataSync came to us managing their own AWS infrastructure — three EC2 instances, an RDS cluster, and a custom-built monitoring setup that required a dedicated engineer 8 hours a week just to maintain.
+
+The situation wasn't unusual. Their ML pipeline was solid. Their API was well-designed. But their infrastructure had grown organically, and every month brought new surprises: an unexpected bill spike, a 2am incident, a dependency that broke during a routine update.
+
+**What we did:**
+In week one, we conducted a full infrastructure audit. We found 14 configuration issues that were costing money or creating risk. The biggest: they were running oversized instances for predictable, low-variance workloads.`,
+    },
+    created_at: hoursAgo(8),
+  },
+  // OVERSEER — monitoring approval
+  {
+    id: 'appr-006', agent: 'OVERSEER', action: 'escalate_ticket', confidence: 96, priority: 'high',
+    status: 'pending', title: 'Escalate: InboxFlow API latency spike (P2)',
+    context: 'p95 latency jumped from 180ms to 2.3s over 15 min · Likely DB connection pool exhaustion',
+    payload: {
+      client: 'InboxFlow', incident_id: 'INC-2247',
+      metric: 'API p95 latency', current: '2.3s', baseline: '180ms',
+      root_cause_hypothesis: 'PostgreSQL connection pool exhaustion (current: 98/100 connections)',
+      suggested_action: 'Scale connection pool to 200, investigate long-running queries',
+      notify: ['sarah@techcorp.io'],
+    },
+    created_at: hoursAgo(0.3),
+  },
+  // PATCHER — patch approval
+  {
+    id: 'appr-007', agent: 'PATCHER', action: 'apply_patch', confidence: 93, priority: 'normal',
+    status: 'pending', title: 'Dependency update: next@14.2.21 → 15.1.4',
+    context: 'Security patch + performance improvements · Tested on staging · No breaking changes detected',
+    payload: {
+      package: 'next', from: '14.2.21', to: '15.1.4',
+      affected_projects: ['InboxFlow', 'DataSync Dashboard'],
+      test_result: 'pass', staging_url: 'https://staging.sociofi.co',
+      breaking_changes: [],
+      release_notes_summary: 'Security fix for CVE-2026-1234, ~12% reduction in build times',
+    },
+    created_at: hoursAgo(6),
+  },
+  // CHRONICLE — report approval
+  {
+    id: 'appr-008', agent: 'CHRONICLE', action: 'send_report', confidence: 97, priority: 'normal',
+    status: 'pending', title: 'Weekly performance report to Arifur',
+    context: 'Automated Monday morning report — covers all divisions, key metrics, flags',
+    payload: {
+      to: 'arifur@sociofi.co', report_type: 'weekly_performance',
+      period: 'March 17–23, 2026',
+      highlights: ['Studio: 3 new leads, 1 project launched', 'Services: 0 SLA breaches', 'SCRIBE: 2 posts queued for review', 'Academy: 14 new enrolments'],
+    },
+    created_at: hoursAgo(0.5),
+  },
+  // FORGE — feature deployment
+  {
+    id: 'appr-009', agent: 'FORGE', action: 'deploy_feature', confidence: 85, priority: 'high',
+    status: 'pending', title: 'Deploy: InboxFlow smart-reply feature to staging',
+    context: 'Feature complete · Unit tests pass (98%) · E2E tests pass · Ready for staging review',
+    payload: {
+      project: 'InboxFlow', feature: 'Smart Reply Suggestions',
+      branch: 'feature/smart-replies-v2',
+      test_coverage: 98, e2e_pass: true,
+      staging_url: 'https://staging.inboxflow.app/smart-replies',
+      pr_url: 'https://github.com/sociofi/inboxflow/pull/142',
+      estimated_impact: 'Reduces reply time by ~65% for common email types',
+    },
+    created_at: hoursAgo(1),
+  },
+  // Already decided items (for history)
+  {
+    id: 'appr-010', agent: 'HERALD', action: 'send_email', confidence: 92, priority: 'normal',
+    status: 'approved', title: 'Onboarding email to Priya Mehta',
+    context: 'Cloud inquiry — approved and sent',
+    payload: { to: 'priya@datasync.in', to_name: 'Priya Mehta', subject: 'Welcome to SocioFi Cloud assessment', html: '…' },
+    created_at: daysAgo(1), decided_at: daysAgo(1), decided_by: 'Arifur Rahman',
+  },
+  {
+    id: 'appr-011', agent: 'SCRIBE', action: 'publish_content', confidence: 79, priority: 'normal',
+    status: 'edited', title: 'Blog: "Founder\'s guide to shipping fast"',
+    context: 'Edited before publishing — intro rewritten, CTA added',
+    payload: { content_type: 'blog_post', division: 'studio', word_count: 1340 },
+    created_at: daysAgo(2), decided_at: daysAgo(2), decided_by: 'Kamrul Hasan',
+    edit_details: { changed_sections: ['introduction', 'conclusion'], added_cta: true },
+  },
+]
+
+export const MOCK_AGENT_RUNS: AgentRun[] = [
+  { id: 'run-001', agent: 'INTAKE',    trigger: 'webhook',   status: 'completed', started_at: hoursAgo(0.2),  duration_ms: 1240,  input_summary: 'New Studio form submission from Sarah Chen', output_summary: 'Lead qualified (score: 78), contact created, HERALD triggered', approvals_created: 1 },
+  { id: 'run-002', agent: 'HERALD',    trigger: 'auto',      status: 'running',   started_at: hoursAgo(0.1),  input_summary: 'Send welcome email to Sarah Chen (submission s1)',   approvals_created: 1 },
+  { id: 'run-003', agent: 'OVERSEER',  trigger: 'schedule',  status: 'completed', started_at: hoursAgo(0.05), duration_ms: 340,   input_summary: 'Monitor InboxFlow API — 5-min health check', output_summary: 'Latency spike detected — p95: 2.3s (baseline: 180ms)', approvals_created: 1 },
+  { id: 'run-004', agent: 'NEXUS',     trigger: 'schedule',  status: 'completed', started_at: hoursAgo(0.5),  duration_ms: 2100,  input_summary: 'Morning orchestration — routing tasks to agents', output_summary: 'OVERSEER, HERALD, CHRONICLE tasks dispatched', approvals_created: 0 },
+  { id: 'run-005', agent: 'SCRIBE',    trigger: 'schedule',  status: 'completed', started_at: hoursAgo(5),    duration_ms: 42000, input_summary: 'Write blog post: "Why AI-Generated Code Needs Human Review"', output_summary: '1,847 words drafted, queued for approval', approvals_created: 1 },
+  { id: 'run-006', agent: 'FORGE',     trigger: 'manual',    status: 'running',   started_at: hoursAgo(1),    input_summary: 'Build InboxFlow smart-reply feature v2',  approvals_created: 1 },
+  { id: 'run-007', agent: 'SENTINEL',  trigger: 'schedule',  status: 'completed', started_at: hoursAgo(0.3),  duration_ms: 8200,  input_summary: 'Daily security scan — all client projects', output_summary: 'No vulnerabilities detected. Dependency audit: 2 minor updates available', approvals_created: 0 },
+  { id: 'run-008', agent: 'CHRONICLE', trigger: 'schedule',  status: 'completed', started_at: hoursAgo(2),    duration_ms: 5400,  input_summary: 'Generate weekly performance report (March 17-23)', output_summary: 'Report generated — 4 KPI cards, 3 flags, 2 recommendations', approvals_created: 1 },
+  { id: 'run-009', agent: 'PATCHER',   trigger: 'auto',      status: 'completed', started_at: hoursAgo(12),   duration_ms: 18000, input_summary: 'Check and apply next.js security updates', output_summary: 'next 14.2.21 → 15.1.4 tested on staging. Awaiting approval.', approvals_created: 1 },
+  { id: 'run-010', agent: 'INTAKE',    trigger: 'webhook',   status: 'failed',    started_at: hoursAgo(8),    duration_ms: 320,   input_summary: 'Process Ventures application submission', output_summary: undefined, error: 'ventures_pipeline table not found in Supabase', approvals_created: 0 },
+  { id: 'run-011', agent: 'HERALD',    trigger: 'auto',      status: 'completed', started_at: daysAgo(1),     duration_ms: 2800,  input_summary: 'Send onboarding email to Priya Mehta (cloud inquiry)', output_summary: 'Email sent via Resend. Open tracked at 09:14.', approvals_created: 1 },
+  { id: 'run-012', agent: 'SCRIBE',    trigger: 'schedule',  status: 'completed', started_at: daysAgo(2),     duration_ms: 38000, input_summary: 'Write blog post: Founder\'s guide to shipping fast', output_summary: '1,340 words drafted, approved with edits, published', approvals_created: 1 },
 ]

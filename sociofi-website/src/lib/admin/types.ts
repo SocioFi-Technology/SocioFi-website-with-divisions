@@ -194,6 +194,60 @@ export interface ContentVersion {
   content_json: Record<string, unknown>
 }
 
+// ─── Content Calendar ────────────────────────────────────────────────────────
+
+export type CalendarEntryStatus = 'planned' | 'in_progress' | 'review' | 'published' | 'missed'
+export type CalendarContentType = 'blog_post' | 'case_study' | 'newsletter' | 'workshop' | 'video' | 'social' | 'email'
+
+export interface CalendarEntry {
+  id: string
+  title: string
+  content_type: CalendarContentType
+  category: string
+  division: string
+  target_date: string           // 'YYYY-MM-DD'
+  status: CalendarEntryStatus
+  assignee: string              // 'scribe' | team member name
+  priority: 'normal' | 'important'
+  keywords: string[]
+  outline?: string
+  content_id?: string           // linked ContentItem once draft exists
+  scribe_stage?: 'pending' | 'outline_ready' | 'draft_ready' | 'in_review'
+  notes?: string
+  created_at: string
+  updated_at: string
+}
+
+export const CALENDAR_TYPE_COLORS: Record<CalendarContentType, string> = {
+  blog_post:  '#59A392',
+  case_study: '#E8916F',
+  newsletter: '#7B6FE8',
+  workshop:   '#E8B84D',
+  video:      '#6BA3E8',
+  social:     '#4DBFA8',
+  email:      '#A78BFA',
+}
+
+export const CALENDAR_TYPE_LABELS: Record<CalendarContentType, string> = {
+  blog_post:  'Blog',
+  case_study: 'Case Study',
+  newsletter: 'Newsletter',
+  workshop:   'Workshop',
+  video:      'Video',
+  social:     'Social',
+  email:      'Email',
+}
+
+export const CALENDAR_STATUS_COLORS: Record<CalendarEntryStatus, string> = {
+  planned:     '#64748B',
+  in_progress: '#E8B84D',
+  review:      '#60a5fa',
+  published:   '#4ade80',
+  missed:      '#EF4444',
+}
+
+// ─── Media Library ────────────────────────────────────────────────────────────
+
 export type MediaType = 'image' | 'document' | 'video' | 'other'
 export type MediaFolder = 'all' | 'blog' | 'portfolio' | 'agents' | 'courses' | 'logos' | 'general'
 
@@ -211,4 +265,95 @@ export interface MediaItem {
   height?: number
   uploaded_by: string
   created_at: string
+}
+
+// ─── NEXUS Agent System ───────────────────────────────────────────────────────
+
+export type AgentName =
+  | 'INTAKE' | 'HERALD' | 'SCRIBE' | 'OVERSEER' | 'PATCHER'
+  | 'ARCHITECT' | 'FORGE' | 'SENTINEL' | 'ATLAS' | 'CHRONICLE'
+  | 'MENTOR' | 'SCOUT' | 'NEXUS'
+
+export type AgentStatus = 'active' | 'idle' | 'running' | 'error' | 'paused'
+
+export type ApprovalActionType =
+  | 'send_email' | 'publish_content' | 'apply_patch' | 'deploy_feature'
+  | 'send_report' | 'escalate_ticket' | 'create_content' | 'update_pipeline'
+  | 'send_newsletter' | 'schedule_post'
+
+export type ApprovalPriority = 'urgent' | 'high' | 'normal' | 'low'
+export type ApprovalStatus = 'pending' | 'approved' | 'edited' | 'discarded' | 'snoozed'
+
+export interface ApprovalItem {
+  id: string
+  agent: AgentName
+  action: ApprovalActionType
+  confidence: number              // 0-100
+  priority: ApprovalPriority
+  status: ApprovalStatus
+  title: string
+  context: string
+  payload: Record<string, unknown>
+  created_at: string
+  snooze_until?: string
+  decided_at?: string
+  decided_by?: string
+  edit_details?: Record<string, unknown>
+  discard_reason?: string
+}
+
+export interface AgentConfig {
+  name: AgentName
+  label: string
+  tagline: string
+  status: AgentStatus
+  last_run?: string
+  success_rate: number            // 0-100
+  tasks_week: number
+  approvals_pending: number
+  color: string
+}
+
+export interface AgentRun {
+  id: string
+  agent: AgentName
+  trigger: 'auto' | 'manual' | 'webhook' | 'schedule'
+  status: 'running' | 'completed' | 'failed' | 'cancelled'
+  started_at: string
+  duration_ms?: number
+  input_summary: string
+  output_summary?: string
+  error?: string
+  approvals_created: number
+}
+
+export const AGENT_COLORS: Record<AgentName, string> = {
+  INTAKE:    '#59A392',
+  HERALD:    '#6BA3E8',
+  SCRIBE:    '#7B6FE8',
+  OVERSEER:  '#E8B84D',
+  PATCHER:   '#E8916F',
+  ARCHITECT: '#4DBFA8',
+  FORGE:     '#72C4B2',
+  SENTINEL:  '#EF4444',
+  ATLAS:     '#5BB5E0',
+  CHRONICLE: '#A78BFA',
+  MENTOR:    '#F0D080',
+  SCOUT:     '#94A3B8',
+  NEXUS:     '#3A589E',
+}
+
+export const AGENT_STATUS_COLORS: Record<AgentStatus, string> = {
+  active:  '#4ade80',
+  idle:    '#94A3B8',
+  running: '#E8B84D',
+  error:   '#EF4444',
+  paused:  '#64748B',
+}
+
+export const APPROVAL_PRIORITY_COLORS: Record<ApprovalPriority, string> = {
+  urgent: '#EF4444',
+  high:   '#E8916F',
+  normal: '#59A392',
+  low:    '#64748B',
 }
