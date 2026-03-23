@@ -193,3 +193,22 @@ export interface ContentVersion {
   created_at: string
   content_json: Record<string, unknown>
 }
+
+export type MediaType = 'image' | 'document' | 'video' | 'other'
+export type MediaFolder = 'all' | 'blog' | 'portfolio' | 'agents' | 'courses' | 'logos' | 'general'
+
+export interface MediaItem {
+  id: string
+  filename: string
+  original_name: string
+  public_url: string
+  mime_type: string
+  size_bytes: number
+  media_type: MediaType
+  folder: Exclude<MediaFolder, 'all'>
+  alt_text?: string
+  width?: number
+  height?: number
+  uploaded_by: string
+  created_at: string
+}

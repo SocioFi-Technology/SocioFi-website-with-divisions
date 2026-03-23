@@ -1,6 +1,7 @@
 'use client'
 
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
+import { MOCK_MEDIA } from '@/lib/admin/mock-data'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import TiptapLink from '@tiptap/extension-link'
@@ -74,6 +75,8 @@ interface TiptapEditorProps {
 }
 
 export default function TiptapEditor({ content = '', onChange, placeholder = 'Start writing…', onWordCountChange }: TiptapEditorProps) {
+  const [showMediaPicker, setShowMediaPicker] = useState(false)
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -153,10 +156,7 @@ export default function TiptapEditor({ content = '', onChange, placeholder = 'St
           <Divider />
           <ToolBtn onClick={() => editor.chain().focus().toggleCodeBlock().run()} active={editor.isActive('codeBlock')} title="Code Block">{icons.codeBlock}</ToolBtn>
           <ToolBtn onClick={setLink} active={editor.isActive('link')} title="Link">{icons.link}</ToolBtn>
-          <ToolBtn onClick={() => {
-            const url = window.prompt('Image URL:')
-            if (url !== null && url !== '') editor.chain().focus().setImage({ src: url }).run()
-          }} active={false} title="Insert Image">{icons.image}</ToolBtn>
+          <ToolBtn onClick={() => setShowMediaPicker(true)} active={false} title="Insert Image">{icons.image}</ToolBtn>
           <ToolBtn onClick={addTable} active={editor.isActive('table')} title="Insert Table">{icons.table}</ToolBtn>
           <Divider />
           <ToolBtn onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} title="Undo">{icons.undo}</ToolBtn>
@@ -177,6 +177,61 @@ export default function TiptapEditor({ content = '', onChange, placeholder = 'St
         <span style={{ color: '#475569', fontSize: '0.68rem', fontFamily: "'Fira Code', monospace" }}>{wordCount} words</span>
         <span style={{ color: '#475569', fontSize: '0.68rem', fontFamily: "'Fira Code', monospace" }}>{charCount} characters</span>
       </div>
+
+      {/* Media picker modal */}
+      {showMediaPicker && (
+        <>
+          <div
+            onClick={() => setShowMediaPicker(false)}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 900 }}
+          />
+          <div style={{
+            position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
+            width: '640px', maxHeight: '480px',
+            background: '#0F1320', border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: '14px', zIndex: 901,
+            display: 'flex', flexDirection: 'column',
+            boxShadow: '0 24px 80px rgba(0,0,0,0.6)',
+          }}>
+            {/* Modal header */}
+            <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ color: '#59A392', fontSize: '0.65rem', fontFamily: "'Fira Code', monospace", textTransform: 'uppercase', letterSpacing: '0.12em' }}>Select Image</div>
+              <button onClick={() => setShowMediaPicker(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748B', padding: '4px' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+            {/* Image grid */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '16px', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
+              {MOCK_MEDIA.filter(item => item.media_type === 'image').map(item => (
+                <div
+                  key={item.id}
+                  onClick={() => {
+                    if (editor) {
+                      editor.chain().focus().setImage({ src: item.public_url, alt: item.alt_text ?? '' }).run()
+                    }
+                    setShowMediaPicker(false)
+                  }}
+                  style={{
+                    background: '#12162A', border: '1px solid rgba(255,255,255,0.06)',
+                    borderRadius: '8px', overflow: 'hidden', cursor: 'pointer',
+                    transition: 'all 0.15s',
+                  }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(89,163,146,0.4)'; (e.currentTarget as HTMLElement).style.transform = 'scale(1.02)' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.06)'; (e.currentTarget as HTMLElement).style.transform = 'scale(1)' }}
+                >
+                  <div style={{ height: '90px', overflow: 'hidden', background: 'rgba(0,0,0,0.3)' }}>
+                    <img src={item.public_url} alt={item.alt_text ?? item.filename}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
+                  </div>
+                  <div style={{ padding: '6px 8px' }}>
+                    <div style={{ color: '#94A3B8', fontSize: '0.62rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.filename}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Editor styles */}
       <style>{`

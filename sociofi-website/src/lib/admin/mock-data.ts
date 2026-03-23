@@ -451,3 +451,80 @@ export const MOCK_VERSIONS: ContentVersion[] = [
   { id: 'v2', content_id: 'ct1', version: 2, author: 'SCRIBE', author_type: 'agent', note: 'Added code examples', created_at: new Date(Date.now() - 1*86400000).toISOString(), content_json: {} },
   { id: 'v3', content_id: 'ct1', version: 1, author: 'SCRIBE', author_type: 'agent', note: 'Initial draft', created_at: new Date(Date.now() - 2*86400000).toISOString(), content_json: {} },
 ]
+
+// ── Media Mock Data ───────────────────────────────────────────────────────────
+
+import type { MediaItem } from './types'
+
+export const MOCK_MEDIA: MediaItem[] = [
+  {
+    id: 'm1', filename: 'hero-banner.webp', original_name: 'hero-banner.webp',
+    public_url: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80',
+    mime_type: 'image/webp', size_bytes: 245000, media_type: 'image',
+    folder: 'blog', alt_text: 'Circuit board close-up', width: 800, height: 600,
+    uploaded_by: 'Arifur Rahman', created_at: new Date(Date.now() - 2*86400000).toISOString(),
+  },
+  {
+    id: 'm2', filename: 'devbridge-diagram.png', original_name: 'devbridge-diagram.png',
+    public_url: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&q=80',
+    mime_type: 'image/png', size_bytes: 189000, media_type: 'image',
+    folder: 'blog', alt_text: 'Development pipeline diagram', width: 1200, height: 800,
+    uploaded_by: 'Kamrul Hasan', created_at: new Date(Date.now() - 3*86400000).toISOString(),
+  },
+  {
+    id: 'm3', filename: 'sarah-chen-portrait.jpg', original_name: 'sarah-chen-portrait.jpg',
+    public_url: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&q=80',
+    mime_type: 'image/jpeg', size_bytes: 98000, media_type: 'image',
+    folder: 'portfolio', alt_text: 'Sarah Chen, NexaLabs founder', width: 400, height: 400,
+    uploaded_by: 'Arifur Rahman', created_at: new Date(Date.now() - 5*86400000).toISOString(),
+  },
+  {
+    id: 'm4', filename: 'sociofi-logo-dark.svg', original_name: 'sociofi-logo-dark.svg',
+    public_url: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400&q=80',
+    mime_type: 'image/svg+xml', size_bytes: 4200, media_type: 'image',
+    folder: 'logos', alt_text: 'SocioFi Technology logo dark variant', width: 200, height: 60,
+    uploaded_by: 'Arifur Rahman', created_at: new Date(Date.now() - 10*86400000).toISOString(),
+  },
+  {
+    id: 'm5', filename: 'intake-agent-cover.webp', original_name: 'intake-agent-cover.webp',
+    public_url: 'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=800&q=80',
+    mime_type: 'image/webp', size_bytes: 312000, media_type: 'image',
+    folder: 'agents', alt_text: 'AI agent visualization', width: 800, height: 500,
+    uploaded_by: 'SCRIBE', created_at: new Date(Date.now() - 1*86400000).toISOString(),
+  },
+  {
+    id: 'm6', filename: 'ai-bootcamp-cover.jpg', original_name: 'ai-bootcamp-cover.jpg',
+    public_url: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80',
+    mime_type: 'image/jpeg', size_bytes: 201000, media_type: 'image',
+    folder: 'courses', alt_text: 'AI development bootcamp course cover', width: 1200, height: 675,
+    uploaded_by: 'Arifur Rahman', created_at: new Date(Date.now() - 7*86400000).toISOString(),
+  },
+  {
+    id: 'm7', filename: 'case-study-priya.webp', original_name: 'case-study-priya.webp',
+    public_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&q=80',
+    mime_type: 'image/webp', size_bytes: 178000, media_type: 'image',
+    folder: 'portfolio', alt_text: 'Priya Sharma case study hero image', width: 800, height: 500,
+    uploaded_by: 'Kamrul Hasan', created_at: new Date(Date.now() - 4*86400000).toISOString(),
+  },
+  {
+    id: 'm8', filename: 'onboarding-guide.pdf', original_name: 'Client Onboarding Guide v2.pdf',
+    public_url: '#',
+    mime_type: 'application/pdf', size_bytes: 1240000, media_type: 'document',
+    folder: 'general', alt_text: undefined,
+    uploaded_by: 'Arifur Rahman', created_at: new Date(Date.now() - 14*86400000).toISOString(),
+  },
+  {
+    id: 'm9', filename: 'pricing-sheet.pdf', original_name: 'SocioFi Pricing Sheet Q1 2026.pdf',
+    public_url: '#',
+    mime_type: 'application/pdf', size_bytes: 456000, media_type: 'document',
+    folder: 'general', alt_text: undefined,
+    uploaded_by: 'Arifur Rahman', created_at: new Date(Date.now() - 6*86400000).toISOString(),
+  },
+  {
+    id: 'm10', filename: 'studio-hero.webp', original_name: 'studio-hero.webp',
+    public_url: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&q=80',
+    mime_type: 'image/webp', size_bytes: 267000, media_type: 'image',
+    folder: 'blog', alt_text: 'Developer at laptop — Studio division hero', width: 800, height: 533,
+    uploaded_by: 'SCRIBE', created_at: new Date(Date.now() - 8*86400000).toISOString(),
+  },
+]
