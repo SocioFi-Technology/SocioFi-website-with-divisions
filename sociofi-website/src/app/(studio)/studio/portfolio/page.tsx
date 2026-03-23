@@ -399,6 +399,7 @@ const STYLES = `
 
   @media (max-width: 768px) {
     .port-grid { grid-template-columns: 1fr; }
+    /* On mobile, featured wrapper span is overridden by the 1-col grid */
     .port-card.featured { grid-column: span 1; }
     .port-card.featured .port-card-name { font-size: 1.4rem; }
     .port-metrics-inner { flex-direction: column; gap: 0; }
@@ -620,7 +621,7 @@ function CheckIcon() {
 
 function PortfolioCard({ project }: { project: Project }) {
   return (
-    <motion.div layout>
+    <motion.div layout style={project.colSpan ? { gridColumn: 'span 2' } : undefined}>
       <Link
         href={project.href}
         className={`port-card${project.colSpan ? ' featured' : ''}`}
