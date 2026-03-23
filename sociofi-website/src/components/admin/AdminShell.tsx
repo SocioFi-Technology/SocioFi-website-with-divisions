@@ -1,420 +1,96 @@
-'use client';
-import React, { useState, useEffect } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
-import { AdminProvider, useAdmin } from './AdminContext';
-import { createClient } from '@/lib/supabase/client';
+'use client'
 
-const STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+import { useState, useEffect, useRef } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
+import Link from 'next/link'
+import {
+  LayoutDashboard, Inbox, Users, Clock, Bot, CheckCircle, History,
+  FileText, Newspaper, Image, Calendar, Mail, Ticket, Rocket,
+  BarChart, Shield, Settings, ChevronRight, ChevronDown,
+  Bell, Search, LogOut, Menu, X,
+} from 'lucide-react'
+import { AuthProvider, useAuth } from '@/lib/admin/auth-context'
 
-  :root {
-    --adm-bg: #0C0C1D;
-    --adm-bg2: #111128;
-    --adm-sidebar: #0F0F24;
-    --adm-border: rgba(89,163,146,0.08);
-    --adm-border-hover: rgba(89,163,146,0.18);
-    --adm-text: #E2E8F0;
-    --adm-muted: #6B7B9E;
-    --adm-accent: #3A589E;
-    --adm-teal: #59A392;
-  }
+// ─── Constants ────────────────────────────────────────────────────────────────
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+const SIDEBAR_WIDTH = 260
+const SIDEBAR_COLLAPSED = 64
 
-  .adm-root {
-    display: flex;
-    min-height: 100vh;
-    background: var(--adm-bg);
-    color: var(--adm-text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-  }
+// ─── Nav config ───────────────────────────────────────────────────────────────
 
-  /* ── Sidebar ── */
-  .adm-sidebar {
-    position: fixed;
-    top: 0; left: 0; bottom: 0;
-    width: 240px;
-    background: var(--adm-sidebar);
-    border-right: 1px solid var(--adm-border);
-    display: flex;
-    flex-direction: column;
-    z-index: 200;
-    transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
-  }
-  .adm-sidebar.closed { transform: translateX(-100%); }
-
-  .adm-sidebar-header {
-    padding: 20px 20px 16px;
-    border-bottom: 1px solid var(--adm-border);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .adm-logo-mark {
-    width: 28px; height: 28px;
-    background: linear-gradient(135deg, #3A589E, #59A392);
-    border-radius: 7px;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
-  .adm-logo-text {
-    font-family: 'Manrope', sans-serif;
-    font-weight: 800;
-    font-size: 15px;
-    color: var(--adm-text);
-    letter-spacing: -0.02em;
-  }
-  .adm-logo-text span {
-    color: var(--adm-muted);
-    font-weight: 500;
-    font-size: 13px;
-    margin-left: 4px;
-  }
-
-  .adm-user-section {
-    padding: 14px 20px;
-    border-bottom: 1px solid var(--adm-border);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .adm-avatar {
-    width: 34px; height: 34px; border-radius: 50%;
-    background: linear-gradient(135deg, #3A589E, #59A392);
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Manrope', sans-serif;
-    font-weight: 700; font-size: 12px;
-    color: white; flex-shrink: 0;
-    overflow: hidden;
-  }
-  .adm-avatar img { width: 100%; height: 100%; object-fit: cover; }
-  .adm-user-info { flex: 1; min-width: 0; }
-  .adm-user-name {
-    font-family: 'Manrope', sans-serif;
-    font-weight: 600; font-size: 13px;
-    color: var(--adm-text);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  }
-  .adm-role-badge {
-    font-size: 10px; font-weight: 500;
-    color: var(--adm-teal);
-    text-transform: uppercase; letter-spacing: 0.06em;
-    font-family: 'JetBrains Mono', monospace;
-  }
-
-  .adm-nav { flex: 1; overflow-y: auto; padding: 10px 0; }
-  .adm-nav::-webkit-scrollbar { width: 3px; }
-  .adm-nav::-webkit-scrollbar-track { background: transparent; }
-  .adm-nav::-webkit-scrollbar-thumb { background: var(--adm-border); border-radius: 2px; }
-
-  .adm-nav-group-label {
-    font-size: 10px; font-weight: 600;
-    color: var(--adm-muted);
-    text-transform: uppercase; letter-spacing: 0.1em;
-    padding: 14px 20px 6px;
-    font-family: 'JetBrains Mono', monospace;
-  }
-
-  .adm-nav-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 8px 20px;
-    color: var(--adm-muted);
-    text-decoration: none;
-    font-size: 13.5px;
-    font-weight: 500;
-    cursor: pointer;
-    border: none; background: none; width: 100%; text-align: left;
-    transition: color 0.2s, background 0.2s;
-    position: relative;
-  }
-  .adm-nav-item:hover {
-    color: var(--adm-text);
-    background: rgba(89,163,146,0.04);
-  }
-  .adm-nav-item.active {
-    color: var(--adm-text);
-    background: rgba(58,88,158,0.12);
-  }
-  .adm-nav-item.active::before {
-    content: '';
-    position: absolute; left: 0; top: 4px; bottom: 4px;
-    width: 2px; border-radius: 0 2px 2px 0;
-    background: var(--adm-accent);
-  }
-  .adm-nav-item svg {
-    flex-shrink: 0;
-    opacity: 0.7;
-  }
-  .adm-nav-item.active svg, .adm-nav-item:hover svg { opacity: 1; }
-
-  .adm-div-dot {
-    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
-  }
-
-  /* ── Main Area ── */
-  .adm-main {
-    flex: 1;
-    margin-left: 240px;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    transition: margin-left 0.3s cubic-bezier(0.16,1,0.3,1);
-  }
-  .adm-main.full { margin-left: 0; }
-
-  /* ── Top Bar ── */
-  .adm-topbar {
-    position: sticky; top: 0; z-index: 100;
-    height: 56px;
-    background: rgba(12,12,29,0.9);
-    backdrop-filter: blur(16px);
-    border-bottom: 1px solid var(--adm-border);
-    display: flex; align-items: center;
-    padding: 0 24px;
-    gap: 16px;
-  }
-  .adm-hamburger {
-    display: none;
-    width: 36px; height: 36px;
-    background: none; border: none;
-    color: var(--adm-muted); cursor: pointer;
-    align-items: center; justify-content: center;
-    border-radius: 8px;
-    transition: background 0.2s, color 0.2s;
-  }
-  .adm-hamburger:hover { background: rgba(255,255,255,0.05); color: var(--adm-text); }
-
-  .adm-page-title {
-    font-family: 'Manrope', sans-serif;
-    font-weight: 700; font-size: 15px;
-    color: var(--adm-text);
-    flex: 1;
-  }
-
-  .adm-topbar-actions {
-    display: flex; align-items: center; gap: 8px;
-  }
-  .adm-icon-btn {
-    width: 36px; height: 36px;
-    display: flex; align-items: center; justify-content: center;
-    background: none; border: none; cursor: pointer;
-    color: var(--adm-muted); border-radius: 8px;
-    transition: background 0.2s, color 0.2s; position: relative;
-  }
-  .adm-icon-btn:hover { background: rgba(255,255,255,0.05); color: var(--adm-text); }
-  .adm-badge {
-    position: absolute; top: 5px; right: 5px;
-    width: 16px; height: 16px; border-radius: 50%;
-    background: #E8916F;
-    font-size: 10px; font-weight: 700; color: white;
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Manrope', sans-serif;
-  }
-
-  .adm-user-menu {
-    display: flex; align-items: center; gap: 8px;
-    padding: 4px 8px 4px 4px;
-    background: none; border: 1px solid var(--adm-border);
-    border-radius: 100px; cursor: pointer;
-    transition: border-color 0.2s, background 0.2s;
-  }
-  .adm-user-menu:hover { border-color: var(--adm-border-hover); background: rgba(255,255,255,0.03); }
-  .adm-user-menu-name {
-    font-size: 13px; font-weight: 500;
-    color: var(--adm-text);
-  }
-
-  /* ── Content ── */
-  .adm-content {
-    flex: 1;
-    padding: 28px 28px 48px;
-  }
-
-  /* ── Dropdown ── */
-  .adm-dropdown {
-    position: absolute; top: calc(100% + 8px); right: 0;
-    width: 180px;
-    background: var(--adm-bg2);
-    border: 1px solid var(--adm-border);
-    border-radius: 12px;
-    overflow: hidden;
-    z-index: 500;
-    box-shadow: 0 16px 48px rgba(0,0,0,0.4);
-  }
-  .adm-dropdown-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 14px;
-    color: var(--adm-muted); font-size: 13px;
-    cursor: pointer; border: none; background: none; width: 100%; text-align: left;
-    transition: background 0.15s, color 0.15s;
-  }
-  .adm-dropdown-item:hover { background: rgba(255,255,255,0.04); color: var(--adm-text); }
-  .adm-dropdown-item.danger { color: #F87171; }
-  .adm-dropdown-item.danger:hover { background: rgba(248,113,113,0.08); color: #FCA5A5; }
-  .adm-dropdown-sep { height: 1px; background: var(--adm-border); margin: 4px 0; }
-
-  /* ── Mobile ── */
-  .adm-overlay {
-    display: none;
-    position: fixed; inset: 0; z-index: 150;
-    background: rgba(0,0,0,0.6);
-    backdrop-filter: blur(4px);
-  }
-  @media (max-width: 768px) {
-    .adm-sidebar { transform: translateX(-100%); }
-    .adm-sidebar.open { transform: translateX(0); }
-    .adm-main { margin-left: 0; }
-    .adm-hamburger { display: flex; }
-    .adm-overlay.open { display: block; }
-    .adm-user-menu-name { display: none; }
-    .adm-content { padding: 20px 16px 40px; }
-  }
-`;
-
-const NAV_ITEMS = [
-  { group: 'OVERVIEW', items: [
-    { label: 'Dashboard', href: '/admin', icon: 'grid' },
-  ]},
-  { group: 'CRM', items: [
-    { label: 'Submissions', href: '/admin/submissions',  icon: 'inbox' },
-    { label: 'Contacts',    href: '/admin/contacts',     icon: 'users' },
-    { label: 'Pipeline',    href: '/admin/pipeline',     icon: 'pipeline' },
-  ]},
-  { group: 'SERVICES', items: [
-    { label: 'Tickets', href: '/admin/services/tickets', icon: 'ticket' },
-  ]},
-  { group: 'VENTURES', items: [
-    { label: 'Applications', href: '/admin/ventures/applications', icon: 'rocket' },
-  ]},
-  { group: 'CONTENT', items: [
-    { label: 'Posts & FAQs', href: '/admin/content', icon: 'file' },
-  ]},
-  { group: 'REPORTING', items: [
-    { label: 'Analytics', href: '/admin/analytics', icon: 'chart' },
-  ]},
-  { group: 'SYSTEM', items: [
-    { label: 'Team',     href: '/admin/team',     icon: 'people' },
-    { label: 'Settings', href: '/admin/settings', icon: 'gear' },
-  ]},
-];
-
-function Icon({ name }: { name: string }) {
-  const icons: Record<string, React.ReactElement> = {
-    grid: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-        <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
-      </svg>
-    ),
-    inbox: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/>
-        <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>
-      </svg>
-    ),
-    users: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-        <circle cx="9" cy="7" r="4"/>
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-      </svg>
-    ),
-    clock: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-      </svg>
-    ),
-    file: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/>
-        <polyline points="13 2 13 9 20 9"/>
-      </svg>
-    ),
-    book: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-      </svg>
-    ),
-    quote: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/>
-        <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/>
-      </svg>
-    ),
-    help: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10"/>
-        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-      </svg>
-    ),
-    chart: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
-        <line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/>
-      </svg>
-    ),
-    people: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-        <circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-      </svg>
-    ),
-    gear: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="3"/>
-        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-      </svg>
-    ),
-    bell: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-      </svg>
-    ),
-    logout: (
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-        <polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
-      </svg>
-    ),
-    person: (
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-        <circle cx="12" cy="7" r="4"/>
-      </svg>
-    ),
-    pipeline: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M22 12H2"/><path d="M5 6l-3 6 3 6"/><path d="M19 6l3 6-3 6"/>
-      </svg>
-    ),
-    ticket: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v2z"/>
-      </svg>
-    ),
-    rocket: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/>
-        <path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/>
-        <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>
-      </svg>
-    ),
-    menu: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
-      </svg>
-    ),
-    x: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-      </svg>
-    ),
-  };
-  return icons[name] ?? null;
+interface NavItem {
+  label: string
+  href: string
+  icon: React.ElementType
+  badge?: number
+  badgeColor?: string
 }
+
+const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
+  {
+    title: 'OVERVIEW',
+    items: [
+      { label: 'Dashboard',   href: '/admin',              icon: LayoutDashboard },
+      { label: 'Submissions', href: '/admin/submissions',  icon: Inbox,       badge: 12, badgeColor: '#59A392' },
+      { label: 'Contacts',    href: '/admin/contacts',     icon: Users },
+      { label: 'Activity',    href: '/admin/activity',     icon: Clock },
+    ],
+  },
+  {
+    title: 'NEXUS AGENTS',
+    items: [
+      { label: 'Agent Control',   href: '/admin/agents',        icon: Bot },
+      { label: 'Approval Queue',  href: '/admin/agents/queue',  icon: CheckCircle, badge: 4, badgeColor: '#E8B84D' },
+      { label: 'Agent Runs',      href: '/admin/agents/runs',   icon: History },
+    ],
+  },
+  {
+    title: 'CONTENT',
+    items: [
+      { label: 'All Content',       href: '/admin/content',                icon: FileText },
+      { label: 'Blog Posts',        href: '/admin/content/posts',          icon: Newspaper },
+      { label: 'Media Library',     href: '/admin/content/media',          icon: Image },
+      { label: 'Content Calendar',  href: '/admin/content/calendar',       icon: Calendar },
+      { label: 'Newsletter',        href: '/admin/content/newsletter',     icon: Mail },
+    ],
+  },
+  {
+    title: 'OPERATIONS',
+    items: [
+      { label: 'Tickets',     href: '/admin/tickets',      icon: Ticket,  badge: 7, badgeColor: '#E8916F' },
+      { label: 'Deployments', href: '/admin/deployments',  icon: Rocket },
+      { label: 'Analytics',   href: '/admin/analytics',    icon: BarChart },
+    ],
+  },
+  {
+    title: 'SYSTEM',
+    items: [
+      { label: 'Team',     href: '/admin/team',     icon: Shield },
+      { label: 'Settings', href: '/admin/settings', icon: Settings },
+    ],
+  },
+]
+
+const DIVISIONS = [
+  { label: 'Studio',   href: '/admin/divisions/studio',   color: '#72C4B2' },
+  { label: 'Agents',   href: '/admin/divisions/agents',   color: '#7B6FE8' },
+  { label: 'Services', href: '/admin/divisions/services', color: '#4DBFA8' },
+  { label: 'Cloud',    href: '/admin/divisions/cloud',    color: '#5BB5E0' },
+  { label: 'Academy',  href: '/admin/divisions/academy',  color: '#E8B84D' },
+  { label: 'Ventures', href: '/admin/divisions/ventures', color: '#6BA3E8' },
+  { label: 'Labs',     href: '/admin/divisions/labs',     color: '#A78BFA' },
+  { label: 'Products', href: '/admin/divisions/products', color: '#E8916F' },
+]
+
+const NOTIFICATIONS = [
+  { id: 1, text: 'INTAKE classified new lead: Sarah Chen (Studio/Rescue)', time: '2 min ago', href: '/admin/submissions' },
+  { id: 2, text: 'HERALD drafted welcome email — pending approval', time: '5 min ago', href: '/admin/agents/queue' },
+  { id: 3, text: 'SENTINEL: SLA approaching for ticket #45', time: '15 min ago', href: '/admin/tickets' },
+  { id: 4, text: 'New contact form submission from Marcus Webb', time: '34 min ago', href: '/admin/contacts' },
+  { id: 5, text: 'Blog post "AI Development Pipeline" needs review', time: '1 hr ago', href: '/admin/content/posts' },
+]
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function getPageTitle(pathname: string): string {
   const map: Record<string, string> = {
@@ -422,224 +98,895 @@ function getPageTitle(pathname: string): string {
     '/admin/submissions': 'Submissions',
     '/admin/contacts': 'Contacts',
     '/admin/activity': 'Activity',
-    '/admin/pipeline': 'Pipeline',
-    '/admin/services/tickets': 'Tickets',
-    '/admin/ventures/applications': 'Ventures Applications',
-    '/admin/content': 'Posts & FAQs',
-    '/admin/content/blog': 'Blog Posts',
-    '/admin/content/testimonials': 'Testimonials',
-    '/admin/content/faq': 'FAQ',
+    '/admin/agents': 'Agent Control',
+    '/admin/agents/queue': 'Approval Queue',
+    '/admin/agents/runs': 'Agent Runs',
+    '/admin/content': 'All Content',
+    '/admin/content/posts': 'Blog Posts',
+    '/admin/content/media': 'Media Library',
+    '/admin/content/calendar': 'Content Calendar',
+    '/admin/content/newsletter': 'Newsletter',
+    '/admin/tickets': 'Tickets',
+    '/admin/deployments': 'Deployments',
     '/admin/analytics': 'Analytics',
     '/admin/team': 'Team',
     '/admin/settings': 'Settings',
-  };
-  if (map[pathname]) return map[pathname];
-  const divMatch = pathname.match(/^\/admin\/divisions\/(\w+)$/);
-  if (divMatch) return divMatch[1].charAt(0).toUpperCase() + divMatch[1].slice(1) + ' Division';
-  return 'Admin';
+    '/admin/pipeline': 'Pipeline',
+    '/admin/services/tickets': 'Service Tickets',
+    '/admin/ventures/applications': 'Ventures Applications',
+  }
+  if (map[pathname]) return map[pathname]
+  const divMatch = pathname.match(/^\/admin\/divisions\/(\w+)$/)
+  if (divMatch) return divMatch[1].charAt(0).toUpperCase() + divMatch[1].slice(1) + ' Division'
+  return 'Admin'
 }
 
-function SidebarContent({
-  pathname,
-  onNavigate,
+// ─── NavLink component ────────────────────────────────────────────────────────
+
+function NavLink({
+  item,
+  collapsed,
+  active,
 }: {
-  pathname: string;
-  onNavigate: (href: string) => void;
+  item: NavItem
+  collapsed: boolean
+  active: boolean
 }) {
-  const { user } = useAdmin();
-  const initials = user?.name
-    ? user.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
-    : '??';
+  const Icon = item.icon
+  return (
+    <Link
+      href={item.href}
+      title={collapsed ? item.label : undefined}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        padding: collapsed ? '10px 0' : '8px 18px',
+        justifyContent: collapsed ? 'center' : 'flex-start',
+        gap: '10px',
+        textDecoration: 'none',
+        background: active ? 'rgba(89,163,146,0.08)' : 'transparent',
+        borderLeft: active ? '3px solid #59A392' : '3px solid transparent',
+        color: active ? '#59A392' : '#94A3B8',
+        fontSize: '0.84rem',
+        fontFamily: "'Outfit', sans-serif",
+        transition: 'all 0.15s',
+        position: 'relative',
+      }}
+      onMouseEnter={(e) => {
+        if (!active) e.currentTarget.style.background = 'rgba(255,255,255,0.03)'
+      }}
+      onMouseLeave={(e) => {
+        if (!active) e.currentTarget.style.background = 'transparent'
+      }}
+    >
+      <Icon size={16} style={{ flexShrink: 0 }} />
+      {!collapsed && <span style={{ flex: 1, whiteSpace: 'nowrap' }}>{item.label}</span>}
+      {!collapsed && item.badge != null && (
+        <span
+          style={{
+            background: item.badgeColor ?? '#59A392',
+            color: 'white',
+            fontSize: '0.65rem',
+            fontWeight: 700,
+            padding: '1px 7px',
+            borderRadius: '100px',
+            minWidth: '20px',
+            textAlign: 'center',
+          }}
+        >
+          {item.badge}
+        </span>
+      )}
+    </Link>
+  )
+}
+
+// ─── Main Shell ───────────────────────────────────────────────────────────────
+
+function Shell({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname()
+  const router = useRouter()
+  const { user, signOut } = useAuth()
+
+  const [collapsed, setCollapsed] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
+  const [divisionsOpen, setDivisionsOpen] = useState(true)
+  const [notifOpen, setNotifOpen] = useState(false)
+  const [userDropOpen, setUserDropOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const notifRef = useRef<HTMLDivElement>(null)
+  const userRef = useRef<HTMLDivElement>(null)
+  const searchInputRef = useRef<HTMLInputElement>(null)
+
+  // Detect mobile
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 1024)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+
+  // Cmd+K / Esc listener
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        setSearchOpen((p) => !p)
+      }
+      if (e.key === 'Escape') {
+        setSearchOpen(false)
+        setNotifOpen(false)
+        setUserDropOpen(false)
+      }
+    }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [])
+
+  // Focus search input when opened
+  useEffect(() => {
+    if (searchOpen) setTimeout(() => searchInputRef.current?.focus(), 50)
+  }, [searchOpen])
+
+  // Close dropdowns on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) setNotifOpen(false)
+      if (userRef.current && !userRef.current.contains(e.target as Node)) setUserDropOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  // Close mobile sidebar on navigation
+  useEffect(() => {
+    setMobileSidebarOpen(false)
+  }, [pathname])
+
+  const isActive = (href: string) => {
+    if (href === '/admin') return pathname === '/admin'
+    return pathname.startsWith(href)
+  }
+
+  const sidebarW = isMobile ? SIDEBAR_WIDTH : collapsed ? SIDEBAR_COLLAPSED : SIDEBAR_WIDTH
+
+  // Login page — render children only, no chrome
+  if (pathname === '/admin/login') return <>{children}</>
 
   return (
     <>
-      <div className="adm-sidebar-header">
-        <div className="adm-logo-mark" aria-hidden="true">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path d="M4 8l8-6 8 6" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M4 14l8-6 8 6" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M4 20l8-6 8 6" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </div>
-        <div className="adm-logo-text">SocioFi <span>Admin</span></div>
-      </div>
-
-      <div className="adm-user-section">
-        <div className="adm-avatar">
-          {user?.avatar_url ? (
-            <img src={user.avatar_url} alt={user.name} />
-          ) : (
-            initials
-          )}
-        </div>
-        <div className="adm-user-info">
-          <div className="adm-user-name">{user?.name ?? 'Loading...'}</div>
-          <div className="adm-role-badge">{user?.role?.replace('_', ' ') ?? ''}</div>
-        </div>
-      </div>
-
-      <nav className="adm-nav" aria-label="Admin navigation">
-        {NAV_ITEMS.map((group) => (
-          <div key={group.group}>
-            <div className="adm-nav-group-label">{group.group}</div>
-            {group.items.map((item) => {
-              const isActive =
-                item.href === '/admin'
-                  ? pathname === '/admin'
-                  : pathname.startsWith(item.href);
-              return (
-                <button
-                  key={item.href}
-                  className={`adm-nav-item${isActive ? ' active' : ''}`}
-                  onClick={() => onNavigate(item.href)}
-                  aria-current={isActive ? 'page' : undefined}
-                >
-                  {'dot' in item ? (
-                    <span
-                      className="adm-div-dot"
-                      style={{ background: (item as { dot: string }).dot }}
-                      aria-hidden="true"
-                    />
-                  ) : (
-                    <Icon name={item.icon} />
-                  )}
-                  {item.label}
-                </button>
-              );
-            })}
-          </div>
-        ))}
-      </nav>
-    </>
-  );
-}
-
-function TopBar({
-  pathname,
-  onToggleSidebar,
-}: {
-  pathname: string;
-  onToggleSidebar: () => void;
-}) {
-  const { user } = useAdmin();
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const router = useRouter();
-  const supabase = createClient();
-
-  const title = getPageTitle(pathname);
-  const initials = user?.name
-    ? user.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
-    : '??';
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    router.push('/admin/login');
-  };
-
-  useEffect(() => {
-    const close = (e: MouseEvent) => {
-      const target = e.target as Element;
-      if (!target.closest('.adm-user-menu-wrap')) setDropdownOpen(false);
-    };
-    document.addEventListener('mousedown', close);
-    return () => document.removeEventListener('mousedown', close);
-  }, []);
-
-  return (
-    <header className="adm-topbar">
-      <button
-        className="adm-hamburger"
-        onClick={onToggleSidebar}
-        aria-label="Toggle sidebar"
-      >
-        <Icon name="menu" />
-      </button>
-      <h1 className="adm-page-title">{title}</h1>
-      <div className="adm-topbar-actions">
-        <button className="adm-icon-btn" aria-label="Notifications">
-          <Icon name="bell" />
-          <span className="adm-badge" aria-label="5 notifications">5</span>
-        </button>
-        <div style={{ position: 'relative' }} className="adm-user-menu-wrap">
-          <button
-            className="adm-user-menu"
-            onClick={() => setDropdownOpen((v) => !v)}
-            aria-expanded={dropdownOpen}
-            aria-label="User menu"
-          >
-            <div className="adm-avatar" style={{ width: 26, height: 26, fontSize: 10 }}>
-              {user?.avatar_url ? <img src={user.avatar_url} alt={user.name} /> : initials}
-            </div>
-            <span className="adm-user-menu-name">{user?.name ?? '...'}</span>
-          </button>
-          {dropdownOpen && (
-            <div className="adm-dropdown" role="menu">
-              <button
-                className="adm-dropdown-item"
-                role="menuitem"
-                onClick={() => { setDropdownOpen(false); router.push('/admin/team'); }}
-              >
-                <Icon name="person" /> Profile
-              </button>
-              <button
-                className="adm-dropdown-item"
-                role="menuitem"
-                onClick={() => { setDropdownOpen(false); router.push('/admin/settings'); }}
-              >
-                <Icon name="gear" /> Settings
-              </button>
-              <div className="adm-dropdown-sep" />
-              <button
-                className="adm-dropdown-item danger"
-                role="menuitem"
-                onClick={handleSignOut}
-              >
-                <Icon name="logout" /> Sign Out
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-    </header>
-  );
-}
-
-function Shell({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
-  const router = useRouter();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  const handleNavigate = (href: string) => {
-    router.push(href);
-    setSidebarOpen(false);
-  };
-
-  return (
-    <div className="adm-root">
-      <style dangerouslySetInnerHTML={{ __html: STYLES }} />
-      <aside
-        className={`adm-sidebar${sidebarOpen ? ' open' : ''}`}
-        aria-label="Admin sidebar"
-      >
-        <SidebarContent pathname={pathname} onNavigate={handleNavigate} />
-      </aside>
+      {/* ── Sidebar ───────────────────────────────────────── */}
       <div
-        className={`adm-overlay${sidebarOpen ? ' open' : ''}`}
-        onClick={() => setSidebarOpen(false)}
-        aria-hidden="true"
-      />
-      <div className="adm-main">
-        <TopBar pathname={pathname} onToggleSidebar={() => setSidebarOpen((v) => !v)} />
-        <main className="adm-content">{children}</main>
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: isMobile
+            ? mobileSidebarOpen ? 0 : -SIDEBAR_WIDTH
+            : 0,
+          width: `${sidebarW}px`,
+          height: '100vh',
+          background: '#0F1320',
+          borderRight: '1px solid rgba(255,255,255,0.06)',
+          display: 'flex',
+          flexDirection: 'column',
+          zIndex: 1000,
+          transition: isMobile
+            ? 'left 0.25s cubic-bezier(0.16,1,0.3,1)'
+            : 'width 0.25s cubic-bezier(0.16,1,0.3,1)',
+          overflowX: 'hidden',
+          overflowY: 'auto',
+        }}
+      >
+        {/* Logo row */}
+        <div
+          style={{
+            height: '64px',
+            minHeight: '64px',
+            display: 'flex',
+            alignItems: 'center',
+            padding: '0 18px',
+            gap: '10px',
+            borderBottom: '1px solid rgba(255,255,255,0.04)',
+            justifyContent: collapsed && !isMobile ? 'center' : 'space-between',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <svg width="28" height="28" viewBox="0 0 40 40" fill="none" style={{ flexShrink: 0 }}>
+              <path d="M8 20L20 8L32 20" stroke="#59A392" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M8 28L20 16L32 28" stroke="#3A589E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            {(!collapsed || isMobile) && (
+              <div>
+                <div style={{ color: '#E2E8F0', fontSize: '0.95rem', fontWeight: 700, lineHeight: 1, fontFamily: "'Syne', sans-serif" }}>
+                  SocioFi
+                </div>
+                <div style={{ color: '#64748B', fontSize: '0.6rem', fontFamily: "'Fira Code', monospace", letterSpacing: '0.12em', textTransform: 'uppercase', marginTop: '2px' }}>
+                  Admin
+                </div>
+              </div>
+            )}
+          </div>
+          {(!collapsed || isMobile) && (
+            <button
+              onClick={() => isMobile ? setMobileSidebarOpen(false) : setCollapsed(true)}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748B', padding: '4px', display: 'flex' }}
+              aria-label="Collapse sidebar"
+            >
+              {isMobile ? <X size={16} /> : <Menu size={16} />}
+            </button>
+          )}
+        </div>
+
+        {/* Expand button when collapsed (desktop only) */}
+        {collapsed && !isMobile && (
+          <button
+            onClick={() => setCollapsed(false)}
+            title="Expand sidebar"
+            style={{
+              margin: '12px auto',
+              width: '36px',
+              height: '36px',
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.06)',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              color: '#94A3B8',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <ChevronRight size={14} />
+          </button>
+        )}
+
+        {/* User block */}
+        {(!collapsed || isMobile) && user && (
+          <div
+            style={{
+              padding: '12px 16px',
+              borderBottom: '1px solid rgba(255,255,255,0.04)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+            }}
+          >
+            <div
+              style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #3A589E, #59A392)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                fontSize: '0.8rem',
+                color: 'white',
+                fontWeight: 700,
+              }}
+            >
+              {user.name?.[0]?.toUpperCase() ?? 'A'}
+            </div>
+            <div style={{ overflow: 'hidden' }}>
+              <div
+                style={{
+                  color: '#E2E8F0',
+                  fontSize: '0.82rem',
+                  fontWeight: 600,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}
+              >
+                {user.name}
+              </div>
+              <div
+                style={{
+                  color: '#59A392',
+                  fontSize: '0.65rem',
+                  fontFamily: "'Fira Code', monospace",
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                }}
+              >
+                {user.role?.replace('_', ' ')}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Nav */}
+        <nav style={{ flex: 1, padding: '8px 0', overflowY: 'auto' }}>
+          {NAV_GROUPS.map((group) => (
+            <div key={group.title} style={{ marginBottom: '4px' }}>
+              {(!collapsed || isMobile) && (
+                <div
+                  style={{
+                    padding: '12px 20px 6px',
+                    color: '#64748B',
+                    fontSize: '0.62rem',
+                    fontFamily: "'Fira Code', monospace",
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  {group.title}
+                </div>
+              )}
+              {group.items.map((item) => (
+                <NavLink
+                  key={item.href}
+                  item={item}
+                  collapsed={collapsed && !isMobile}
+                  active={isActive(item.href)}
+                />
+              ))}
+            </div>
+          ))}
+
+          {/* Divisions group */}
+          <div style={{ marginBottom: '4px' }}>
+            {(!collapsed || isMobile) && (
+              <button
+                onClick={() => setDivisionsOpen((p) => !p)}
+                style={{
+                  width: '100%',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '12px 20px 6px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  color: '#64748B',
+                  fontSize: '0.62rem',
+                  fontFamily: "'Fira Code', monospace",
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase',
+                }}
+              >
+                <span>DIVISIONS</span>
+                {divisionsOpen ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+              </button>
+            )}
+            {(divisionsOpen || (collapsed && !isMobile)) &&
+              DIVISIONS.map((div) => (
+                <Link
+                  key={div.href}
+                  href={div.href}
+                  title={collapsed && !isMobile ? div.label : undefined}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: collapsed && !isMobile ? '10px 0' : '7px 18px',
+                    justifyContent: collapsed && !isMobile ? 'center' : 'flex-start',
+                    gap: '10px',
+                    textDecoration: 'none',
+                    background: isActive(div.href) ? 'rgba(89,163,146,0.08)' : 'transparent',
+                    borderLeft: isActive(div.href) ? `3px solid ${div.color}` : '3px solid transparent',
+                    transition: 'all 0.15s',
+                    color: isActive(div.href) ? div.color : '#94A3B8',
+                    fontSize: '0.82rem',
+                    fontFamily: "'Outfit', sans-serif",
+                  }}
+                >
+                  <span
+                    style={{
+                      width: '8px',
+                      height: '8px',
+                      borderRadius: '50%',
+                      background: div.color,
+                      flexShrink: 0,
+                      boxShadow: `0 0 6px ${div.color}60`,
+                    }}
+                  />
+                  {(!collapsed || isMobile) && div.label}
+                </Link>
+              ))}
+          </div>
+        </nav>
       </div>
-    </div>
-  );
+
+      {/* Mobile overlay */}
+      {isMobile && mobileSidebarOpen && (
+        <div
+          onClick={() => setMobileSidebarOpen(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.6)',
+            zIndex: 999,
+          }}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* ── Main area ─────────────────────────────────────── */}
+      <div
+        style={{
+          marginLeft: isMobile ? 0 : `${sidebarW}px`,
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          transition: 'margin-left 0.25s cubic-bezier(0.16,1,0.3,1)',
+          background: '#0A0E1A',
+        }}
+      >
+        {/* Topbar */}
+        <div
+          style={{
+            height: '64px',
+            minHeight: '64px',
+            borderBottom: '1px solid rgba(255,255,255,0.06)',
+            display: 'flex',
+            alignItems: 'center',
+            padding: '0 24px',
+            gap: '12px',
+            background: 'rgba(10,14,26,0.95)',
+            backdropFilter: 'blur(16px)',
+            position: 'sticky',
+            top: 0,
+            zIndex: 100,
+          }}
+        >
+          {/* Mobile hamburger */}
+          {isMobile && (
+            <button
+              onClick={() => setMobileSidebarOpen((p) => !p)}
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: '#94A3B8',
+                display: 'flex',
+                padding: '6px',
+              }}
+              aria-label="Toggle sidebar"
+            >
+              <Menu size={20} />
+            </button>
+          )}
+
+          {/* Page title */}
+          <div style={{ flex: 1 }}>
+            <div
+              style={{
+                color: '#E2E8F0',
+                fontSize: '1rem',
+                fontWeight: 700,
+                fontFamily: "'Syne', sans-serif",
+                lineHeight: 1,
+              }}
+            >
+              {getPageTitle(pathname)}
+            </div>
+          </div>
+
+          {/* Search trigger */}
+          <button
+            onClick={() => setSearchOpen(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '7px 12px',
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.06)',
+              borderRadius: '8px',
+              color: '#64748B',
+              fontSize: '0.8rem',
+              cursor: 'pointer',
+              fontFamily: "'Outfit', sans-serif",
+            }}
+            aria-label="Open search"
+          >
+            <Search size={14} />
+            {!isMobile && <span>Search</span>}
+            {!isMobile && (
+              <span
+                style={{
+                  background: 'rgba(255,255,255,0.06)',
+                  padding: '1px 6px',
+                  borderRadius: '4px',
+                  fontSize: '0.68rem',
+                  fontFamily: "'Fira Code', monospace",
+                }}
+              >
+                ⌘K
+              </span>
+            )}
+          </button>
+
+          {/* Notification bell */}
+          <div ref={notifRef} style={{ position: 'relative' }}>
+            <button
+              onClick={() => setNotifOpen((p) => !p)}
+              style={{
+                position: 'relative',
+                background: notifOpen ? 'rgba(89,163,146,0.08)' : 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: notifOpen ? '#59A392' : '#94A3B8',
+                padding: '8px',
+                borderRadius: '8px',
+                display: 'flex',
+                transition: 'all 0.15s',
+              }}
+              aria-label="Notifications"
+            >
+              <Bell size={18} />
+              <span
+                style={{
+                  position: 'absolute',
+                  top: '4px',
+                  right: '4px',
+                  width: '16px',
+                  height: '16px',
+                  background: '#E8916F',
+                  borderRadius: '50%',
+                  fontSize: '0.6rem',
+                  color: 'white',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 700,
+                }}
+              >
+                {NOTIFICATIONS.length}
+              </span>
+            </button>
+
+            {notifOpen && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 'calc(100% + 8px)',
+                  right: 0,
+                  width: '360px',
+                  background: '#12162A',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  borderRadius: '12px',
+                  boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
+                  zIndex: 200,
+                  overflow: 'hidden',
+                }}
+              >
+                <div
+                  style={{
+                    padding: '14px 16px',
+                    borderBottom: '1px solid rgba(255,255,255,0.06)',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}
+                >
+                  <span style={{ color: '#E2E8F0', fontSize: '0.85rem', fontWeight: 600 }}>
+                    Notifications
+                  </span>
+                  <span style={{ color: '#59A392', fontSize: '0.75rem', cursor: 'pointer' }}>
+                    Mark all read
+                  </span>
+                </div>
+                {NOTIFICATIONS.map((n) => (
+                  <Link
+                    key={n.id}
+                    href={n.href}
+                    onClick={() => setNotifOpen(false)}
+                    style={{
+                      display: 'block',
+                      padding: '12px 16px',
+                      borderBottom: '1px solid rgba(255,255,255,0.04)',
+                      textDecoration: 'none',
+                      transition: 'background 0.15s',
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.03)')}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                  >
+                    <div style={{ color: '#E2E8F0', fontSize: '0.8rem', lineHeight: 1.4, marginBottom: '4px' }}>
+                      {n.text}
+                    </div>
+                    <div style={{ color: '#64748B', fontSize: '0.72rem' }}>{n.time}</div>
+                  </Link>
+                ))}
+                <Link
+                  href="/admin/activity"
+                  onClick={() => setNotifOpen(false)}
+                  style={{
+                    display: 'block',
+                    padding: '12px 16px',
+                    textAlign: 'center',
+                    color: '#59A392',
+                    fontSize: '0.8rem',
+                    textDecoration: 'none',
+                  }}
+                >
+                  View all notifications →
+                </Link>
+              </div>
+            )}
+          </div>
+
+          {/* User dropdown */}
+          <div ref={userRef} style={{ position: 'relative' }}>
+            <button
+              onClick={() => setUserDropOpen((p) => !p)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                background: userDropOpen ? 'rgba(255,255,255,0.06)' : 'none',
+                border: '1px solid rgba(255,255,255,0.06)',
+                borderRadius: '8px',
+                padding: '6px 10px',
+                cursor: 'pointer',
+                color: '#E2E8F0',
+                transition: 'all 0.15s',
+              }}
+              aria-label="User menu"
+              aria-expanded={userDropOpen}
+            >
+              <div
+                style={{
+                  width: '28px',
+                  height: '28px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #3A589E, #59A392)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  color: 'white',
+                }}
+              >
+                {user?.name?.[0]?.toUpperCase() ?? 'A'}
+              </div>
+              {!isMobile && <ChevronDown size={14} color="#64748B" />}
+            </button>
+
+            {userDropOpen && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 'calc(100% + 8px)',
+                  right: 0,
+                  width: '220px',
+                  background: '#12162A',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  borderRadius: '10px',
+                  boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
+                  zIndex: 200,
+                  overflow: 'hidden',
+                }}
+              >
+                <div style={{ padding: '14px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                  <div style={{ color: '#E2E8F0', fontSize: '0.85rem', fontWeight: 600 }}>
+                    {user?.name ?? 'Admin'}
+                  </div>
+                  <div style={{ color: '#64748B', fontSize: '0.75rem', marginTop: '2px' }}>
+                    {user?.email}
+                  </div>
+                  <div
+                    style={{
+                      color: '#59A392',
+                      fontSize: '0.65rem',
+                      fontFamily: "'Fira Code', monospace",
+                      textTransform: 'uppercase',
+                      marginTop: '4px',
+                      letterSpacing: '0.08em',
+                    }}
+                  >
+                    {user?.role?.replace('_', ' ')}
+                  </div>
+                </div>
+                <Link
+                  href="/admin/settings"
+                  onClick={() => setUserDropOpen(false)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    padding: '10px 16px',
+                    color: '#94A3B8',
+                    fontSize: '0.82rem',
+                    textDecoration: 'none',
+                    transition: 'background 0.15s',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.04)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                >
+                  <Settings size={14} /> Settings
+                </Link>
+                <button
+                  onClick={signOut}
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    padding: '10px 16px',
+                    background: 'none',
+                    border: 'none',
+                    borderTop: '1px solid rgba(255,255,255,0.04)',
+                    color: '#EF4444',
+                    fontSize: '0.82rem',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    fontFamily: "'Outfit', sans-serif",
+                  }}
+                >
+                  <LogOut size={14} /> Sign out
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Page content */}
+        <main style={{ flex: 1, padding: '32px', overflowY: 'auto' }}>
+          {children}
+        </main>
+      </div>
+
+      {/* ── Search Modal ──────────────────────────────────── */}
+      {searchOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.8)',
+            backdropFilter: 'blur(8px)',
+            zIndex: 2000,
+            display: 'flex',
+            alignItems: 'flex-start',
+            justifyContent: 'center',
+            paddingTop: '15vh',
+          }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setSearchOpen(false)
+          }}
+        >
+          <div
+            style={{
+              width: '100%',
+              maxWidth: '560px',
+              margin: '0 16px',
+              background: '#12162A',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '14px',
+              overflow: 'hidden',
+              boxShadow: '0 30px 80px rgba(0,0,0,0.7)',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                padding: '16px 20px',
+                borderBottom: '1px solid rgba(255,255,255,0.06)',
+                gap: '12px',
+              }}
+            >
+              <Search size={18} color="#64748B" />
+              <input
+                ref={searchInputRef}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search submissions, content, tickets…"
+                style={{
+                  flex: 1,
+                  background: 'none',
+                  border: 'none',
+                  outline: 'none',
+                  color: '#E2E8F0',
+                  fontSize: '0.95rem',
+                  fontFamily: "'Outfit', sans-serif",
+                }}
+              />
+              <button
+                onClick={() => setSearchOpen(false)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748B', display: 'flex' }}
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <div style={{ padding: '8px 0', maxHeight: '400px', overflowY: 'auto' }}>
+              {searchQuery === '' ? (
+                <>
+                  <div
+                    style={{
+                      padding: '8px 20px',
+                      color: '#64748B',
+                      fontSize: '0.7rem',
+                      fontFamily: "'Fira Code', monospace",
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.1em',
+                    }}
+                  >
+                    Quick Links
+                  </div>
+                  {[
+                    { label: 'Dashboard',    href: '/admin',              Icon: LayoutDashboard },
+                    { label: 'Submissions',  href: '/admin/submissions',  Icon: Inbox },
+                    { label: 'Agent Queue',  href: '/admin/agents/queue', Icon: CheckCircle },
+                    { label: 'Blog Posts',   href: '/admin/content/posts',Icon: Newspaper },
+                    { label: 'Tickets',      href: '/admin/tickets',      Icon: Ticket },
+                  ].map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => { setSearchOpen(false); setSearchQuery('') }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        padding: '10px 20px',
+                        textDecoration: 'none',
+                        color: '#94A3B8',
+                        fontSize: '0.85rem',
+                        transition: 'background 0.1s',
+                        fontFamily: "'Outfit', sans-serif",
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.04)')}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                    >
+                      <item.Icon size={16} color="#64748B" />
+                      {item.label}
+                    </Link>
+                  ))}
+                </>
+              ) : (
+                <div
+                  style={{
+                    padding: '20px',
+                    textAlign: 'center',
+                    color: '#64748B',
+                    fontSize: '0.85rem',
+                    fontFamily: "'Outfit', sans-serif",
+                  }}
+                >
+                  No results for &quot;{searchQuery}&quot; — live search coming soon.
+                </div>
+              )}
+            </div>
+            <div
+              style={{
+                padding: '10px 20px',
+                borderTop: '1px solid rgba(255,255,255,0.04)',
+                display: 'flex',
+                gap: '16px',
+              }}
+            >
+              {['↑↓ navigate', '↵ select', 'esc close'].map((hint) => (
+                <span
+                  key={hint}
+                  style={{
+                    color: '#64748B',
+                    fontSize: '0.72rem',
+                    fontFamily: "'Fira Code', monospace",
+                  }}
+                >
+                  {hint}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  )
 }
+
+// ─── Export with AuthProvider ─────────────────────────────────────────────────
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {
   return (
-    <AdminProvider>
+    <AuthProvider>
       <Shell>{children}</Shell>
-    </AdminProvider>
-  );
+    </AuthProvider>
+  )
 }
