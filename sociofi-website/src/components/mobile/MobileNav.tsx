@@ -37,7 +37,7 @@ const PARENT_LINKS = [
 
 const STYLES = `
   .mnav-overlay {
-    position: fixed; inset: 0; z-index: 999;
+    position: fixed; inset: 0; z-index: 1002;
     background: var(--bg);
     display: flex; flex-direction: column;
     overflow-y: auto;

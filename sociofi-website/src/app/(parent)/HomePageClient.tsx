@@ -1174,7 +1174,7 @@ function Hero() {
       <HeroAurora rm={reducedMotion || isMobile} />
 
       {/* ── Main content area: fills space between nav and bottom bar ── */}
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', paddingTop: isMobile ? 16 : 80, position: 'relative', zIndex: 2 }}>
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', paddingTop: 80, position: 'relative', zIndex: 2 }}>
         <div className="hp-con" style={{ width: '100%' }}>
           <div style={{ maxWidth: 700, marginInline: 'auto', textAlign: 'center' }}>
             {/* Slide badge — small label, part of flow */}
