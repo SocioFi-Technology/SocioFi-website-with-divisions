@@ -99,8 +99,20 @@ export const divisions: Record<DivisionSlug, Division> = {
         { label: 'Workshops', href: '/academy/workshops', description: 'Live, hands-on sessions' },
         { label: 'Free Resources', href: '/academy/free', description: 'Start learning today' },
       ]},
-      { label: 'Ventures', href: '/ventures' },
-      { label: 'Cloud', href: '/cloud' },
+      { label: 'Ventures', href: '/ventures', dropdown: [
+        { label: 'How It Works', href: '/ventures/how-it-works', description: 'Our co-building model explained' },
+        { label: 'Equity Model', href: '/ventures/equity', description: 'Equity-for-engineering partnerships' },
+        { label: 'Revenue Share', href: '/ventures/revenue-share', description: 'Revenue share partnership model' },
+        { label: 'Portfolio', href: '/ventures/portfolio', description: "Companies we've co-built" },
+        { label: 'Apply', href: '/ventures/apply', description: 'Start the application process' },
+      ]},
+      { label: 'Cloud', href: '/cloud', dropdown: [
+        { label: 'Features', href: '/cloud/features', description: 'What managed hosting includes' },
+        { label: 'Security', href: '/cloud/security', description: 'How we protect your infrastructure' },
+        { label: 'Providers', href: '/cloud/providers', description: 'AWS, GCP, DigitalOcean, Hetzner' },
+        { label: 'Plans', href: '/cloud/plans', description: 'Hosting plans and pricing' },
+        { label: 'Migration', href: '/cloud/migration', description: 'Moving your existing app to SocioFi Cloud' },
+      ]},
       { label: 'Blog', href: '/blog', dropdown: [
         { label: 'All Articles', href: '/blog', description: 'Ideas, research & hard-won lessons' },
         { label: 'AI Development', href: '/blog/category/ai-development', description: 'Methodology and coding process' },
@@ -257,7 +269,18 @@ export const divisions: Record<DivisionSlug, Division> = {
     cta: { label: 'Apply', href: '/ventures/apply' },
     url: '/ventures',
     navLinks: [
-      { label: 'How It Works', href: '/ventures/how-it-works' },
+      { label: 'How It Works', href: '/ventures/how-it-works', dropdown: [
+        { label: 'Overview', href: '/ventures/how-it-works', description: 'The co-building model explained' },
+        { label: 'What We Look For', href: '/ventures/what-we-look-for', description: 'Our selection criteria' },
+        { label: 'For Founders', href: '/ventures/for-founders', description: 'What founders get from Ventures' },
+        { label: 'Criteria', href: '/ventures/criteria', description: 'Minimum requirements to apply' },
+      ]},
+      { label: 'Models', href: '/ventures/equity', dropdown: [
+        { label: 'Equity Model', href: '/ventures/equity', description: 'Equity-for-engineering partnership' },
+        { label: 'Revenue Share', href: '/ventures/revenue-share', description: 'Revenue share partnership' },
+        { label: 'Hybrid Model', href: '/ventures/hybrid', description: 'Equity + revenue share blend' },
+        { label: 'Compare Models', href: '/ventures/compare', description: 'Side-by-side model comparison' },
+      ]},
       { label: 'Portfolio', href: '/ventures/portfolio' },
       { label: 'Apply', href: '/ventures/apply' },
       { label: 'FAQ', href: '/ventures/faq' },
@@ -278,8 +301,18 @@ export const divisions: Record<DivisionSlug, Division> = {
     navLinks: [
       { label: 'Features', href: '/cloud/features' },
       { label: 'Security', href: '/cloud/security' },
-      { label: 'Providers', href: '/cloud/providers' },
-      { label: 'Plans', href: '/cloud/plans' },
+      { label: 'Providers', href: '/cloud/providers', dropdown: [
+        { label: 'All Providers', href: '/cloud/providers', description: 'Every cloud we support' },
+        { label: 'AWS', href: '/cloud/providers#aws', description: 'Amazon Web Services hosting' },
+        { label: 'GCP', href: '/cloud/providers#gcp', description: 'Google Cloud Platform hosting' },
+        { label: 'DigitalOcean', href: '/cloud/providers#digitalocean', description: 'Simple, cost-effective cloud' },
+        { label: 'Hetzner', href: '/cloud/providers#hetzner', description: 'High-performance European cloud' },
+      ]},
+      { label: 'Plans', href: '/cloud/plans', dropdown: [
+        { label: 'Starter', href: '/cloud/plans#starter', description: 'For small apps and early-stage products' },
+        { label: 'Growth', href: '/cloud/plans#growth', description: 'For scaling teams and live products' },
+        { label: 'Enterprise', href: '/cloud/plans#enterprise', description: 'Dedicated infrastructure and support' },
+      ]},
       { label: 'Migration', href: '/cloud/migration' },
     ],
   },
