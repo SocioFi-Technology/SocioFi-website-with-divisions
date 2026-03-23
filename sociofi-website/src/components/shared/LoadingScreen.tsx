@@ -6,8 +6,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 
 // ── Timing ────────────────────────────────────────────────────────────────────
-const FIRST_LOAD_MS = 3200;   // full intro on very first page load
-const TRANSITION_MS = 1400;   // brief screen between divisions / homepage
+// On mobile (< 768px) use shorter durations — 3.2s intro feels like a freeze
+const IS_MOBILE_SCREEN = typeof window !== 'undefined' && window.innerWidth < 768;
+const FIRST_LOAD_MS = IS_MOBILE_SCREEN ? 2000 : 3200;  // 2s on mobile, 3.2s desktop
+const TRANSITION_MS = IS_MOBILE_SCREEN ?  900 : 1400;  // shorter transitions on mobile
 const EXIT_MS       = 500;
 
 // ── Division helpers ──────────────────────────────────────────────────────────

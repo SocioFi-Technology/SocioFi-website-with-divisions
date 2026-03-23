@@ -836,31 +836,41 @@ function StreamHeadline({ lines, gradientLine, gradientColors, rm }: {
     if (rm) { setCount(totalChars); return; }
     setCount(0);
 
-    let rafId: number;
-    let startTime: number | null = null;
-    const MS_PER_CHAR = 90;
-
-    function tick(now: number) {
-      if (startTime === null) startTime = now;
-      const chars = Math.min(Math.floor((now - startTime) / MS_PER_CHAR), totalChars);
-      setCount(chars);
-      if (chars < totalChars) rafId = requestAnimationFrame(tick);
-    }
+    // Use setInterval (not rAF) — rAF is throttled/paused by mobile browsers
+    // during heavy GPU paint, causing the typewriter to appear frozen.
+    // setInterval runs on the JS thread and is unaffected by GPU load.
+    const MS_PER_CHAR = 55; // slightly faster for better mobile feel
+    let intervalId: ReturnType<typeof setInterval>;
+    let started = false;
 
     function start() {
-      rafId = requestAnimationFrame(tick);
+      if (started) return;
+      started = true;
+      let current = 0;
+      intervalId = setInterval(() => {
+        current = Math.min(current + 1, totalChars);
+        setCount(current);
+        if (current >= totalChars) clearInterval(intervalId);
+      }, MS_PER_CHAR);
     }
 
-    // If loading screen already dismissed (e.g. slide transition), start immediately
+    // If loading screen already dismissed, start immediately
     if (typeof window !== 'undefined' && (window as any).__sfLoadingDone) {
       start();
     } else {
       window.addEventListener('loading-done', start, { once: true });
+      // Safety fallback: start after 4s regardless (handles missed events on mobile)
+      const fallback = setTimeout(start, 4000);
+      return () => {
+        window.removeEventListener('loading-done', start);
+        clearTimeout(fallback);
+        clearInterval(intervalId);
+      };
     }
 
     return () => {
       window.removeEventListener('loading-done', start);
-      cancelAnimationFrame(rafId);
+      clearInterval(intervalId);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -1065,6 +1075,7 @@ function Hero() {
   const [paused, setPaused] = useState(false);
   const [progress, setProgress] = useState(0);
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const directionRef = useRef<1 | -1>(1);
 
   useEffect(() => {
@@ -1072,6 +1083,8 @@ function Hero() {
     setReducedMotion(mq.matches);
     const h = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
     mq.addEventListener('change', h);
+    // Detect mobile on mount (used to reduce GPU load)
+    setIsMobile(window.innerWidth < 768);
     return () => mq.removeEventListener('change', h);
   }, []);
 
@@ -1124,7 +1137,7 @@ function Hero() {
         className="hp-hero-ctas"
         initial={rm ? false : { opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, ease: HERO_EASE, delay: 6.0 }}
+        transition={{ duration: 0.6, ease: HERO_EASE, delay: 1.0 }}
         style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}
       >
         <Link href={s.primaryCta.href} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '13px 26px', borderRadius: 14, background: 'var(--gradient-brand)', color: '#fff', fontFamily: F.h, fontSize: '0.88rem', fontWeight: 700, textDecoration: 'none', boxShadow: '0 4px 24px rgba(58,88,158,0.35)', transition: 'transform 0.2s, box-shadow 0.2s' }}>
@@ -1148,14 +1161,20 @@ function Hero() {
       aria-label="Homepage hero"
     >
       <GridBg />
-      <FloatingDots colors={['#72C4B2', '#4A6CB8', '#A3DFD2', '#8B5CF6']} count={22} />
-      <motion.div className="hp-orb-1" aria-hidden="true" style={{ position: 'absolute', width: 900, height: 900, borderRadius: '50%', background: 'radial-gradient(circle, var(--navy), transparent 70%)', top: '-20%', left: '-15%', opacity: 'var(--glow-opacity)', filter: 'blur(100px)', y: orbY1 }} />
-      <motion.div className="hp-orb-2" aria-hidden="true" style={{ position: 'absolute', width: 700, height: 700, borderRadius: '50%', background: 'radial-gradient(circle, var(--teal), transparent 70%)', bottom: '-15%', right: '-10%', opacity: 'var(--glow-opacity)', filter: 'blur(100px)', y: orbY2 }} />
+      {/* Reduce floating dot count on mobile to avoid GPU overload */}
+      <FloatingDots colors={['#72C4B2', '#4A6CB8', '#A3DFD2', '#8B5CF6']} count={isMobile ? 6 : 22} />
+      {/* Blur orbs disabled on mobile — filter:blur(100px) on 900px elements freezes mobile GPUs */}
+      {!isMobile && (
+        <>
+          <motion.div className="hp-orb-1" aria-hidden="true" style={{ position: 'absolute', width: 900, height: 900, borderRadius: '50%', background: 'radial-gradient(circle, var(--navy), transparent 70%)', top: '-20%', left: '-15%', opacity: 'var(--glow-opacity)', filter: 'blur(100px)', y: orbY1 }} />
+          <motion.div className="hp-orb-2" aria-hidden="true" style={{ position: 'absolute', width: 700, height: 700, borderRadius: '50%', background: 'radial-gradient(circle, var(--teal), transparent 70%)', bottom: '-15%', right: '-10%', opacity: 'var(--glow-opacity)', filter: 'blur(100px)', y: orbY2 }} />
+        </>
+      )}
       <HeroWatermark reducedMotion={reducedMotion} />
-      <HeroAurora rm={reducedMotion} />
+      <HeroAurora rm={reducedMotion || isMobile} />
 
       {/* ── Main content area: fills space between nav and bottom bar ── */}
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', paddingTop: 80, position: 'relative', zIndex: 2 }}>
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', paddingTop: isMobile ? 16 : 80, position: 'relative', zIndex: 2 }}>
         <div className="hp-con" style={{ width: '100%' }}>
           <div style={{ maxWidth: 700, marginInline: 'auto', textAlign: 'center' }}>
             {/* Slide badge — small label, part of flow */}
