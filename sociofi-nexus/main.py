@@ -4,13 +4,19 @@ Receives webhooks from Next.js, triggers agents, exposes status endpoints.
 """
 from fastapi import FastAPI, HTTPException, Depends, BackgroundTasks, Header
 from fastapi.middleware.cors import CORSMiddleware
-import asyncio
+from pydantic import BaseModel
 import time
-import uuid
-from typing import Optional
+from typing import Optional, Any
 
 from config import settings
 from models import SubmissionWebhook, ApprovalWebhook, TriggerRequest, AgentRunResult
+
+
+class TicketWebhook(BaseModel):
+    ticket_id: str
+    ticket_data: dict[str, Any]
+    contact_id: str
+
 
 app = FastAPI(
     title='SocioFi NEXUS Agent Server',
@@ -29,6 +35,9 @@ app.add_middleware(
 # In-memory run history (replace with DB in production)
 _run_history: list[dict] = []
 _agent_start_time = time.time()
+
+# All agents known to this server
+ALL_AGENTS = ['INTAKE', 'HERALD', 'SCRIBE', 'COMPASS', 'WARDEN', 'CHRONICLE', 'CURATOR']
 
 
 def verify_api_key(authorization: Optional[str] = Header(None)) -> None:
@@ -72,14 +81,11 @@ async def status(_: None = Depends(verify_api_key)):
         'uptime_seconds': int(time.time() - _agent_start_time),
         'database': 'connected' if db_healthy else 'error',
         'agents': {
-            'INTAKE': {
+            name: {
                 'status': 'idle',
-                'total_runs': sum(1 for r in _run_history if r.get('agent') == 'INTAKE'),
-            },
-            'HERALD': {
-                'status': 'idle',
-                'total_runs': sum(1 for r in _run_history if r.get('agent') == 'HERALD'),
-            },
+                'total_runs': sum(1 for r in _run_history if r.get('agent') == name),
+            }
+            for name in ALL_AGENTS
         },
         'runs': {
             'total': total_runs,
@@ -114,6 +120,33 @@ async def webhook_submission(payload: SubmissionWebhook, background_tasks: Backg
         'accepted': True,
         'submission_id': payload.submission_id,
         'message': 'INTAKE agent queued',
+    }
+
+
+@app.post('/webhook/ticket', dependencies=[Depends(verify_api_key)])
+async def webhook_ticket(payload: TicketWebhook, background_tasks: BackgroundTasks):
+    """
+    Receives new ticket events from the admin panel or external systems.
+    Runs WARDEN agent to triage the ticket.
+    Returns immediately — triage happens in the background.
+    """
+    def run_warden():
+        from agents.warden import WardenAgent
+        agent = WardenAgent()
+        # Inject contact_id into ticket_data for context
+        ticket_data = {**payload.ticket_data, 'contact_id': payload.contact_id}
+        result = agent.triage_ticket(
+            ticket_id=payload.ticket_id,
+            ticket_data=ticket_data,
+        )
+        _record_run(result)
+
+    background_tasks.add_task(run_warden)
+
+    return {
+        'accepted': True,
+        'ticket_id': payload.ticket_id,
+        'message': 'WARDEN triage queued',
     }
 
 
@@ -224,7 +257,79 @@ async def trigger_agent(
         background_tasks.add_task(run)
         return {'triggered': True, 'agent': 'HERALD', 'reason': request.reason}
 
-    raise HTTPException(status_code=404, detail=f'Agent {agent_name_upper} not found')
+    elif agent_name_upper == 'SCRIBE':
+        def run():
+            from agents.scribe import ScribeAgent
+            agent = ScribeAgent()
+            content_type = str(request.data.get('content_type', 'blog_post'))
+            topic = str(request.data.get('topic', 'SocioFi services'))
+            division = str(request.data.get('division', 'parent'))
+            result = agent.generate_content(
+                content_type=content_type,
+                topic=topic,
+                division=division,
+                additional_context=dict(request.data),
+            )
+            _record_run(result)
+
+        background_tasks.add_task(run)
+        return {'triggered': True, 'agent': 'SCRIBE', 'reason': request.reason}
+
+    elif agent_name_upper == 'COMPASS':
+        def run():
+            from agents.compass import CompassAgent
+            agent = CompassAgent()
+            division = request.data.get('division')
+            result = agent.analyze_pipeline(division=division)
+            _record_run(result)
+
+        background_tasks.add_task(run)
+        return {'triggered': True, 'agent': 'COMPASS', 'reason': request.reason}
+
+    elif agent_name_upper == 'WARDEN':
+        ticket_id = request.data.get('ticket_id')
+        if not ticket_id:
+            raise HTTPException(status_code=400, detail='ticket_id required for WARDEN')
+
+        def run():
+            from agents.warden import WardenAgent
+            agent = WardenAgent()
+            result = agent.triage_ticket(
+                ticket_id=str(ticket_id),
+                ticket_data=dict(request.data),
+            )
+            _record_run(result)
+
+        background_tasks.add_task(run)
+        return {'triggered': True, 'agent': 'WARDEN', 'reason': request.reason}
+
+    elif agent_name_upper == 'CHRONICLE':
+        def run():
+            from agents.chronicle import ChronicleAgent
+            agent = ChronicleAgent()
+            report_type = str(request.data.get('report_type', 'daily_digest'))
+            if report_type == 'weekly_report':
+                result = agent.generate_weekly_report()
+            elif report_type == 'monthly_report':
+                result = agent.generate_monthly_report()
+            else:
+                result = agent.generate_daily_digest()
+            _record_run(result)
+
+        background_tasks.add_task(run)
+        return {'triggered': True, 'agent': 'CHRONICLE', 'reason': request.reason}
+
+    elif agent_name_upper == 'CURATOR':
+        def run():
+            from agents.curator import CuratorAgent
+            agent = CuratorAgent()
+            result = agent.prepare_newsletter()
+            _record_run(result)
+
+        background_tasks.add_task(run)
+        return {'triggered': True, 'agent': 'CURATOR', 'reason': request.reason}
+
+    raise HTTPException(status_code=404, detail=f'Agent {agent_name_upper} not found. Available: {", ".join(ALL_AGENTS)}')
 
 
 @app.get('/agents/{agent_name}/runs', dependencies=[Depends(verify_api_key)])
