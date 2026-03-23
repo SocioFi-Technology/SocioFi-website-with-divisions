@@ -273,6 +273,7 @@ export type AgentName =
   | 'INTAKE' | 'HERALD' | 'SCRIBE' | 'OVERSEER' | 'PATCHER'
   | 'ARCHITECT' | 'FORGE' | 'SENTINEL' | 'ATLAS' | 'CHRONICLE'
   | 'MENTOR' | 'SCOUT' | 'NEXUS'
+  | 'SURVEYOR' | 'RELAY' | 'AUDITOR'
 
 export type AgentStatus = 'active' | 'idle' | 'running' | 'error' | 'paused'
 
@@ -341,6 +342,9 @@ export const AGENT_COLORS: Record<AgentName, string> = {
   MENTOR:    '#F0D080',
   SCOUT:     '#94A3B8',
   NEXUS:     '#3A589E',
+  SURVEYOR:  '#59A392',
+  RELAY:     '#E8B84D',
+  AUDITOR:   '#EF4444',
 }
 
 export const AGENT_STATUS_COLORS: Record<AgentStatus, string> = {
@@ -804,4 +808,122 @@ export interface SCARLCohort {
   max_participants: number
   participants: SCARLParticipant[]
   description: string
+}
+
+// ─── Agent Deployment System ──────────────────────────────────────────────────
+
+export type DeploymentStatus = 'active' | 'paused' | 'error' | 'pending_setup' | 'archived'
+export type OversightLevel   = 'strict' | 'moderate' | 'autonomous'
+export type RunStatus        = 'success' | 'failed' | 'pending_review' | 'running' | 'cancelled'
+export type ConnectorStatus  = 'connected' | 'failed' | 'not_configured'
+export type ConnectorType    = 'gmail' | 'hubspot' | 'slack' | 'notion' | 'airtable' | 'stripe' | 'github' | 'linear' | 'jira' | 'webhook' | 'zapier' | 'google_sheets' | 'intercom' | 'salesforce' | 'postgres' | 'supabase'
+
+export const DEPLOYMENT_STATUS_COLORS: Record<DeploymentStatus, string> = {
+  active:        '#4ade80',
+  paused:        '#E8B84D',
+  error:         '#EF4444',
+  pending_setup: '#6BA3E8',
+  archived:      '#475569',
+}
+
+export const RUN_STATUS_COLORS: Record<RunStatus, string> = {
+  success:        '#4ade80',
+  failed:         '#EF4444',
+  pending_review: '#E8B84D',
+  running:        '#6BA3E8',
+  cancelled:      '#475569',
+}
+
+export const OVERSIGHT_LABELS: Record<OversightLevel, string> = {
+  strict:     'Strict — all outputs require human approval',
+  moderate:   'Moderate — approve flagged outputs only',
+  autonomous: 'Autonomous — runs without human review',
+}
+
+export const CONNECTOR_ICONS: Record<ConnectorType, string> = {
+  gmail:        'G',
+  hubspot:      'H',
+  slack:        'S',
+  notion:       'N',
+  airtable:     'A',
+  stripe:       '$',
+  github:       'GH',
+  linear:       'L',
+  jira:         'J',
+  webhook:      'WH',
+  zapier:       'Z',
+  google_sheets:'GS',
+  intercom:     'IC',
+  salesforce:   'SF',
+  postgres:     'PG',
+  supabase:     'SB',
+}
+
+export interface DeploymentConnector {
+  id: string
+  type: ConnectorType
+  label: string
+  status: ConnectorStatus
+  last_checked_at?: string
+  error_message?: string
+  config_summary: string
+}
+
+export interface AgentRunEntry {
+  id: string
+  deployment_id: string
+  status: RunStatus
+  trigger: 'scheduled' | 'manual' | 'webhook'
+  started_at: string
+  completed_at?: string
+  duration_ms?: number
+  tokens_used?: number
+  input_summary: string
+  output_summary?: string
+  output_full?: string
+  error_message?: string
+  was_overridden?: boolean
+  override_reason?: string
+}
+
+export interface AgentDeployment {
+  id: string
+  client_name: string
+  client_email: string
+  client_company?: string
+  client_plan: 'starter' | 'growth' | 'scale' | 'enterprise'
+  agent_name: AgentName
+  agent_label: string
+  status: DeploymentStatus
+  health_score: number
+  oversight: OversightLevel
+  created_at: string
+  activated_at?: string
+  last_run_at?: string
+  next_run_at?: string
+  schedule_cron: string
+  schedule_human: string
+  connectors: DeploymentConnector[]
+  custom_rules: Record<string, string | number | boolean>
+  output_emails: string[]
+  output_slack_webhook?: string
+  output_format: 'email' | 'slack' | 'notion' | 'airtable' | 'webhook'
+  run_history: AgentRunEntry[]
+  success_rate: number
+  avg_duration_ms: number
+  drift_score: number
+  override_rate: number
+  total_runs_30d: number
+}
+
+export interface AgentCatalogItem {
+  name: AgentName
+  label: string
+  description: string
+  category: 'content' | 'pipeline' | 'monitoring' | 'communication' | 'analytics' | 'development'
+  required_connectors: ConnectorType[]
+  optional_connectors: ConnectorType[]
+  custom_rule_schema: Record<string, { type: 'string' | 'number' | 'boolean' | 'select', label: string, options?: string[], default?: string | number | boolean }>
+  example_output: string
+  typical_schedule: string
 }
