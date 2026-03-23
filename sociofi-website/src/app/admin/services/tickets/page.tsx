@@ -1,912 +1,359 @@
-'use client';
+'use client'
 
-import React, { useState } from 'react';
-import { LEGACY_MOCK_TICKETS as MOCK_TICKETS, LEGACY_MOCK_CONTACTS as MOCK_CONTACTS } from '@/lib/admin/mock-data';
-import type { Ticket, TicketStatus, TicketPriority } from '@/lib/supabase/types';
+import { useState, useEffect, useCallback } from 'react'
+import Link from 'next/link'
+import { MOCK_SERVICE_TICKETS } from '@/lib/admin/mock-data'
+import type { ServiceTicket, TicketPriority, TicketStatus, TicketType } from '@/lib/admin/types'
+import { TICKET_PRIORITY_COLORS, TICKET_TYPE_COLORS, TICKET_STATUS_COLORS, PLAN_COLORS } from '@/lib/admin/types'
 
-/* ─────────────────────────────────────────
-   Styles
-───────────────────────────────────────── */
-const STYLES = `
-  /* ── SLA Banner ── */
-  .tick-sla-banner {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 18px;
-    background: rgba(248,113,113,0.08);
-    border: 1px solid rgba(248,113,113,0.25);
-    border-radius: 12px;
-    margin-bottom: 20px;
-    font-size: 13.5px;
-    color: #FCA5A5;
-    font-family: 'DM Sans', sans-serif;
-  }
-  .tick-sla-banner svg { flex-shrink: 0; }
-  .tick-sla-banner a {
-    margin-left: auto;
-    color: #F87171;
-    font-weight: 600;
-    text-decoration: underline;
-    font-size: 12px;
-    cursor: pointer;
-    background: none;
-    border: none;
-    padding: 0;
-  }
-  .tick-sla-banner a:hover { color: #FCA5A5; }
+// ─── SLA Countdown ────────────────────────────────────────────────────────────
 
-  /* ── Stats Row ── */
-  .tick-stats-row {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 22px;
+function slaRemaining(deadline: string, now: number) {
+  const ms = new Date(deadline).getTime() - now
+  if (ms <= 0) {
+    const elapsed = Math.abs(ms)
+    const h = Math.floor(elapsed / 3_600_000)
+    const m = Math.floor((elapsed % 3_600_000) / 60_000)
+    return { ms, label: `+${h}h ${m}m`, color: '#EF4444', status: 'breached' as const }
   }
-  .tick-stat-chip {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 14px;
-    background: #111128;
-    border: 1px solid rgba(89,163,146,0.08);
-    border-radius: 10px;
-    font-size: 12.5px;
-  }
-  .tick-stat-chip-label {
-    color: #6B7B9E;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
-  .tick-stat-chip-value {
-    font-family: 'Manrope', sans-serif;
-    font-weight: 700;
-    font-size: 15px;
-    color: #E2E8F0;
-  }
-  .tick-stat-chip-value.red { color: #F87171; }
-  .tick-stat-chip-value.teal { color: #59A392; }
-
-  /* ── Filter Tabs ── */
-  .tick-filter-bar {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex-wrap: wrap;
-    margin-bottom: 18px;
-  }
-  .tick-filter-tab {
-    padding: 6px 14px;
-    border-radius: 100px;
-    font-size: 12.5px;
-    font-weight: 500;
-    border: 1px solid rgba(89,163,146,0.08);
-    background: transparent;
-    color: #6B7B9E;
-    cursor: pointer;
-    transition: all 0.15s;
-    font-family: 'DM Sans', sans-serif;
-  }
-  .tick-filter-tab:hover {
-    color: #E2E8F0;
-    border-color: rgba(89,163,146,0.18);
-  }
-  .tick-filter-tab.active {
-    background: rgba(58,88,158,0.15);
-    border-color: rgba(58,88,158,0.4);
-    color: #E2E8F0;
-  }
-  .tick-filter-sep {
-    width: 1px;
-    height: 20px;
-    background: rgba(89,163,146,0.1);
-    margin: 0 2px;
-  }
-
-  /* ── Table Shell ── */
-  .tick-table-wrap {
-    background: #111128;
-    border: 1px solid rgba(89,163,146,0.08);
-    border-radius: 16px;
-    overflow: hidden;
-  }
-
-  /* ── Table Row ── */
-  .tick-row {
-    display: grid;
-    grid-template-columns: 72px 1fr 90px 110px 120px 110px 80px;
-    gap: 0;
-    align-items: center;
-    border-bottom: 1px solid rgba(89,163,146,0.06);
-    border-left: 3px solid transparent;
-    cursor: pointer;
-    transition: background 0.15s;
-    min-height: 58px;
-  }
-  .tick-row:last-child { border-bottom: none; }
-  .tick-row:hover { background: rgba(255,255,255,0.02); }
-  .tick-row.p1 { border-left-color: #F87171; }
-  .tick-row.p2 { border-left-color: #FB923C; }
-  .tick-row.p3 { border-left-color: #FBBF24; }
-  .tick-row.p4 { border-left-color: #6B7B9E; }
-  .tick-row.expanded { background: rgba(58,88,158,0.06); }
-
-  .tick-header-row {
-    display: grid;
-    grid-template-columns: 72px 1fr 90px 110px 120px 110px 80px;
-    gap: 0;
-    align-items: center;
-    border-bottom: 1px solid rgba(89,163,146,0.1);
-    border-left: 3px solid transparent;
-    background: rgba(15,15,36,0.6);
-  }
-
-  .tick-cell {
-    padding: 14px 14px;
-    font-size: 13px;
-    color: #E2E8F0;
-  }
-  .tick-header-cell {
-    padding: 11px 14px;
-    font-size: 10.5px;
-    font-weight: 600;
-    color: #6B7B9E;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-family: 'JetBrains Mono', monospace;
-  }
-
-  /* ── Priority Badge ── */
-  .tick-priority-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 3px 9px;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: 700;
-    font-family: 'JetBrains Mono', monospace;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-  .tick-priority-badge.p1 { background: rgba(248,113,113,0.12); color: #F87171; }
-  .tick-priority-badge.p2 { background: rgba(251,146,60,0.12); color: #FB923C; }
-  .tick-priority-badge.p3 { background: rgba(251,191,36,0.12); color: #FBBF24; }
-  .tick-priority-badge.p4 { background: rgba(107,123,158,0.12); color: #94A3B8; }
-
-  /* ── Status Badge ── */
-  .tick-status-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 3px 9px;
-    border-radius: 100px;
-    font-size: 11.5px;
-    font-weight: 500;
-    font-family: 'DM Sans', sans-serif;
-    white-space: nowrap;
-  }
-  .tick-status-badge::before {
-    content: '';
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-  .tick-status-badge.open { background: rgba(89,163,146,0.1); color: #59A392; }
-  .tick-status-badge.open::before { background: #59A392; }
-  .tick-status-badge.acknowledged { background: rgba(251,191,36,0.1); color: #FBBF24; }
-  .tick-status-badge.acknowledged::before { background: #FBBF24; }
-  .tick-status-badge.in_progress { background: rgba(58,88,158,0.15); color: #6BA3E8; }
-  .tick-status-badge.in_progress::before { background: #6BA3E8; }
-  .tick-status-badge.resolved { background: rgba(107,123,158,0.1); color: #94A3B8; }
-  .tick-status-badge.resolved::before { background: #94A3B8; }
-  .tick-status-badge.closed { background: rgba(107,123,158,0.08); color: #6B7B9E; }
-  .tick-status-badge.closed::before { background: #6B7B9E; }
-
-  /* ── SLA Countdown ── */
-  .tick-sla-countdown {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    color: #6B7B9E;
-  }
-  .tick-sla-countdown.overdue { color: #F87171; font-weight: 600; }
-  .tick-sla-countdown.warning { color: #FBBF24; }
-  .tick-sla-countdown.ok { color: #59A392; }
-
-  /* ── Inline Expand ── */
-  .tick-expand {
-    background: rgba(12,12,29,0.7);
-    border-bottom: 1px solid rgba(89,163,146,0.08);
-    padding: 20px 20px 20px 23px;
-    animation: tick-expand-in 0.18s ease;
-  }
-  @keyframes tick-expand-in {
-    from { opacity: 0; transform: translateY(-6px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  .tick-expand-description {
-    font-size: 13.5px;
-    color: #CBD5E1;
-    line-height: 1.65;
-    margin-bottom: 18px;
-    max-width: 680px;
-  }
-
-  .tick-expand-actions {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-bottom: 18px;
-  }
-
-  .tick-action-btn {
-    padding: 7px 16px;
-    border-radius: 8px;
-    font-size: 12.5px;
-    font-weight: 600;
-    cursor: pointer;
-    border: 1px solid transparent;
-    transition: all 0.15s;
-    font-family: 'Manrope', sans-serif;
-  }
-  .tick-action-btn.acknowledge {
-    background: rgba(251,191,36,0.1);
-    border-color: rgba(251,191,36,0.25);
-    color: #FBBF24;
-  }
-  .tick-action-btn.acknowledge:hover {
-    background: rgba(251,191,36,0.18);
-    border-color: rgba(251,191,36,0.4);
-  }
-  .tick-action-btn.in-progress {
-    background: rgba(58,88,158,0.12);
-    border-color: rgba(58,88,158,0.3);
-    color: #6BA3E8;
-  }
-  .tick-action-btn.in-progress:hover {
-    background: rgba(58,88,158,0.2);
-    border-color: rgba(58,88,158,0.5);
-  }
-  .tick-action-btn.resolve {
-    background: rgba(89,163,146,0.1);
-    border-color: rgba(89,163,146,0.25);
-    color: #59A392;
-  }
-  .tick-action-btn.resolve:hover {
-    background: rgba(89,163,146,0.18);
-    border-color: rgba(89,163,146,0.4);
-  }
-  .tick-action-btn:disabled {
-    opacity: 0.4;
-    cursor: default;
-  }
-
-  .tick-notes-area {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    max-width: 520px;
-  }
-  .tick-notes-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: #6B7B9E;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-family: 'JetBrains Mono', monospace;
-  }
-  .tick-notes-textarea {
-    background: rgba(15,15,36,0.8);
-    border: 1px solid rgba(89,163,146,0.12);
-    border-radius: 10px;
-    padding: 10px 13px;
-    color: #E2E8F0;
-    font-size: 13px;
-    font-family: 'DM Sans', sans-serif;
-    resize: vertical;
-    min-height: 72px;
-    transition: border-color 0.2s;
-    width: 100%;
-  }
-  .tick-notes-textarea:focus {
-    outline: none;
-    border-color: rgba(89,163,146,0.3);
-  }
-  .tick-save-btn {
-    align-self: flex-start;
-    padding: 7px 16px;
-    background: linear-gradient(135deg, #3A589E, #59A392);
-    border: none;
-    border-radius: 8px;
-    color: white;
-    font-size: 12.5px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: 'Manrope', sans-serif;
-    transition: opacity 0.15s;
-  }
-  .tick-save-btn:hover { opacity: 0.85; }
-
-  .tick-resolved-notes {
-    background: rgba(89,163,146,0.06);
-    border: 1px solid rgba(89,163,146,0.12);
-    border-radius: 10px;
-    padding: 12px 14px;
-    font-size: 13px;
-    color: #94A3B8;
-    max-width: 520px;
-  }
-  .tick-resolved-notes-label {
-    font-size: 10.5px;
-    font-weight: 600;
-    color: #59A392;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-family: 'JetBrains Mono', monospace;
-    margin-bottom: 6px;
-  }
-
-  /* ── Title column ── */
-  .tick-title-col { min-width: 0; }
-  .tick-title-text {
-    font-weight: 600;
-    font-size: 13.5px;
-    color: #E2E8F0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    margin-bottom: 2px;
-    font-family: 'Manrope', sans-serif;
-  }
-  .tick-desc-text {
-    font-size: 12px;
-    color: #6B7B9E;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  /* ── Plan badge ── */
-  .tick-plan-badge {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: #6B7B9E;
-    text-transform: capitalize;
-  }
-
-  /* ── Assigned & Time ── */
-  .tick-assigned {
-    font-size: 12px;
-    color: #6B7B9E;
-    font-family: 'DM Sans', sans-serif;
-  }
-  .tick-time {
-    font-size: 11.5px;
-    color: #4A5578;
-    font-family: 'JetBrains Mono', monospace;
-  }
-
-  /* ── Legend ── */
-  .tick-legend {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-    margin-top: 18px;
-    padding: 14px 18px;
-    background: rgba(15,15,36,0.5);
-    border: 1px solid rgba(89,163,146,0.06);
-    border-radius: 12px;
-  }
-  .tick-legend-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 12px;
-    color: #6B7B9E;
-    font-family: 'DM Sans', sans-serif;
-  }
-  .tick-legend-dot {
-    width: 8px; height: 8px;
-    border-radius: 2px;
-    flex-shrink: 0;
-  }
-  .tick-legend-label {
-    font-weight: 600;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-  }
-
-  /* ── Page header ── */
-  .tick-page-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: 24px;
-    gap: 16px;
-  }
-  .tick-page-title {
-    font-family: 'Manrope', sans-serif;
-    font-weight: 800;
-    font-size: 22px;
-    color: #E2E8F0;
-    letter-spacing: -0.02em;
-    margin-bottom: 4px;
-  }
-  .tick-page-sub {
-    font-size: 13px;
-    color: #6B7B9E;
-    font-family: 'DM Sans', sans-serif;
-  }
-
-  /* ── Empty state ── */
-  .tick-empty {
-    padding: 48px;
-    text-align: center;
-    color: #4A5578;
-    font-size: 13px;
-    font-family: 'DM Sans', sans-serif;
-  }
-
-  /* ── Chevron ── */
-  .tick-chevron {
-    color: #4A5578;
-    transition: transform 0.18s;
-    flex-shrink: 0;
-  }
-  .tick-chevron.open { transform: rotate(180deg); }
-
-  @media (max-width: 900px) {
-    .tick-row,
-    .tick-header-row {
-      grid-template-columns: 68px 1fr 90px 100px 90px;
-    }
-    .tick-cell-assigned,
-    .tick-header-cell-assigned,
-    .tick-cell-plan,
-    .tick-header-cell-plan { display: none; }
-  }
-  @media (max-width: 600px) {
-    .tick-row,
-    .tick-header-row {
-      grid-template-columns: 68px 1fr 90px;
-    }
-    .tick-cell-sla,
-    .tick-header-cell-sla,
-    .tick-cell-status,
-    .tick-header-cell-status { display: none; }
-  }
-`;
-
-/* ─────────────────────────────────────────
-   Helpers
-───────────────────────────────────────── */
-function fmtRelative(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  return `${Math.floor(hrs / 24)}d ago`;
+  const h = Math.floor(ms / 3_600_000)
+  const m = Math.floor((ms % 3_600_000) / 60_000)
+  const s = Math.floor((ms % 60_000) / 1_000)
+  const color = ms < 2 * 3_600_000 ? '#E8B84D' : '#4ade80'
+  const status = ms < 2 * 3_600_000 ? 'warning' as const : 'ok' as const
+  const label = h > 0 ? `${h}h ${m}m` : `${m}m ${s}s`
+  return { ms, label, color, status }
 }
 
-function slaCountdown(deadline: string): { label: string; cls: string } {
-  const diff = new Date(deadline).getTime() - Date.now();
-  if (diff <= 0) return { label: 'OVERDUE', cls: 'overdue' };
-  const mins = Math.floor(diff / 60000);
-  if (mins < 60) return { label: `${mins}m left`, cls: mins < 30 ? 'warning' : 'ok' };
-  const hrs = Math.floor(mins / 60);
-  return { label: `${hrs}h left`, cls: hrs < 2 ? 'warning' : 'ok' };
-}
+// ─── New Ticket Modal ─────────────────────────────────────────────────────────
 
-const PRIORITY_ORDER: Record<TicketPriority, number> = { p1: 0, p2: 1, p3: 2, p4: 3 };
+function NewTicketModal({ onClose }: { onClose: () => void }) {
+  const [step, setStep] = useState<'form' | 'classifying' | 'done'>('form')
+  const [form, setForm] = useState({ client: 'anna@ecomstore.de', type: 'bug', title: '', description: '' })
+  const [classified, setClassified] = useState({ priority: 'P2', assigned_to: 'Kamrul Hasan', reason: '' })
 
-const SLA_LABELS: Record<TicketPriority, string> = {
-  p1: 'Critical — <1h SLA',
-  p2: 'High — <4h SLA',
-  p3: 'Normal — <24h SLA',
-  p4: 'Low — <72h SLA',
-};
-
-const PRIORITY_COLORS: Record<TicketPriority, string> = {
-  p1: '#F87171',
-  p2: '#FB923C',
-  p3: '#FBBF24',
-  p4: '#6B7B9E',
-};
-
-type FilterMode =
-  | 'all' | 'p1' | 'p2' | 'p3' | 'p4'
-  | 'open' | 'in_progress' | 'resolved';
-
-/* ─────────────────────────────────────────
-   Sub-components
-───────────────────────────────────────── */
-function PriorityBadge({ p }: { p: TicketPriority }) {
-  return (
-    <span className={`tick-priority-badge ${p}`}>
-      {p.toUpperCase()}
-    </span>
-  );
-}
-
-function StatusBadge({ s }: { s: TicketStatus }) {
-  const labels: Record<TicketStatus, string> = {
-    open: 'Open',
-    acknowledged: 'Acknowledged',
-    in_progress: 'In Progress',
-    resolved: 'Resolved',
-    closed: 'Closed',
-  };
-  return (
-    <span className={`tick-status-badge ${s}`}>
-      {labels[s]}
-    </span>
-  );
-}
-
-function SlaCell({ deadline }: { deadline?: string }) {
-  if (!deadline) return <span className="tick-sla-countdown">—</span>;
-  const { label, cls } = slaCountdown(deadline);
-  return <span className={`tick-sla-countdown ${cls}`}>{label}</span>;
-}
-
-/* ─────────────────────────────────────────
-   Expanded Row
-───────────────────────────────────────── */
-function ExpandedRow({
-  ticket,
-  onStatusChange,
-  onSaveNote,
-}: {
-  ticket: Ticket;
-  onStatusChange: (id: string, status: TicketStatus) => void;
-  onSaveNote: (id: string, note: string) => void;
-}) {
-  const [note, setNote] = useState(ticket.resolution_notes ?? '');
-  const [saved, setSaved] = useState(false);
-
-  const handleSave = () => {
-    onSaveNote(ticket.id, note);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
-  };
-
-  const isResolved = ticket.status === 'resolved' || ticket.status === 'closed';
-
-  return (
-    <div className="tick-expand">
-      {ticket.description && (
-        <p className="tick-expand-description">{ticket.description}</p>
-      )}
-
-      {!isResolved && (
-        <div className="tick-expand-actions">
-          <button
-            className="tick-action-btn acknowledge"
-            disabled={ticket.status === 'acknowledged'}
-            onClick={() => onStatusChange(ticket.id, 'acknowledged')}
-          >
-            Acknowledge
-          </button>
-          <button
-            className="tick-action-btn in-progress"
-            disabled={ticket.status === 'in_progress'}
-            onClick={() => onStatusChange(ticket.id, 'in_progress')}
-          >
-            Mark In Progress
-          </button>
-          <button
-            className="tick-action-btn resolve"
-            onClick={() => onStatusChange(ticket.id, 'resolved')}
-          >
-            Mark Resolved
-          </button>
-        </div>
-      )}
-
-      {isResolved ? (
-        <div className="tick-resolved-notes">
-          <div className="tick-resolved-notes-label">Resolution Notes</div>
-          <p>{ticket.resolution_notes ?? 'No notes recorded.'}</p>
-          {ticket.resolved_at && (
-            <p style={{ marginTop: 6, fontSize: 11, color: '#4A5578', fontFamily: "'JetBrains Mono', monospace" }}>
-              Resolved {fmtRelative(ticket.resolved_at)}
-            </p>
-          )}
-        </div>
-      ) : (
-        <div className="tick-notes-area">
-          <div className="tick-notes-label">Resolution Notes</div>
-          <textarea
-            className="tick-notes-textarea"
-            placeholder="Add resolution notes..."
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-          />
-          <button className="tick-save-btn" onClick={handleSave}>
-            {saved ? 'Saved!' : 'Save Note'}
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ─────────────────────────────────────────
-   Main Page
-───────────────────────────────────────── */
-export default function TicketsPage() {
-  const [tickets, setTickets] = useState<Ticket[]>(MOCK_TICKETS);
-  const [expanded, setExpanded] = useState<string | null>(null);
-  const [filter, setFilter] = useState<FilterMode>('all');
-
-  /* SLA breached P1s that aren't acknowledged */
-  const p1Breaching = tickets.filter(
-    (t) => t.priority === 'p1' && !t.acknowledged_at,
-  );
-
-  /* Stats */
-  const stats = {
-    open: tickets.filter((t) => t.status === 'open').length,
-    acknowledged: tickets.filter((t) => t.status === 'acknowledged').length,
-    in_progress: tickets.filter((t) => t.status === 'in_progress').length,
-    sla_breached: tickets.filter(
-      (t) => t.sla_response_deadline && new Date(t.sla_response_deadline).getTime() < Date.now() && t.status !== 'resolved' && t.status !== 'closed',
-    ).length,
-  };
-
-  /* Filtered + sorted tickets */
-  const filtered = tickets
-    .filter((t) => {
-      if (filter === 'all') return true;
-      if (filter === 'p1' || filter === 'p2' || filter === 'p3' || filter === 'p4') return t.priority === filter;
-      return t.status === filter;
+  async function classify() {
+    setStep('classifying')
+    await new Promise(r => setTimeout(r, 1800))
+    const priority = form.type === 'security' || form.type === 'incident' ? 'P1' : form.type === 'bug' ? 'P2' : 'P3'
+    setClassified({
+      priority,
+      assigned_to: form.type === 'security' ? 'Arifur Rahman' : 'Kamrul Hasan',
+      reason: `WARDEN classified as ${form.type.toUpperCase()} based on title/description analysis. ${priority} priority assigned. Routed to best-available engineer.`,
     })
-    .sort((a, b) => {
-      const pDiff = PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority];
-      if (pDiff !== 0) return pDiff;
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-    });
+    setStep('done')
+  }
 
-  const handleStatusChange = (id: string, status: TicketStatus) => {
-    setTickets((prev) =>
-      prev.map((t) =>
-        t.id === id
-          ? {
-              ...t,
-              status,
-              acknowledged_at: status === 'acknowledged' ? new Date().toISOString() : t.acknowledged_at,
-              resolved_at: status === 'resolved' ? new Date().toISOString() : t.resolved_at,
-              updated_at: new Date().toISOString(),
-            }
-          : t,
-      ),
-    );
-  };
+  const CLIENTS = [
+    { email: 'anna@ecomstore.de', label: 'Anna Müller (EcomStore · Scale)' },
+    { email: 'sarah@techcorp.io', label: 'Sarah Chen (TechCorp · Growth)' },
+    { email: 'priya@datasync.in', label: 'Priya Mehta (DataSync · Enterprise)' },
+    { email: 'james@founderhq.co', label: 'James Okafor (FounderHQ · Starter)' },
+  ]
 
-  const handleSaveNote = (id: string, note: string) => {
-    setTickets((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, resolution_notes: note, updated_at: new Date().toISOString() } : t)),
-    );
-  };
-
-  const toggleExpand = (id: string) => {
-    setExpanded((prev) => (prev === id ? null : id));
-  };
-
-  const FILTERS: { key: FilterMode; label: string }[] = [
-    { key: 'all', label: 'All' },
-    { key: 'p1', label: 'P1' },
-    { key: 'p2', label: 'P2' },
-    { key: 'p3', label: 'P3' },
-    { key: 'p4', label: 'P4' },
-  ];
-  const STATUS_FILTERS: { key: FilterMode; label: string }[] = [
-    { key: 'open', label: 'Open' },
-    { key: 'in_progress', label: 'In Progress' },
-    { key: 'resolved', label: 'Resolved' },
-  ];
+  const inp = { width: '100%', boxSizing: 'border-box' as const, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(89,163,146,0.2)', borderRadius: 8, padding: '9px 12px', color: '#fff', fontSize: '0.88rem' }
+  const lbl = { color: '#7C8DB0', fontSize: '0.72rem', fontFamily: 'var(--font-mono)', letterSpacing: '0.07em', textTransform: 'uppercase' as const, display: 'block', marginBottom: 5 }
 
   return (
-    <>
-      <style dangerouslySetInnerHTML={{ __html: STYLES }} />
-
-      {/* Page Header */}
-      <div className="tick-page-header">
-        <div>
-          <h1 className="tick-page-title">Services Tickets</h1>
-          <p className="tick-page-sub">{tickets.length} tickets total — sorted by priority</p>
-        </div>
-      </div>
-
-      {/* SLA Banner */}
-      {p1Breaching.length > 0 && (
-        <div className="tick-sla-banner" role="alert">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F87171" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-          </svg>
-          <span>
-            <strong>{p1Breaching.length} P1 ticket{p1Breaching.length > 1 ? 's' : ''} breaching SLA</strong>
-            {' '}— Acknowledge immediately
-          </span>
-          <button
-            onClick={() => {
-              setFilter('p1');
-              setExpanded(p1Breaching[0]?.id ?? null);
-            }}
-          >
-            View →
-          </button>
-        </div>
-      )}
-
-      {/* Stats */}
-      <div className="tick-stats-row">
-        <div className="tick-stat-chip">
-          <span className="tick-stat-chip-label">Open</span>
-          <span className="tick-stat-chip-value teal">{stats.open}</span>
-        </div>
-        <div className="tick-stat-chip">
-          <span className="tick-stat-chip-label">Acknowledged</span>
-          <span className="tick-stat-chip-value">{stats.acknowledged}</span>
-        </div>
-        <div className="tick-stat-chip">
-          <span className="tick-stat-chip-label">In Progress</span>
-          <span className="tick-stat-chip-value">{stats.in_progress}</span>
-        </div>
-        <div className="tick-stat-chip">
-          <span className="tick-stat-chip-label">SLA Breached</span>
-          <span className={`tick-stat-chip-value${stats.sla_breached > 0 ? ' red' : ''}`}>
-            {stats.sla_breached}
-          </span>
-        </div>
-      </div>
-
-      {/* Filter Tabs */}
-      <div className="tick-filter-bar" role="tablist" aria-label="Filter tickets">
-        {FILTERS.map((f) => (
-          <button
-            key={f.key}
-            className={`tick-filter-tab${filter === f.key ? ' active' : ''}`}
-            onClick={() => setFilter(f.key)}
-            role="tab"
-            aria-selected={filter === f.key}
-          >
-            {f.label}
-          </button>
-        ))}
-        <div className="tick-filter-sep" aria-hidden="true" />
-        {STATUS_FILTERS.map((f) => (
-          <button
-            key={f.key}
-            className={`tick-filter-tab${filter === f.key ? ' active' : ''}`}
-            onClick={() => setFilter(f.key)}
-            role="tab"
-            aria-selected={filter === f.key}
-          >
-            {f.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Table */}
-      <div className="tick-table-wrap" role="table" aria-label="Tickets">
-        {/* Header */}
-        <div className="tick-header-row" role="row">
-          <div className="tick-header-cell" role="columnheader">Priority</div>
-          <div className="tick-header-cell" role="columnheader">Ticket</div>
-          <div className="tick-header-cell tick-header-cell-plan" role="columnheader">Plan</div>
-          <div className="tick-header-cell tick-header-cell-status" role="columnheader">Status</div>
-          <div className="tick-header-cell tick-header-cell-sla" role="columnheader">SLA</div>
-          <div className="tick-header-cell tick-header-cell-assigned" role="columnheader">Assigned</div>
-          <div className="tick-header-cell" role="columnheader">Age</div>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }} onClick={onClose}>
+      <div style={{ background: '#13132B', border: '1px solid rgba(89,163,146,0.15)', borderRadius: 16, padding: 32, width: '100%', maxWidth: 540 }} onClick={e => e.stopPropagation()}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+          <h2 style={{ fontFamily: 'var(--font-display)', color: '#fff', fontSize: '1.1rem', fontWeight: 600, margin: 0 }}>New Ticket</h2>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', fontSize: 20 }}>✕</button>
         </div>
 
-        {filtered.length === 0 && (
-          <div className="tick-empty">No tickets match this filter.</div>
+        {step === 'form' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div><label style={lbl}>Client</label>
+              <select value={form.client} onChange={e => setForm(p => ({ ...p, client: e.target.value }))} style={{ ...inp, cursor: 'pointer' }}>
+                {CLIENTS.map(c => <option key={c.email} value={c.email}>{c.label}</option>)}
+              </select></div>
+            <div><label style={lbl}>Type</label>
+              <select value={form.type} onChange={e => setForm(p => ({ ...p, type: e.target.value }))} style={{ ...inp, cursor: 'pointer' }}>
+                {['bug','feature','security','performance','incident'].map(t => <option key={t} value={t}>{t.charAt(0).toUpperCase()+t.slice(1)}</option>)}
+              </select></div>
+            <div><label style={lbl}>Title</label>
+              <input value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} placeholder="Brief description of the issue..." style={inp} /></div>
+            <div><label style={lbl}>Description</label>
+              <textarea value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} placeholder="Detailed description, steps to reproduce, impact..." rows={4} style={{ ...inp, resize: 'vertical' }} /></div>
+            <p style={{ color: '#4A5578', fontSize: '0.78rem', margin: 0 }}>WARDEN will auto-classify priority and suggest an assignee after submission.</p>
+            <button onClick={classify} disabled={!form.title.trim()} style={{ padding: '10px 0', borderRadius: 8, border: 'none', cursor: form.title.trim() ? 'pointer' : 'not-allowed', background: form.title.trim() ? 'linear-gradient(135deg, #3A589E, #59A392)' : 'rgba(255,255,255,0.06)', color: form.title.trim() ? '#fff' : '#4A5578', fontWeight: 600, fontSize: '0.9rem' }}>
+              Submit to WARDEN
+            </button>
+          </div>
         )}
 
-        {filtered.map((ticket) => {
-          const contact = MOCK_CONTACTS.find((c) => c.id === ticket.contact_id);
-          const isExpanded = expanded === ticket.id;
+        {step === 'classifying' && (
+          <div style={{ textAlign: 'center', padding: '32px 0' }}>
+            <div style={{ width: 56, height: 56, borderRadius: '50%', border: '3px solid rgba(239,68,68,0.3)', borderTopColor: '#EF4444', animation: 'spin 1s linear infinite', margin: '0 auto 20px' }} />
+            <p style={{ color: '#fff', fontWeight: 600, fontSize: '1rem', margin: '0 0 6px' }}>WARDEN is classifying...</p>
+            <p style={{ color: '#4A5578', fontSize: '0.85rem', margin: 0 }}>Analysing type, priority, and best assignee</p>
+          </div>
+        )}
 
-          return (
-            <React.Fragment key={ticket.id}>
-              <div
-                className={`tick-row ${ticket.priority}${isExpanded ? ' expanded' : ''}`}
-                role="row"
-                onClick={() => toggleExpand(ticket.id)}
-                aria-expanded={isExpanded}
-                style={{ cursor: 'pointer' }}
-              >
-                {/* Priority */}
-                <div className="tick-cell" role="cell">
-                  <PriorityBadge p={ticket.priority} />
+        {step === 'done' && (
+          <div>
+            <div style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 12, padding: 16, marginBottom: 20 }}>
+              <div style={{ color: '#4A5578', fontSize: '0.68rem', fontFamily: 'var(--font-mono)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 10 }}>WARDEN Classification</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+                <div>
+                  <div style={{ color: '#4A5578', fontSize: '0.72rem', marginBottom: 3 }}>Priority</div>
+                  <div style={{ color: TICKET_PRIORITY_COLORS[classified.priority as TicketPriority], fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: '1.1rem' }}>{classified.priority}</div>
                 </div>
-
-                {/* Title + description */}
-                <div className="tick-cell tick-title-col" role="cell">
-                  <div className="tick-title-text" title={ticket.title}>{ticket.title}</div>
-                  {ticket.description && (
-                    <div className="tick-desc-text">
-                      {contact?.company ? `${contact.company} — ` : ''}
-                      {ticket.description.slice(0, 80)}{ticket.description.length > 80 ? '…' : ''}
-                    </div>
-                  )}
-                </div>
-
-                {/* Plan */}
-                <div className="tick-cell tick-cell-plan" role="cell">
-                  <span className="tick-plan-badge">{ticket.plan ?? '—'}</span>
-                </div>
-
-                {/* Status */}
-                <div className="tick-cell tick-cell-status" role="cell">
-                  <StatusBadge s={ticket.status} />
-                </div>
-
-                {/* SLA */}
-                <div className="tick-cell tick-cell-sla" role="cell">
-                  <SlaCell deadline={ticket.sla_response_deadline} />
-                </div>
-
-                {/* Assigned */}
-                <div className="tick-cell tick-cell-assigned" role="cell">
-                  <span className="tick-assigned">{contact?.name ?? '—'}</span>
-                </div>
-
-                {/* Age + chevron */}
-                <div className="tick-cell" role="cell" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span className="tick-time">{fmtRelative(ticket.created_at)}</span>
-                  <svg
-                    className={`tick-chevron${isExpanded ? ' open' : ''}`}
-                    width="14" height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <polyline points="6 9 12 15 18 9" />
-                  </svg>
+                <div>
+                  <div style={{ color: '#4A5578', fontSize: '0.72rem', marginBottom: 3 }}>Assigned to</div>
+                  <div style={{ color: '#fff', fontSize: '0.88rem', fontWeight: 500 }}>{classified.assigned_to}</div>
                 </div>
               </div>
+              <div style={{ color: '#7C8DB0', fontSize: '0.8rem', lineHeight: 1.5 }}>{classified.reason}</div>
+            </div>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={onClose} style={{ flex: 1, padding: '10px', borderRadius: 8, border: '1px solid rgba(89,163,146,0.2)', background: 'transparent', color: '#7C8DB0', cursor: 'pointer', fontSize: '0.85rem' }}>Dismiss</button>
+              <button onClick={onClose} style={{ flex: 2, padding: '10px', borderRadius: 8, border: 'none', background: 'linear-gradient(135deg, #3A589E, #59A392)', color: '#fff', cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem' }}>Create Ticket</button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
 
-              {/* Inline Expansion */}
-              {isExpanded && (
-                <div role="region" aria-label={`Details for ${ticket.title}`}>
-                  <ExpandedRow
-                    ticket={ticket}
-                    onStatusChange={handleStatusChange}
-                    onSaveNote={handleSaveNote}
-                  />
-                </div>
-              )}
-            </React.Fragment>
-          );
-        })}
+// ─── Badges ───────────────────────────────────────────────────────────────────
+
+function PriorityBadge({ priority }: { priority: TicketPriority }) {
+  const color = TICKET_PRIORITY_COLORS[priority]
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+      <span style={{ width: 7, height: 7, borderRadius: '50%', background: color, flexShrink: 0, animation: priority === 'P1' ? 'pulse-dot 1.5s ease-out infinite' : undefined }} />
+      <span style={{ color, fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: '0.8rem' }}>{priority}</span>
+    </span>
+  )
+}
+
+function TypeBadge({ type }: { type: TicketType }) {
+  const color = TICKET_TYPE_COLORS[type]
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: `${color}18`, color, border: `1px solid ${color}30`, fontSize: '0.68rem', fontFamily: 'var(--font-mono)', fontWeight: 500, letterSpacing: '0.06em', padding: '2px 8px', borderRadius: 100, textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+      {type === 'incident' && <span style={{ width: 4, height: 4, borderRadius: '50%', background: color, animation: 'pulse-dot 1.2s ease-out infinite', flexShrink: 0 }} />}
+      {type}
+    </span>
+  )
+}
+
+function StatusBadge({ status }: { status: TicketStatus }) {
+  const color = TICKET_STATUS_COLORS[status]
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: `${color}15`, color, fontSize: '0.68rem', fontFamily: 'var(--font-mono)', fontWeight: 500, letterSpacing: '0.05em', padding: '2px 8px', borderRadius: 100, textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+      <span style={{ width: 4, height: 4, borderRadius: '50%', background: color, flexShrink: 0 }} />
+      {status.replace('_', ' ')}
+    </span>
+  )
+}
+
+function SlaCell({ ticket, now }: { ticket: ServiceTicket; now: number }) {
+  if (ticket.status === 'resolved' || ticket.status === 'closed') {
+    const met = ticket.sla_resolution_met
+    return <span style={{ color: met ? '#4ade80' : '#EF4444', fontSize: '0.78rem', fontFamily: 'var(--font-mono)' }}>{met ? '✓ Met' : '✗ Breached'}</span>
+  }
+  const sla = slaRemaining(ticket.sla_resolution_deadline, now)
+  return (
+    <span style={{ color: sla.color, fontSize: '0.78rem', fontFamily: 'var(--font-mono)', fontWeight: 600, background: `${sla.color}12`, padding: '3px 8px', borderRadius: 6, whiteSpace: 'nowrap' }}>
+      {sla.ms <= 0 ? '⚠ ' : ''}{sla.label}
+    </span>
+  )
+}
+
+function ageLabel(createdAt: string) {
+  const ms = Date.now() - new Date(createdAt).getTime()
+  const h = Math.floor(ms / 3_600_000)
+  if (h < 1) return `${Math.floor(ms / 60_000)}m`
+  if (h < 24) return `${h}h`
+  return `${Math.floor(h / 24)}d`
+}
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
+
+export default function TicketsPage() {
+  const [tickets] = useState<ServiceTicket[]>(MOCK_SERVICE_TICKETS)
+  const [showNew, setShowNew] = useState(false)
+  const [now, setNow] = useState(Date.now())
+
+  const [filterPriority, setFilterPriority] = useState<TicketPriority | 'all'>('all')
+  const [filterStatus, setFilterStatus] = useState<TicketStatus | 'all'>('all')
+  const [filterSla, setFilterSla] = useState<'all' | 'ok' | 'warning' | 'breached'>('all')
+  const [filterAssigned, setFilterAssigned] = useState('all')
+  const [search, setSearch] = useState('')
+
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(t)
+  }, [])
+
+  const getSlaStatus = useCallback((t: ServiceTicket) => {
+    if (t.status === 'resolved' || t.status === 'closed') return t.sla_resolution_met ? 'ok' : 'breached'
+    return slaRemaining(t.sla_resolution_deadline, now).status
+  }, [now])
+
+  const filtered = tickets.filter(t => {
+    if (filterPriority !== 'all' && t.priority !== filterPriority) return false
+    if (filterStatus !== 'all' && t.status !== filterStatus) return false
+    if (filterAssigned !== 'all') {
+      if (filterAssigned === 'unassigned' && !!t.assigned_to) return false
+      if (filterAssigned !== 'unassigned' && t.assigned_to !== filterAssigned) return false
+    }
+    if (filterSla !== 'all' && getSlaStatus(t) !== filterSla) return false
+    if (search && !t.title.toLowerCase().includes(search.toLowerCase()) && !t.id.toLowerCase().includes(search.toLowerCase()) && !t.client_name.toLowerCase().includes(search.toLowerCase())) return false
+    return true
+  }).sort((a, b) => ({ P1: 0, P2: 1, P3: 2, P4: 3 }[a.priority] - { P1: 0, P2: 1, P3: 2, P4: 3 }[b.priority]))
+
+  const open = tickets.filter(t => !['resolved','closed'].includes(t.status)).length
+  const p1Active = tickets.filter(t => t.priority === 'P1' && !['resolved','closed'].includes(t.status)).length
+  const breachedCount = tickets.filter(t => getSlaStatus(t) === 'breached').length
+  const resolvedToday = tickets.filter(t => t.resolved_at && Date.now() - new Date(t.resolved_at).getTime() < 86400000).length
+
+  const assignees = Array.from(new Set(tickets.map(t => t.assigned_to).filter(Boolean))) as string[]
+
+  const fb = (active: boolean, color = '#59A392') => ({
+    padding: '5px 12px', borderRadius: 7, cursor: 'pointer', border: 'none', fontSize: '0.78rem',
+    background: active ? `${color}20` : 'rgba(255,255,255,0.04)',
+    color: active ? color : '#64748B', fontWeight: active ? 600 : 400, whiteSpace: 'nowrap' as const,
+  })
+
+  return (
+    <div data-admin="true" style={{ padding: '32px 32px 64px', maxWidth: 1400, margin: '0 auto' }}>
+      <style>{`
+        @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.4)} }
+        @keyframes spin { to { transform: rotate(360deg); } }
+      `}</style>
+
+      {showNew && <NewTicketModal onClose={() => setShowNew(false)} />}
+
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 28, flexWrap: 'wrap', gap: 16 }}>
+        <div>
+          <h1 style={{ fontFamily: 'var(--font-display)', color: '#fff', fontSize: '1.6rem', fontWeight: 700, letterSpacing: '-0.025em', margin: 0 }}>Tickets</h1>
+          <p style={{ color: '#7C8DB0', fontSize: '0.88rem', margin: '6px 0 0' }}>WARDEN-managed support queue · {open} open</p>
+        </div>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <Link href="/admin/services/sla" style={{ padding: '9px 16px', borderRadius: 8, border: '1px solid rgba(89,163,146,0.2)', background: 'transparent', color: '#7C8DB0', fontSize: '0.85rem', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            SLA Dashboard
+          </Link>
+          <button onClick={() => setShowNew(true)} style={{ padding: '9px 18px', borderRadius: 8, border: 'none', background: 'linear-gradient(135deg, #3A589E, #59A392)', color: '#fff', cursor: 'pointer', fontWeight: 600, fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: 7 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New Ticket
+          </button>
+        </div>
       </div>
 
-      {/* Priority Legend */}
-      <div className="tick-legend" aria-label="Priority legend">
-        {(Object.entries(SLA_LABELS) as [TicketPriority, string][]).map(([p, label]) => (
-          <div key={p} className="tick-legend-item">
-            <div
-              className="tick-legend-dot"
-              style={{ background: PRIORITY_COLORS[p] }}
-              aria-hidden="true"
-            />
-            <span className="tick-legend-label">{p.toUpperCase()}</span>
-            <span>{label}</span>
+      {/* KPI Strip */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 24 }}>
+        {[
+          { label: 'Open Tickets', value: open, color: '#7C8DB0' },
+          { label: 'P1 Active', value: p1Active, color: p1Active > 0 ? '#EF4444' : '#4ade80' },
+          { label: 'SLA Breached', value: breachedCount, color: breachedCount > 0 ? '#EF4444' : '#4ade80' },
+          { label: 'Resolved Today', value: resolvedToday, color: '#4ade80' },
+        ].map(k => (
+          <div key={k.label} style={{ background: '#13132B', border: '1px solid rgba(89,163,146,0.08)', borderRadius: 12, padding: '14px 18px' }}>
+            <div style={{ color: '#4A5578', fontSize: '0.68rem', fontFamily: 'var(--font-mono)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 5 }}>{k.label}</div>
+            <div style={{ color: k.color, fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.6rem', letterSpacing: '-0.02em', lineHeight: 1 }}>{k.value}</div>
           </div>
         ))}
       </div>
-    </>
-  );
+
+      {/* Filter Bar */}
+      <div style={{ background: '#13132B', border: '1px solid rgba(89,163,146,0.08)', borderRadius: 12, padding: '12px 16px', marginBottom: 16, display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
+        <div style={{ position: 'relative' }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#4A5578" strokeWidth="2" strokeLinecap="round" style={{ position: 'absolute', left: 9, top: '50%', transform: 'translateY(-50%)' }}>
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input placeholder="Search tickets..." value={search} onChange={e => setSearch(e.target.value)} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(89,163,146,0.15)', borderRadius: 7, padding: '6px 10px 6px 28px', color: '#fff', fontSize: '0.82rem', width: 190 }} />
+        </div>
+
+        <span style={{ width: 1, height: 20, background: 'rgba(89,163,146,0.1)', flexShrink: 0, display: 'inline-block' }} />
+
+        <div style={{ display: 'flex', gap: 4 }}>
+          <button style={fb(filterPriority === 'all')} onClick={() => setFilterPriority('all')}>All</button>
+          {(['P1','P2','P3','P4'] as TicketPriority[]).map(p => (
+            <button key={p} style={fb(filterPriority === p, TICKET_PRIORITY_COLORS[p])} onClick={() => setFilterPriority(filterPriority === p ? 'all' : p)}>{p}</button>
+          ))}
+        </div>
+
+        <span style={{ width: 1, height: 20, background: 'rgba(89,163,146,0.1)', flexShrink: 0, display: 'inline-block' }} />
+
+        <div style={{ display: 'flex', gap: 4 }}>
+          {(['open','in_progress','testing','resolved'] as TicketStatus[]).map(s => (
+            <button key={s} style={fb(filterStatus === s, TICKET_STATUS_COLORS[s])} onClick={() => setFilterStatus(filterStatus === s ? 'all' : s)}>
+              {s.replace('_',' ')}
+            </button>
+          ))}
+        </div>
+
+        <span style={{ width: 1, height: 20, background: 'rgba(89,163,146,0.1)', flexShrink: 0, display: 'inline-block' }} />
+
+        <div style={{ display: 'flex', gap: 4 }}>
+          <button style={fb(filterSla === 'ok', '#4ade80')} onClick={() => setFilterSla(filterSla === 'ok' ? 'all' : 'ok')}>On Track</button>
+          <button style={fb(filterSla === 'warning', '#E8B84D')} onClick={() => setFilterSla(filterSla === 'warning' ? 'all' : 'warning')}>At Risk</button>
+          <button style={fb(filterSla === 'breached', '#EF4444')} onClick={() => setFilterSla(filterSla === 'breached' ? 'all' : 'breached')}>Breached</button>
+        </div>
+
+        <div style={{ marginLeft: 'auto' }}>
+          <select value={filterAssigned} onChange={e => setFilterAssigned(e.target.value)} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(89,163,146,0.15)', borderRadius: 7, padding: '6px 10px', color: '#7C8DB0', fontSize: '0.82rem', cursor: 'pointer' }}>
+            <option value="all">All assignees</option>
+            <option value="unassigned">Unassigned</option>
+            {assignees.map(a => <option key={a} value={a}>{a}</option>)}
+          </select>
+        </div>
+      </div>
+
+      {/* Table */}
+      <div style={{ background: '#13132B', border: '1px solid rgba(89,163,146,0.08)', borderRadius: 14, overflow: 'hidden' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ background: 'rgba(255,255,255,0.025)' }}>
+              {['Priority','Status','Client','Plan','Type','Title','Assigned','SLA (Resolution)','Age'].map(h => (
+                <th key={h} style={{ padding: '10px 14px', textAlign: 'left', color: '#4A5578', fontSize: '0.67rem', fontFamily: 'var(--font-mono)', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.length === 0 ? (
+              <tr><td colSpan={9} style={{ padding: '48px 16px', textAlign: 'center', color: '#4A5578', fontSize: '0.9rem' }}>No tickets match your filters.</td></tr>
+            ) : filtered.map(ticket => (
+              <tr key={ticket.id}
+                style={{ borderTop: '1px solid rgba(89,163,146,0.07)', cursor: 'pointer', transition: 'background 0.15s' }}
+                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.02)')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                onClick={() => window.location.href = `/admin/services/tickets/${ticket.id}`}>
+                <td style={{ padding: '11px 14px' }}><PriorityBadge priority={ticket.priority} /></td>
+                <td style={{ padding: '11px 14px' }}><StatusBadge status={ticket.status} /></td>
+                <td style={{ padding: '11px 14px' }}>
+                  <div style={{ color: '#fff', fontSize: '0.85rem', fontWeight: 500 }}>{ticket.client_name}</div>
+                  <div style={{ color: '#4A5578', fontSize: '0.74rem' }}>{ticket.client_company}</div>
+                </td>
+                <td style={{ padding: '11px 14px' }}>
+                  <span style={{ background: `${PLAN_COLORS[ticket.plan]}18`, color: PLAN_COLORS[ticket.plan], fontSize: '0.67rem', fontFamily: 'var(--font-mono)', fontWeight: 500, letterSpacing: '0.06em', padding: '2px 7px', borderRadius: 100, textTransform: 'uppercase' }}>{ticket.plan}</span>
+                </td>
+                <td style={{ padding: '11px 14px' }}><TypeBadge type={ticket.type} /></td>
+                <td style={{ padding: '11px 14px', maxWidth: 300 }}>
+                  <div style={{ color: '#fff', fontSize: '0.85rem', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ticket.title}</div>
+                  <div style={{ color: '#4A5578', fontSize: '0.72rem', marginTop: 2, fontFamily: 'var(--font-mono)' }}>{ticket.id}</div>
+                </td>
+                <td style={{ padding: '11px 14px', color: ticket.assigned_to ? '#7C8DB0' : '#EF4444', fontSize: '0.82rem', whiteSpace: 'nowrap' }}>
+                  {ticket.assigned_to ?? 'Unassigned'}
+                </td>
+                <td style={{ padding: '11px 14px' }}><SlaCell ticket={ticket} now={now} /></td>
+                <td style={{ padding: '11px 14px', color: '#4A5578', fontSize: '0.78rem', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
+                  {ageLabel(ticket.created_at)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div style={{ padding: '10px 16px', borderTop: '1px solid rgba(89,163,146,0.07)' }}>
+          <span style={{ color: '#4A5578', fontSize: '0.78rem', fontFamily: 'var(--font-mono)' }}>{filtered.length} of {tickets.length} tickets</span>
+        </div>
+      </div>
+    </div>
+  )
 }

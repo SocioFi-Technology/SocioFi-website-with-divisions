@@ -441,3 +441,111 @@ export interface SubscriberList {
   subscriber_count: number
   created_at: string
 }
+
+// ─── Ticket / WARDEN System ───────────────────────────────────────────────────
+
+export type TicketPriority = 'P1' | 'P2' | 'P3' | 'P4'
+export type TicketStatus = 'open' | 'acknowledged' | 'in_progress' | 'testing' | 'resolved' | 'closed'
+export type TicketType = 'bug' | 'feature' | 'security' | 'performance' | 'incident'
+export type ServicePlan = 'starter' | 'growth' | 'scale' | 'enterprise'
+
+export const TICKET_PRIORITY_COLORS: Record<TicketPriority, string> = {
+  P1: '#EF4444',
+  P2: '#E8B84D',
+  P3: '#94A3B8',
+  P4: '#475569',
+}
+
+export const TICKET_TYPE_COLORS: Record<TicketType, string> = {
+  bug:         '#EF4444',
+  feature:     '#6BA3E8',
+  security:    '#E8B84D',
+  performance: '#59A392',
+  incident:    '#EF4444',
+}
+
+export const TICKET_STATUS_COLORS: Record<TicketStatus, string> = {
+  open:         '#64748B',
+  acknowledged: '#6BA3E8',
+  in_progress:  '#E8B84D',
+  testing:      '#A78BFA',
+  resolved:     '#4ade80',
+  closed:       '#334155',
+}
+
+// SLA hours: [response, resolution] per priority
+export const SLA_HOURS: Record<TicketPriority, [number, number]> = {
+  P1: [1,   4],
+  P2: [4,   24],
+  P3: [8,   72],
+  P4: [24,  168],
+}
+
+export const PLAN_COLORS: Record<ServicePlan, string> = {
+  starter:    '#64748B',
+  growth:     '#59A392',
+  scale:      '#6BA3E8',
+  enterprise: '#A78BFA',
+}
+
+export interface TicketTimelineEntry {
+  id: string
+  actor: string
+  actor_type: 'human' | 'agent'
+  content: string
+  created_at: string
+}
+
+export interface TicketAttachment {
+  id: string
+  filename: string
+  size_bytes: number
+  uploaded_by: string
+  created_at: string
+  url: string
+}
+
+export interface WardenSimilarTicket {
+  id: string
+  title: string
+  resolved_at: string
+  resolution_notes: string
+}
+
+export interface WardenClassification {
+  type: TicketType
+  priority: TicketPriority
+  routing_reason: string
+  suggested_resolution: string
+  similar_tickets: WardenSimilarTicket[]
+}
+
+export interface ServiceTicket {
+  id: string
+  priority: TicketPriority
+  status: TicketStatus
+  type: TicketType
+  title: string
+  description: string
+  client_name: string
+  client_email: string
+  client_company?: string
+  plan: ServicePlan
+  assigned_to?: string
+  sla_response_deadline: string
+  sla_resolution_deadline: string
+  sla_response_met?: boolean
+  sla_resolution_met?: boolean
+  created_at: string
+  updated_at: string
+  acknowledged_at?: string
+  started_at?: string
+  resolved_at?: string
+  closed_at?: string
+  resolution_notes?: string
+  prevention_notes?: string
+  tags: string[]
+  timeline: TicketTimelineEntry[]
+  attachments: TicketAttachment[]
+  warden: WardenClassification
+}
