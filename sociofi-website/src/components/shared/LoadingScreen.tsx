@@ -11,27 +11,37 @@ const EXIT_MS = 500;
 const SOCIOFI_CHARS = 'SocioFi'.split('');
 const TECHNOLOGY_CHARS = 'Technology'.split('');
 
+const SESSION_KEY = 'sf_intro_shown';
+
 export default function LoadingScreen() {
   const [visible, setVisible] = useState(true);
   const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
-    // Respect prefers-reduced-motion — skip animation, show briefly then exit
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if (mq.matches) {
-      setReducedMotion(true);
-      const t = setTimeout(() => setVisible(false), 400);
-      return () => clearTimeout(t);
-    }
-
-    const t = setTimeout(() => {
-      // Signal hero animations to start (Option B)
+    const done = () => {
       if (typeof window !== 'undefined') {
         (window as any).__sfLoadingDone = true;
         window.dispatchEvent(new CustomEvent('loading-done'));
+        sessionStorage.setItem(SESSION_KEY, '1');
       }
       setVisible(false);
-    }, HOLD_MS);
+    };
+
+    // Already shown this session — skip immediately
+    if (sessionStorage.getItem(SESSION_KEY)) {
+      done();
+      return;
+    }
+
+    // Respect prefers-reduced-motion — show briefly then exit
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (mq.matches) {
+      setReducedMotion(true);
+      const t = setTimeout(done, 400);
+      return () => clearTimeout(t);
+    }
+
+    const t = setTimeout(done, HOLD_MS);
     return () => clearTimeout(t);
   }, []);
 
