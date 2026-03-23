@@ -91,14 +91,14 @@ const PRIVACY: Section[] = [
     heading: 'Data retention',
     body: [
       "We keep client data for as long as the engagement requires and for a reasonable period afterward for compliance purposes. Contact enquiries that don't convert to projects are deleted after 12 months.",
-      "You may request deletion of your personal data at any time by emailing hello@sociofi.tech.",
+      "You may request deletion of your personal data at any time by emailing hello@sociofitechnology.com.",
     ],
   },
   {
     heading: 'Your rights',
     body: [
       "You have the right to access the personal data we hold about you, correct inaccurate data, request deletion, and object to how we use it.",
-      "To exercise any of these rights, email hello@sociofi.tech. We respond within 14 days.",
+      "To exercise any of these rights, email hello@sociofitechnology.com. We respond within 14 days.",
     ],
   },
   {
@@ -111,7 +111,7 @@ const PRIVACY: Section[] = [
   {
     heading: 'Contact',
     body: [
-      "Questions about how we handle your data: hello@sociofi.tech or write to SocioFi Technology, Dhaka, Bangladesh.",
+      "Questions about how we handle your data: hello@sociofitechnology.com or write to SocioFi Technology, Dhaka, Bangladesh.",
     ],
   },
 ];
@@ -160,8 +160,8 @@ export default function LegalPageClient() {
             marginBottom: 32, maxWidth: '56ch',
           }}>
             We try to write legal documents in plain English. If something is unclear, email us at{' '}
-            <a href="mailto:hello@sociofi.tech" style={{ color: 'var(--teal)', textDecoration: 'none' }}>
-              hello@sociofi.tech
+            <a href="mailto:hello@sociofitechnology.com" style={{ color: 'var(--teal)', textDecoration: 'none' }}>
+              hello@sociofitechnology.com
             </a>.
           </p>
 
@@ -336,8 +336,8 @@ export default function LegalPageClient() {
                   color: 'var(--text-secondary)', margin: 0,
                 }}>
                   Email{' '}
-                  <a href="mailto:hello@sociofi.tech" style={{ color: 'var(--teal)', textDecoration: 'none' }}>
-                    hello@sociofi.tech
+                  <a href="mailto:hello@sociofitechnology.com" style={{ color: 'var(--teal)', textDecoration: 'none' }}>
+                    hello@sociofitechnology.com
                   </a>
                   {' '}— we respond in plain English within 24 hours.
                 </p>

@@ -73,13 +73,13 @@ const INIT_AGENT_OVERRIDES: AgentOverride[] = AGENT_NAMES_16.map((name, i) => ({
 }))
 
 const INIT_DIV_EMAILS: Record<string, string[]> = {
-  studio:   ['studio@sociofi.io', 'nadia@sociofi.io'],
-  services: ['services@sociofi.io', 'rafi@sociofi.io'],
-  labs:     ['labs@sociofi.io'],
-  products: ['products@sociofi.io'],
-  academy:  ['academy@sociofi.io', 'nadia@sociofi.io'],
-  ventures: ['ventures@sociofi.io', 'arifur@sociofi.io'],
-  cloud:    ['cloud@sociofi.io', 'rafi@sociofi.io'],
+  studio:   ['studio@sociofitechnology.com', 'nadia@sociofitechnology.com'],
+  services: ['services@sociofitechnology.com', 'rafi@sociofitechnology.com'],
+  labs:     ['labs@sociofitechnology.com'],
+  products: ['products@sociofitechnology.com'],
+  academy:  ['academy@sociofitechnology.com', 'nadia@sociofitechnology.com'],
+  ventures: ['ventures@sociofitechnology.com', 'arifur@sociofitechnology.com'],
+  cloud:    ['cloud@sociofitechnology.com', 'rafi@sociofitechnology.com'],
 }
 
 const INIT_DIV_CHANNELS: Record<string, string> = {
@@ -329,7 +329,7 @@ function NotificationsTab() {
   const [globalWebhook] = useState('https://hooks.slack.com/services/T0ABC/B0DEF/••••••••xyz')
   const [digestOn, setDigestOn] = useState(true)
   const [digestTime, setDigestTime] = useState('08:00')
-  const [digestRecipients, setDigestRecipients] = useState(['arifur@sociofi.io', 'kamrul@sociofi.io'])
+  const [digestRecipients, setDigestRecipients] = useState(['arifur@sociofitechnology.com', 'kamrul@sociofitechnology.com'])
   const [editingDivEmail, setEditingDivEmail] = useState<string | null>(null)
   const [testStates, setTestStates] = useState<Record<string, string>>({})
 
@@ -498,7 +498,7 @@ function NotificationsTab() {
 function IntegrationsTab() {
   const [nexusHealth, setNexusHealth] = useState<{ checked: string; ms: number; version: string } | null>(null)
   const [nexusChecking, setNexusChecking] = useState(false)
-  const [nexusUrl, setNexusUrl] = useState('https://nexus.sociofi.io')
+  const [nexusUrl, setNexusUrl] = useState('https://nexus.sociofitechnology.com')
   const [stripeTest, setStripeTest] = useState(true)
 
   const checkNexusHealth = async () => {
@@ -518,7 +518,7 @@ function IntegrationsTab() {
     },
     {
       key: 'stripe', name: 'Stripe', letter: 'St', letterBg: '#635BFF', letterColor: '#fff',
-      status: 'connected' as const, detail: 'Webhook: https://sociofi.io/api/stripe/webhook',
+      status: 'connected' as const, detail: 'Webhook: https://sociofitechnology.com/api/stripe/webhook',
       actions: (
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>

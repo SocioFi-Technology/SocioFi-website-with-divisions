@@ -179,7 +179,7 @@ class ChronicleAgent(BaseAgent):
     name = 'CHRONICLE'
 
     # In a real deployment these would come from settings
-    REPORT_RECIPIENTS = ['arifur@sociofi.io', 'kamrul@sociofi.io']
+    REPORT_RECIPIENTS = ['arifur@sociofitechnology.com', 'kamrul@sociofitechnology.com']
 
     @property
     def system_prompt(self) -> str:

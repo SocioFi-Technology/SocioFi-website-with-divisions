@@ -458,7 +458,7 @@ export const openSourceProjects: OpenSourceProject[] = [
     license: 'MIT',
     status: 'active',
     repoUrl: 'https://github.com/sociofi/agent-eval',
-    docsUrl: 'https://docs.sociofi.tech/agent-eval',
+    docsUrl: 'https://docs.sociofitechnology.com/agent-eval',
     relatedStream: 'agent-architecture',
   },
   {
@@ -487,7 +487,7 @@ export const openSourceProjects: OpenSourceProject[] = [
     license: 'Apache 2.0',
     status: 'active',
     repoUrl: 'https://github.com/sociofi/rag-bench',
-    docsUrl: 'https://docs.sociofi.tech/rag-bench',
+    docsUrl: 'https://docs.sociofitechnology.com/rag-bench',
     relatedStream: 'applied-ai',
   },
   {
@@ -529,7 +529,7 @@ export const openSourceProjects: OpenSourceProject[] = [
     license: 'MIT',
     status: 'active',
     repoUrl: 'https://github.com/sociofi/flow-tracer',
-    docsUrl: 'https://docs.sociofi.tech/flow-tracer',
+    docsUrl: 'https://docs.sociofitechnology.com/flow-tracer',
     relatedStream: 'agent-architecture',
   },
 ];

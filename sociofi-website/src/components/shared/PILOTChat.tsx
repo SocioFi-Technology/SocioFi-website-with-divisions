@@ -204,7 +204,7 @@ export default function PILOTChat({
             id: Date.now().toString(),
             role: 'pilot',
             content:
-              'Something went wrong on my end. For immediate help, email hello@sociofi.tech or use the contact form.',
+              'Something went wrong on my end. For immediate help, email hello@sociofitechnology.com or use the contact form.',
             timestamp: new Date(),
           },
         ]);

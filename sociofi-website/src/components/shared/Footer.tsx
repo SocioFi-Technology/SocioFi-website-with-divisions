@@ -110,7 +110,7 @@ export default function Footer({ division }: FooterProps) {
             </p>
 
             <a
-              href="mailto:hello@sociofi.tech"
+              href="mailto:hello@sociofitechnology.com"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -125,7 +125,7 @@ export default function Footer({ division }: FooterProps) {
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)'; }}
             >
               <Mail size={14} aria-hidden="true" />
-              hello@sociofi.tech
+              hello@sociofitechnology.com
             </a>
 
             <Link

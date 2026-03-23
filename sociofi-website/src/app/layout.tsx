@@ -71,7 +71,7 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://sociofi.tech'),
+  metadataBase: new URL('https://sociofitechnology.com'),
   title: {
     default: 'SocioFi Technology — AI-Agent-Native Software Development',
     template: '%s — SocioFi Technology',
@@ -81,7 +81,7 @@ export const metadata: Metadata = {
     title: 'SocioFi Technology — AI-Agent-Native Software Development',
     description: 'SocioFi Technology builds production-ready software using AI agents, expert human engineers, and a proven process.',
     type: 'website',
-    url: 'https://sociofi.tech',
+    url: 'https://sociofitechnology.com',
     siteName: 'SocioFi Technology',
     images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'SocioFi Technology' }],
   },
@@ -93,7 +93,7 @@ export const metadata: Metadata = {
     icon: '/favicon.svg',
   },
   alternates: {
-    canonical: 'https://sociofi.tech',
+    canonical: 'https://sociofitechnology.com',
   },
 };
 

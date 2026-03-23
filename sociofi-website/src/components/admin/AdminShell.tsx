@@ -55,6 +55,16 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
     ],
   },
   {
+    title: 'ACADEMY',
+    items: [
+      { label: 'Academy Home',  href: '/admin/academy',              icon: BarChart },
+      { label: 'Courses',       href: '/admin/academy/courses',      icon: FileText },
+      { label: 'Workshops',     href: '/admin/academy/workshops',    icon: Calendar },
+      { label: 'Enrollments',   href: '/admin/academy/enrollments',  icon: Users },
+      { label: 'SCARL Program', href: '/admin/academy/scarl',        icon: Rocket },
+    ],
+  },
+  {
     title: 'OPERATIONS',
     items: [
       { label: 'Tickets',     href: '/admin/tickets',      icon: Ticket,  badge: 7, badgeColor: '#E8916F' },
@@ -114,6 +124,11 @@ function getPageTitle(pathname: string): string {
     '/admin/pipeline': 'Pipeline',
     '/admin/services/tickets': 'Service Tickets',
     '/admin/ventures/applications': 'Ventures Applications',
+    '/admin/academy': 'Academy Management',
+    '/admin/academy/courses': 'Courses',
+    '/admin/academy/workshops': 'Workshops',
+    '/admin/academy/enrollments': 'Enrollments',
+    '/admin/academy/scarl': 'SCARL Program',
   }
   if (map[pathname]) return map[pathname]
   const divMatch = pathname.match(/^\/admin\/divisions\/(\w+)$/)

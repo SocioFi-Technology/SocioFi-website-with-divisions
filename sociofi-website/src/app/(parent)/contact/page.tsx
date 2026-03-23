@@ -192,14 +192,14 @@ export default function ContactPage() {
                         Email us directly
                       </div>
                       <a
-                        href="mailto:hello@sociofi.tech"
+                        href="mailto:hello@sociofitechnology.com"
                         style={{
                           fontFamily: 'var(--font-mono)',
                           fontSize: '0.78rem', color: 'var(--teal)',
                           textDecoration: 'none',
                         }}
                       >
-                        hello@sociofi.tech
+                        hello@sociofitechnology.com
                       </a>
                     </div>
                   </div>

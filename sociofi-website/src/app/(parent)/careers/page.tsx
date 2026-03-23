@@ -237,7 +237,7 @@ const content: StoryPageContent = {
       "No formal application process. Send us an email with who you are, what you've built, and why you want to work here. We reply to everything.",
     primaryCTA: { label: 'Send us a message', href: '/contact' },
     ghostCTA: { label: 'Learn about SocioFi', href: '/about' },
-    note: 'hello@sociofi.tech — or use the contact form.',
+    note: 'hello@sociofitechnology.com — or use the contact form.',
   },
 };
 

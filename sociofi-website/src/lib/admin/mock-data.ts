@@ -371,12 +371,12 @@ export const MOCK_PIPELINE: Record<string, PipelineEntry[]> = {
     { id: 'pag3', pipeline: 'agents', stage: 'Deployed', contact_name: 'James Park', contact_email: 'james@researchlabs.io', company: 'MIT CSAIL', submission_type: 'Custom Integration', priority: 'normal', assigned_to: 'Kamrul Hasan', entered_at: new Date(Date.now() - 20*86400000).toISOString(), notes_count: 7 },
   ],
   labs: [
-    { id: 'pl1', pipeline: 'labs', stage: 'Research', contact_name: 'Internal Team', contact_email: 'team@sociofi.tech', submission_type: 'Research Project', priority: 'normal', entered_at: new Date(Date.now() - 10*86400000).toISOString(), notes_count: 3 },
-    { id: 'pl2', pipeline: 'labs', stage: 'Building', contact_name: 'Internal Team', contact_email: 'team@sociofi.tech', submission_type: 'Experiment', priority: 'normal', entered_at: new Date(Date.now() - 5*86400000).toISOString(), notes_count: 1 },
+    { id: 'pl1', pipeline: 'labs', stage: 'Research', contact_name: 'Internal Team', contact_email: 'team@sociofitechnology.com', submission_type: 'Research Project', priority: 'normal', entered_at: new Date(Date.now() - 10*86400000).toISOString(), notes_count: 3 },
+    { id: 'pl2', pipeline: 'labs', stage: 'Building', contact_name: 'Internal Team', contact_email: 'team@sociofitechnology.com', submission_type: 'Experiment', priority: 'normal', entered_at: new Date(Date.now() - 5*86400000).toISOString(), notes_count: 1 },
   ],
   products: [
-    { id: 'pp1', pipeline: 'products', stage: 'Beta', contact_name: 'FabricxAI Users', contact_email: 'beta@sociofi.tech', submission_type: 'Beta Access', priority: 'normal', entered_at: new Date(Date.now() - 30*86400000).toISOString(), notes_count: 4 },
-    { id: 'pp2', pipeline: 'products', stage: 'Live', contact_name: 'NEXUS ARIA', contact_email: 'product@sociofi.tech', submission_type: 'Product Launch', priority: 'normal', entered_at: new Date(Date.now() - 60*86400000).toISOString(), notes_count: 8 },
+    { id: 'pp1', pipeline: 'products', stage: 'Beta', contact_name: 'FabricxAI Users', contact_email: 'beta@sociofitechnology.com', submission_type: 'Beta Access', priority: 'normal', entered_at: new Date(Date.now() - 30*86400000).toISOString(), notes_count: 4 },
+    { id: 'pp2', pipeline: 'products', stage: 'Live', contact_name: 'NEXUS ARIA', contact_email: 'product@sociofitechnology.com', submission_type: 'Product Launch', priority: 'normal', entered_at: new Date(Date.now() - 60*86400000).toISOString(), notes_count: 8 },
   ],
 }
 

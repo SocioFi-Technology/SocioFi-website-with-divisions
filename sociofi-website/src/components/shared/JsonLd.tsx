@@ -3,7 +3,7 @@
  * Used for Organization, WebSite, and BreadcrumbList schemas.
  */
 
-const SITE_URL = 'https://sociofi.tech';
+const SITE_URL = 'https://sociofitechnology.com';
 
 // ── Schema types ──────────────────────────────────────────────────────────────
 
@@ -41,7 +41,7 @@ function organizationSchema() {
     contactPoint: {
       '@type': 'ContactPoint',
       contactType: 'customer service',
-      email: 'hello@sociofi.tech',
+      email: 'hello@sociofitechnology.com',
     },
     sameAs: [],
   };

@@ -22,7 +22,7 @@ function slugify(title: string): string {
 }
 
 function SEOPreview({ title, slug, description }: { title: string; slug: string; description: string }) {
-  const displayUrl = `sociofi.tech/blog/${slug || 'untitled'}`
+  const displayUrl = `sociofitechnology.com/blog/${slug || 'untitled'}`
   const displayTitle = title || 'Untitled Post'
   return (
     <div style={{ background: '#0A0E1A', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '14px', marginTop: '10px' }}>

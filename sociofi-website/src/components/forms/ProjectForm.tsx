@@ -326,7 +326,7 @@ export default function ProjectForm({ accentColor, className = '' }: ProjectForm
           border: '1px solid rgba(232,145,111,0.2)',
           borderRadius: 'var(--radius-sm)',
         }}>
-          Something went wrong. Please try again or email us at hello@sociofi.tech
+          Something went wrong. Please try again or email us at hello@sociofitechnology.com
         </p>
       )}
 

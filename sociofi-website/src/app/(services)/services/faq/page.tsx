@@ -633,7 +633,7 @@ export default function ServicesFAQPage() {
             </motion.p>
             <motion.div className="faq-cta-buttons" variants={fadeUp}>
               <Link href="/services/get-protected" className="btn-primary">Ask us directly</Link>
-              <a href="mailto:services@sociofi.tech" className="btn-ghost">services@sociofi.tech</a>
+              <a href="mailto:services@sociofitechnology.com" className="btn-ghost">services@sociofitechnology.com</a>
             </motion.div>
           </motion.div>
         </section>

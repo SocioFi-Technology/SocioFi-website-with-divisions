@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         message:
-          "I'm having trouble connecting right now. Email hello@sociofi.tech for immediate help.",
+          "I'm having trouble connecting right now. Email hello@sociofitechnology.com for immediate help.",
       },
       { status: 500 },
     );

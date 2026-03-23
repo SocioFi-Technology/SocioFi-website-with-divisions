@@ -174,23 +174,23 @@ export async function processSubmission(
 
   // ── 3. Resend Email Notification ─────────────────────────────────────────
   const RESEND_KEY = process.env.RESEND_API_KEY;
-  const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? 'admin@sociofi.io';
+  const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? 'admin@sociofitechnology.com';
 
   const DEFAULT_RECIPIENTS: Record<string, string[]> = {
-    studio: ['studio@sociofi.io'],
-    services: ['services@sociofi.io'],
-    labs: ['labs@sociofi.io'],
-    products: ['products@sociofi.io'],
-    academy: ['academy@sociofi.io'],
-    ventures: ['ventures@sociofi.io'],
-    cloud: ['cloud@sociofi.io'],
-    agents: ['agents@sociofi.io'],
-    parent: ['hello@sociofi.io'],
+    studio: ['studio@sociofitechnology.com'],
+    services: ['services@sociofitechnology.com'],
+    labs: ['labs@sociofitechnology.com'],
+    products: ['products@sociofitechnology.com'],
+    academy: ['academy@sociofitechnology.com'],
+    ventures: ['ventures@sociofitechnology.com'],
+    cloud: ['cloud@sociofitechnology.com'],
+    agents: ['agents@sociofitechnology.com'],
+    parent: ['hello@sociofitechnology.com'],
   };
 
   const recipients = params.notify_emails?.length
     ? params.notify_emails
-    : (DEFAULT_RECIPIENTS[division] ?? ['hello@sociofi.io']);
+    : (DEFAULT_RECIPIENTS[division] ?? ['hello@sociofitechnology.com']);
 
   if (RESEND_KEY) {
     const resend = new Resend(RESEND_KEY);

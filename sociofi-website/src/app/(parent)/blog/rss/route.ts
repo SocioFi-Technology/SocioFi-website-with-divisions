@@ -1,6 +1,6 @@
 import { getAllPosts, CATEGORY_CONFIG } from '@/lib/blog';
 
-const SITE_URL = 'https://sociofi.tech';
+const SITE_URL = 'https://sociofitechnology.com';
 
 export async function GET() {
   const posts = getAllPosts();

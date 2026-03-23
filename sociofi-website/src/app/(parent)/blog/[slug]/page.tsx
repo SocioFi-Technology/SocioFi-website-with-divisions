@@ -40,7 +40,7 @@ export async function generateMetadata({
       type: 'article',
       publishedTime: post.publishedAt,
       authors: [post.author.name],
-      url: `https://sociofi.tech${post.canonicalUrl}`,
+      url: `https://sociofitechnology.com${post.canonicalUrl}`,
     },
     twitter: {
       card: 'summary_large_image',
@@ -64,7 +64,7 @@ export default async function BlogPostPage({
   const catCfg = CATEGORY_CONFIG[post.category];
   const accent = catCfg.color;
   const related = getRelatedPosts(post, 3);
-  const canonicalUrl = `https://sociofi.tech${post.canonicalUrl}`;
+  const canonicalUrl = `https://sociofitechnology.com${post.canonicalUrl}`;
 
   return (
     <>
