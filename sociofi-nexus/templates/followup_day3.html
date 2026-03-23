@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Following up</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f6f9;font-family:Arial,sans-serif;">
+  <div style="max-width:600px;margin:40px auto;background:white;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+    <!-- Header -->
+    <div style="background:linear-gradient(135deg,#3A589E,#59A392);padding:24px 40px;">
+      <div style="color:white;font-size:20px;font-weight:700;letter-spacing:-0.5px;">
+        &gt;&gt; SocioFi <span style="font-size:12px;font-weight:400;opacity:0.8;">TECHNOLOGY</span>
+      </div>
+    </div>
+    <!-- Body -->
+    <div style="padding:36px 40px;">
+      <p style="color:#475569;font-size:15px;line-height:1.7;margin:0 0 16px;">
+        Hi {{ name | default("there") }},
+      </p>
+      <p style="color:#475569;font-size:15px;line-height:1.7;margin:0 0 16px;">
+        Just following up on your inquiry about {{ topic | default("working together") }}.
+        I wanted to make sure my previous message didn't get lost.
+      </p>
+      <p style="color:#475569;font-size:15px;line-height:1.7;margin:0 0 24px;">
+        {{ followup_context | default("If the timing isn't right, no worries — just let me know and I'll check back in a few weeks.") }}
+      </p>
+      {% if cta_url %}
+      <a href="{{ cta_url }}" style="display:inline-block;background:#3A589E;color:white;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px;margin-top:8px;">
+        {{ cta_label | default("Book 15 mins") }}
+      </a>
+      {% endif %}
+      <p style="color:#94A3B8;font-size:12px;margin-top:32px;padding-top:20px;border-top:1px solid #E2E8F0;">
+        SocioFi Technology &middot;
+        <a href="{{ unsubscribe_url | default('#') }}" style="color:#94A3B8;">Unsubscribe</a>
+      </p>
+    </div>
+  </div>
+</body>
+</html>
