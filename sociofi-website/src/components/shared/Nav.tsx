@@ -48,6 +48,11 @@ export default function Nav({ division }: NavProps) {
     href === '/' ? pathname === '/' : pathname.startsWith(href);
 
   return (
+    // Fragment needed: MobileNav must be a SIBLING of motion.header, not a child.
+    // motion.header applies CSS transform (for hide-on-scroll), and CSS transforms
+    // on an ancestor create a new containing block for position:fixed children —
+    // the MobileNav overlay would be clipped to the nav bar instead of the viewport.
+    <>
     <motion.header
       className={`nav${scrolled ? ' scrolled' : ''}`}
       role="banner"
@@ -123,14 +128,18 @@ export default function Nav({ division }: NavProps) {
         </div>
       </div>
 
-      {/* Full-screen mobile nav overlay */}
-      <MobileNav
-        open={mobileOpen}
-        onClose={() => setMobileOpen(false)}
-        division={division}
-        currentPath={pathname}
-      />
     </motion.header>
+
+    {/* MobileNav is a sibling of motion.header — NOT inside it.
+        If rendered inside, the header's CSS transform (hide-on-scroll)
+        would make position:fixed resolve to the header box, not the viewport. */}
+    <MobileNav
+      open={mobileOpen}
+      onClose={() => setMobileOpen(false)}
+      division={division}
+      currentPath={pathname}
+    />
+    </>
   );
 }
 
