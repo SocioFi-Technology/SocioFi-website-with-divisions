@@ -2,13 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { processSubmission } from '@/lib/admin/processSubmission';
 
-const WorkshopSchema = z.object({
+const ForSMESchema = z.object({
   name: z.string().min(1),
   email: z.string().email(),
-  company: z.string().optional(),
-  workshop_id: z.string().min(1),
-  team_size: z.number().optional(),
-  stripe_payment_intent_id: z.string().optional(),
+  company: z.string().min(1),
+  industry: z.string().optional(),
+  employee_count: z.string().optional(),
+  project_type: z
+    .enum(['internal_tool', 'customer_app', 'automation', 'integration', 'other'])
+    .optional(),
+  description: z.string().min(20),
+  budget_range: z.string().optional(),
+  has_existing_system: z.boolean().optional(),
   source_url: z.string().optional(),
   utm: z
     .object({
@@ -28,7 +33,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
     }
 
-    const parsed = WorkshopSchema.safeParse(body);
+    const parsed = ForSMESchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
         { error: 'Validation failed', issues: parsed.error.issues },
@@ -37,17 +42,16 @@ export async function POST(req: NextRequest) {
     }
 
     const result = await processSubmission({
-      division: 'academy',
-      type: 'workshop-registration',
+      division: 'studio',
+      type: 'audience-sme',
       data: parsed.data,
       source_url: parsed.data.source_url,
       utm: parsed.data.utm,
-      stripe_payment_intent_id: parsed.data.stripe_payment_intent_id,
     });
 
     return NextResponse.json({ success: true, ...result }, { status: 201 });
   } catch (err) {
-    console.error('[API ERROR] /api/academy/workshop', err);
+    console.error('[API ERROR] /api/studio/for-sme', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

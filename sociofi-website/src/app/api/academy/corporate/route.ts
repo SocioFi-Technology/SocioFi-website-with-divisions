@@ -10,6 +10,7 @@ const CorporateSchema = z.object({
   topic: z.string().optional(),
   timeline: z.string().optional(),
   budget: z.string().optional(),
+  stripe_payment_intent_id: z.string().optional(),
   source_url: z.string().optional(),
   utm: z
     .object({
@@ -43,6 +44,7 @@ export async function POST(req: NextRequest) {
       data: parsed.data,
       source_url: parsed.data.source_url,
       utm: parsed.data.utm,
+      stripe_payment_intent_id: parsed.data.stripe_payment_intent_id,
     });
 
     return NextResponse.json({ success: true, ...result }, { status: 201 });

@@ -2,13 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { processSubmission } from '@/lib/admin/processSubmission';
 
-const WorkshopSchema = z.object({
+const CustomAgentSchema = z.object({
   name: z.string().min(1),
   email: z.string().email(),
   company: z.string().optional(),
-  workshop_id: z.string().min(1),
-  team_size: z.number().optional(),
-  stripe_payment_intent_id: z.string().optional(),
+  use_case: z.string().min(30),
+  data_sources: z.array(z.string()).optional(),
+  integration_targets: z.array(z.string()).optional(),
+  autonomy_level: z.enum(['strict', 'moderate', 'autonomous']).optional(),
+  expected_volume: z.string().optional(),
   source_url: z.string().optional(),
   utm: z
     .object({
@@ -28,7 +30,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
     }
 
-    const parsed = WorkshopSchema.safeParse(body);
+    const parsed = CustomAgentSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
         { error: 'Validation failed', issues: parsed.error.issues },
@@ -37,17 +39,16 @@ export async function POST(req: NextRequest) {
     }
 
     const result = await processSubmission({
-      division: 'academy',
-      type: 'workshop-registration',
+      division: 'agents',
+      type: 'custom-agent',
       data: parsed.data,
       source_url: parsed.data.source_url,
       utm: parsed.data.utm,
-      stripe_payment_intent_id: parsed.data.stripe_payment_intent_id,
     });
 
     return NextResponse.json({ success: true, ...result }, { status: 201 });
   } catch (err) {
-    console.error('[API ERROR] /api/academy/workshop', err);
+    console.error('[API ERROR] /api/agents/custom', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

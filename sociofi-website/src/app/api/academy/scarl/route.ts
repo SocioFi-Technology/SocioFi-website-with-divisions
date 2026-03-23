@@ -2,13 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { processSubmission } from '@/lib/admin/processSubmission';
 
-const WorkshopSchema = z.object({
+const ScarlSchema = z.object({
   name: z.string().min(1),
   email: z.string().email(),
   company: z.string().optional(),
-  workshop_id: z.string().min(1),
-  team_size: z.number().optional(),
-  stripe_payment_intent_id: z.string().optional(),
+  role_title: z.string().min(1),
+  product_name: z.string().min(1),
+  product_stage: z.enum(['idea', 'prototype', 'pre_revenue', 'early_revenue']),
+  monthly_revenue: z.string().optional(),
+  cohort_preference: z.string().optional(),
+  why_scarl: z.string().min(50),
   source_url: z.string().optional(),
   utm: z
     .object({
@@ -28,7 +31,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
     }
 
-    const parsed = WorkshopSchema.safeParse(body);
+    const parsed = ScarlSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
         { error: 'Validation failed', issues: parsed.error.issues },
@@ -38,16 +41,15 @@ export async function POST(req: NextRequest) {
 
     const result = await processSubmission({
       division: 'academy',
-      type: 'workshop-registration',
+      type: 'scarl-application',
       data: parsed.data,
       source_url: parsed.data.source_url,
       utm: parsed.data.utm,
-      stripe_payment_intent_id: parsed.data.stripe_payment_intent_id,
     });
 
     return NextResponse.json({ success: true, ...result }, { status: 201 });
   } catch (err) {
-    console.error('[API ERROR] /api/academy/workshop', err);
+    console.error('[API ERROR] /api/academy/scarl', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

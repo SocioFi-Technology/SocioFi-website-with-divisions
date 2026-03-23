@@ -2,13 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { processSubmission } from '@/lib/admin/processSubmission';
 
-const WorkshopSchema = z.object({
+const ServiceAuditSchema = z.object({
   name: z.string().min(1),
   email: z.string().email(),
   company: z.string().optional(),
-  workshop_id: z.string().min(1),
-  team_size: z.number().optional(),
-  stripe_payment_intent_id: z.string().optional(),
+  app_url: z.string().url().optional(),
+  tech_stack: z.string().min(1),
+  daily_users: z.string().optional(),
+  current_issues: z.string().min(20),
+  hosting_provider: z.string().optional(),
+  has_monitoring: z.boolean().optional(),
   source_url: z.string().optional(),
   utm: z
     .object({
@@ -28,7 +31,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
     }
 
-    const parsed = WorkshopSchema.safeParse(body);
+    const parsed = ServiceAuditSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
         { error: 'Validation failed', issues: parsed.error.issues },
@@ -37,17 +40,16 @@ export async function POST(req: NextRequest) {
     }
 
     const result = await processSubmission({
-      division: 'academy',
-      type: 'workshop-registration',
+      division: 'services',
+      type: 'tech-audit',
       data: parsed.data,
       source_url: parsed.data.source_url,
       utm: parsed.data.utm,
-      stripe_payment_intent_id: parsed.data.stripe_payment_intent_id,
     });
 
     return NextResponse.json({ success: true, ...result }, { status: 201 });
   } catch (err) {
-    console.error('[API ERROR] /api/academy/workshop', err);
+    console.error('[API ERROR] /api/services/audit', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
