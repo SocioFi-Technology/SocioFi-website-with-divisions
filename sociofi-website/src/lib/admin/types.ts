@@ -357,3 +357,87 @@ export const APPROVAL_PRIORITY_COLORS: Record<ApprovalPriority, string> = {
   normal: '#59A392',
   low:    '#64748B',
 }
+
+// ─── Newsletter System ────────────────────────────────────────────────────────
+
+export type NewsletterStatus = 'draft' | 'scheduled' | 'sent' | 'cancelled'
+export type SubscriberStatus = 'active' | 'unsubscribed' | 'bounced'
+
+export const NEWSLETTER_STATUS_COLORS: Record<NewsletterStatus, string> = {
+  draft:     '#64748B',
+  scheduled: '#E8B84D',
+  sent:      '#4ade80',
+  cancelled: '#EF4444',
+}
+
+export interface CuratedPost {
+  id: string
+  post_id: string
+  title: string
+  excerpt: string
+  url: string
+  division: string
+  image_url?: string
+  order: number
+}
+
+export interface DivisionHighlight {
+  division: string
+  headline: string
+  body: string
+  cta_label: string
+  cta_url: string
+}
+
+export interface CustomSection {
+  id: string
+  title: string
+  content: string
+  order: number
+}
+
+export interface NewsletterIssue {
+  id: string
+  label: string               // e.g. "April 2026"
+  month: number               // 0-indexed
+  year: number
+  status: NewsletterStatus
+  subject_a: string
+  subject_b?: string
+  editorial: string           // opening paragraph HTML/text
+  curated_posts: CuratedPost[]
+  division_highlights: DivisionHighlight[]
+  custom_sections: CustomSection[]
+  list_ids: string[]          // subscriber list IDs
+  recipient_count: number
+  scheduled_at?: string
+  sent_at?: string
+  open_rate?: number
+  click_rate?: number
+  unsubscribes?: number
+  prepared_by: 'curator' | 'human'
+  created_at: string
+  updated_at: string
+}
+
+export interface NewsletterSubscriber {
+  id: string
+  email: string
+  name?: string
+  lists: string[]
+  source: string
+  status: SubscriberStatus
+  subscribed_at: string
+  last_opened?: string
+  open_count: number
+  click_count: number
+  tags: string[]
+}
+
+export interface SubscriberList {
+  id: string
+  name: string
+  description: string
+  subscriber_count: number
+  created_at: string
+}

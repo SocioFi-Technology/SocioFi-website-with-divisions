@@ -1,5 +1,5 @@
 import { Submission as LegacySubmission, Ticket, Contact as LegacyContact, ActivityLog } from '@/lib/supabase/types';
-import type { Submission, Contact, ContactActivity, PipelineEntry, CalendarEntry, AgentConfig, ApprovalItem, AgentRun } from '@/lib/admin/types'
+import type { Submission, Contact, ContactActivity, PipelineEntry, CalendarEntry, AgentConfig, ApprovalItem, AgentRun, NewsletterIssue, NewsletterSubscriber, SubscriberList } from '@/lib/admin/types'
 
 const now = Date.now();
 const hoursAgo = (h: number) => new Date(now - h * 3_600_000).toISOString();
@@ -930,4 +930,116 @@ export const MOCK_AGENT_RUNS: AgentRun[] = [
   { id: 'run-010', agent: 'INTAKE',    trigger: 'webhook',   status: 'failed',    started_at: hoursAgo(8),    duration_ms: 320,   input_summary: 'Process Ventures application submission', output_summary: undefined, error: 'ventures_pipeline table not found in Supabase', approvals_created: 0 },
   { id: 'run-011', agent: 'HERALD',    trigger: 'auto',      status: 'completed', started_at: daysAgo(1),     duration_ms: 2800,  input_summary: 'Send onboarding email to Priya Mehta (cloud inquiry)', output_summary: 'Email sent via Resend. Open tracked at 09:14.', approvals_created: 1 },
   { id: 'run-012', agent: 'SCRIBE',    trigger: 'schedule',  status: 'completed', started_at: daysAgo(2),     duration_ms: 38000, input_summary: 'Write blog post: Founder\'s guide to shipping fast', output_summary: '1,340 words drafted, approved with edits, published', approvals_created: 1 },
+]
+
+// ─── Newsletter Mock Data ─────────────────────────────────────────────────────
+
+export const MOCK_SUBSCRIBER_LISTS: SubscriberList[] = [
+  { id: 'list-general',  name: 'General',  description: 'Main subscriber list — all updates', subscriber_count: 847, created_at: daysAgo(365) },
+  { id: 'list-labs',     name: 'Labs',     description: 'Technical research and experiments',   subscriber_count: 312, created_at: daysAgo(180) },
+  { id: 'list-academy',  name: 'Academy',  description: 'Course and workshop announcements',    subscriber_count: 524, created_at: daysAgo(240) },
+  { id: 'list-founders', name: 'Founders', description: 'Solo founders and entrepreneurs',      subscriber_count: 418, created_at: daysAgo(120) },
+]
+
+export const MOCK_NEWSLETTER_ISSUES: NewsletterIssue[] = [
+  // Current draft — April 2026, CURATOR-prepared
+  {
+    id: 'nl-apr-2026',
+    label: 'April 2026', month: 3, year: 2026,
+    status: 'draft',
+    subject_a: 'SocioFi April: 3 launches, a free AI workshop, and what we\'re building next',
+    subject_b: 'What we shipped in March (and what\'s coming in April)',
+    editorial: `March was our busiest month yet. Three new client products shipped to production, our Labs team published research on autonomous agent memory systems that got 1,200 reads in 48 hours, and we opened enrolments for our AI Engineering Bootcamp.
+
+The pattern we keep seeing: founders and teams who've built something solid with AI tools — but hit a wall when it's time to go live. That's exactly the gap we exist to fill. If you know someone in that situation, send them our way.
+
+Here's what happened this month, and what we're building toward in April.`,
+    curated_posts: [
+      { id: 'cp1', post_id: 'blog-001', title: 'Why AI-Generated Code Needs Human Review', excerpt: 'AI coding tools have gotten remarkably good at generating syntactically correct code. But there\'s a growing gap between "it runs" and "it\'s production-ready."', url: '/labs/blog/why-ai-generated-code-needs-human-review', division: 'labs', order: 0 },
+      { id: 'cp2', post_id: 'blog-002', title: 'The Founder\'s Guide to Shipping Fast', excerpt: 'Speed matters more than perfection in early-stage products. Here\'s how to move fast without breaking the things that actually matter.', url: '/studio/blog/founders-guide-shipping-fast', division: 'studio', order: 1 },
+      { id: 'cp3', post_id: 'blog-003', title: 'Managed Cloud vs DIY AWS: The Real Numbers', excerpt: 'We ran the numbers on 12 client projects. The results surprised us — and they might surprise you too.', url: '/cloud/blog/managed-vs-diy-aws', division: 'cloud', order: 2 },
+    ],
+    division_highlights: [
+      { division: 'studio', headline: 'Studio shipped 3 products in March', body: 'InboxFlow, DataSync dashboard v2, and a fintech prototype for a Dhaka-based startup — all in production.', cta_label: 'See our portfolio', cta_url: '/studio/portfolio' },
+      { division: 'academy', headline: 'AI Bootcamp Q2 enrolments are open', body: '8-week intensive covering AI-native development, deployment, and architecture. Limited to 24 seats.', cta_label: 'Apply now', cta_url: '/academy/courses/ai-bootcamp' },
+      { division: 'labs', headline: 'New research: autonomous agent memory', body: 'Our deep-dive into how AI agents store, retrieve, and act on long-term context — published and free to read.', cta_label: 'Read the research', cta_url: '/labs/research/agent-memory' },
+    ],
+    custom_sections: [],
+    list_ids: ['list-general'],
+    recipient_count: 847,
+    prepared_by: 'curator',
+    created_at: daysAgo(3), updated_at: hoursAgo(2),
+  },
+
+  // March 2026 — sent
+  {
+    id: 'nl-mar-2026',
+    label: 'March 2026', month: 2, year: 2026,
+    status: 'sent',
+    subject_a: 'SocioFi March: New AI tools research + Studio project openings',
+    editorial: `February was a month of building. Our Studio team onboarded three new projects, Labs released a new experiment, and we started accepting applications for our next Academy cohort.`,
+    curated_posts: [
+      { id: 'cp4', post_id: 'blog-004', title: 'Building Autonomous AI Agents in 2026', excerpt: 'The landscape of AI agent architectures has shifted dramatically. Here\'s what we\'ve learned building NEXUS.', url: '/labs/blog/autonomous-agents-2026', division: 'labs', order: 0 },
+      { id: 'cp5', post_id: 'blog-005', title: 'Understanding Managed Hosting SLAs', excerpt: 'What "99.9% uptime" actually means, and what to ask your hosting provider before you sign anything.', url: '/cloud/blog/managed-hosting-slas', division: 'cloud', order: 1 },
+    ],
+    division_highlights: [
+      { division: 'studio', headline: '2 new project slots open in April', body: 'We\'re taking on two new builds in April. Preference for founders with an existing prototype.', cta_label: 'Start a project', cta_url: '/studio/start-project' },
+    ],
+    custom_sections: [],
+    list_ids: ['list-general'],
+    recipient_count: 821,
+    sent_at: new Date(2026, 1, 28).toISOString(),
+    open_rate: 38.4, click_rate: 12.1, unsubscribes: 4,
+    prepared_by: 'curator',
+    created_at: daysAgo(32), updated_at: daysAgo(30),
+  },
+
+  // February 2026 — sent
+  {
+    id: 'nl-feb-2026',
+    label: 'February 2026', month: 1, year: 2026,
+    status: 'sent',
+    subject_a: 'SocioFi February: What we launched + free AI workshop this month',
+    editorial: 'January was our strongest month for new Studio inquiries yet. Here\'s what happened and what\'s coming.',
+    curated_posts: [],
+    division_highlights: [],
+    custom_sections: [],
+    list_ids: ['list-general'],
+    recipient_count: 790,
+    sent_at: new Date(2026, 0, 31).toISOString(),
+    open_rate: 41.2, click_rate: 14.7, unsubscribes: 6,
+    prepared_by: 'human',
+    created_at: daysAgo(62), updated_at: daysAgo(60),
+  },
+
+  // January 2026 — sent
+  {
+    id: 'nl-jan-2026',
+    label: 'January 2026', month: 0, year: 2026,
+    status: 'sent',
+    subject_a: '2025 in review + what SocioFi is building in 2026',
+    editorial: 'We\'re kicking off 2026 with a clear picture of where we\'re headed.',
+    curated_posts: [],
+    division_highlights: [],
+    custom_sections: [],
+    list_ids: ['list-general'],
+    recipient_count: 753,
+    sent_at: new Date(2025, 11, 31).toISOString(),
+    open_rate: 44.8, click_rate: 16.2, unsubscribes: 3,
+    prepared_by: 'human',
+    created_at: daysAgo(92), updated_at: daysAgo(90),
+  },
+]
+
+export const MOCK_SUBSCRIBERS: NewsletterSubscriber[] = [
+  { id: 'sub-001', email: 'sarah@techcorp.io',    name: 'Sarah Chen',    lists: ['list-general','list-founders'], source: 'organic',  status: 'active',       subscribed_at: daysAgo(45),  last_opened: daysAgo(2),  open_count: 8,  click_count: 3, tags: ['hot-lead','saas'] },
+  { id: 'sub-002', email: 'james@founderhq.co',   name: 'James Okafor', lists: ['list-general','list-founders'], source: 'referral', status: 'active',       subscribed_at: daysAgo(60),  last_opened: daysAgo(5),  open_count: 6,  click_count: 2, tags: ['founder'] },
+  { id: 'sub-003', email: 'priya@datasync.in',    name: 'Priya Mehta',  lists: ['list-general'],                 source: 'linkedin', status: 'active',       subscribed_at: daysAgo(90),  last_opened: daysAgo(30), open_count: 3,  click_count: 1, tags: ['enterprise'] },
+  { id: 'sub-004', email: 'luca@venturelab.it',   name: 'Luca Bianchi', lists: ['list-general','list-founders'], source: 'direct',   status: 'active',       subscribed_at: daysAgo(12),  last_opened: daysAgo(1),  open_count: 2,  click_count: 1, tags: [] },
+  { id: 'sub-005', email: 'anna@ecomstore.de',    name: 'Anna Müller',  lists: ['list-general'],                 source: 'paid',     status: 'active',       subscribed_at: daysAgo(120), last_opened: daysAgo(60), open_count: 2,  click_count: 0, tags: ['ecommerce'] },
+  { id: 'sub-006', email: 'dev@hackertown.io',    name: undefined,      lists: ['list-labs'],                    source: 'organic',  status: 'active',       subscribed_at: daysAgo(30),  last_opened: daysAgo(3),  open_count: 4,  click_count: 5, tags: ['developer'] },
+  { id: 'sub-007', email: 'ming@aibuilders.sg',   name: 'Ming Zhao',    lists: ['list-academy','list-general'],  source: 'academy',  status: 'active',       subscribed_at: daysAgo(20),  last_opened: daysAgo(7),  open_count: 3,  click_count: 2, tags: ['student'] },
+  { id: 'sub-008', email: 'old@startup.com',      name: undefined,      lists: ['list-general'],                 source: 'organic',  status: 'unsubscribed', subscribed_at: daysAgo(200), last_opened: daysAgo(180),open_count: 1,  click_count: 0, tags: [] },
+  { id: 'sub-009', email: 'bounce@fakeemail.xyz', name: undefined,      lists: ['list-general'],                 source: 'import',   status: 'bounced',      subscribed_at: daysAgo(10),  last_opened: undefined,    open_count: 0,  click_count: 0, tags: [] },
+  { id: 'sub-010', email: 'rafi@dhaka.tech',      name: 'Rafiqul Islam', lists: ['list-general','list-labs'],   source: 'organic',  status: 'active',       subscribed_at: daysAgo(5),   last_opened: daysAgo(1),  open_count: 2,  click_count: 1, tags: ['local'] },
 ]
