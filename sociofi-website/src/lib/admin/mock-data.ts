@@ -1,5 +1,5 @@
 import { Submission as LegacySubmission, Ticket, Contact as LegacyContact, ActivityLog } from '@/lib/supabase/types';
-import type { Submission, Contact, ContactActivity } from '@/lib/admin/types'
+import type { Submission, Contact, ContactActivity, PipelineEntry } from '@/lib/admin/types'
 
 const now = Date.now();
 const hoursAgo = (h: number) => new Date(now - h * 3_600_000).toISOString();
@@ -335,3 +335,47 @@ export const MOCK_CONTACT_ACTIVITY: ContactActivity[] = [
   { id: 'a3', contact_id: 'c3', type: 'pipeline', division: 'studio', description: 'Moved to In Progress — assigned to Kamrul Hasan', created_at: new Date(Date.now() - 20 * 3600000).toISOString(), actor: 'Kamrul Hasan' },
   { id: 'a4', contact_id: 'c3', type: 'note', description: 'Identified root cause: Prisma client not initialized in serverless context', created_at: new Date(Date.now() - 4 * 3600000).toISOString(), actor: 'Kamrul Hasan' },
 ]
+
+export const MOCK_PIPELINE: Record<string, PipelineEntry[]> = {
+  studio: [
+    { id: 'p1', pipeline: 'studio', stage: 'New', contact_name: 'Sarah Chen', contact_email: 'sarah@nexalabs.io', contact_id: 'c1', company: 'NexaLabs', submission_type: 'Product Build', priority: 'urgent', assigned_to: undefined, ai_score: 78, entered_at: new Date(Date.now() - 2*3600000).toISOString(), notes_count: 1 },
+    { id: 'p2', pipeline: 'studio', stage: 'Discovery Call', contact_name: 'Tom Okafor', contact_email: 'tom@scale99.io', contact_id: 'c6', company: 'Scale99', submission_type: 'Internal Tool', priority: 'normal', assigned_to: 'Arifur Rahman', ai_score: 65, entered_at: new Date(Date.now() - 3*86400000).toISOString(), notes_count: 2 },
+    { id: 'p3', pipeline: 'studio', stage: 'Proposal Sent', contact_name: 'Marcus Webb', contact_email: 'marcus@techflow.io', contact_id: 'c2', company: 'TechFlow', submission_type: 'Product Build', priority: 'high', assigned_to: 'Kamrul Hasan', ai_score: 85, entered_at: new Date(Date.now() - 7*86400000).toISOString(), notes_count: 4 },
+    { id: 'p4', pipeline: 'studio', stage: 'Building', contact_name: 'Priya Sharma', contact_email: 'priya@buildfast.io', contact_id: 'c3', company: 'BuildFast', submission_type: 'Rescue Ship', priority: 'high', assigned_to: 'Kamrul Hasan', ai_score: 91, entered_at: new Date(Date.now() - 5*86400000).toISOString(), notes_count: 6 },
+    { id: 'p5', pipeline: 'studio', stage: 'Review', contact_name: 'Ana Lima', contact_email: 'ana@productco.io', company: 'ProductCo', submission_type: 'Consulting', priority: 'normal', assigned_to: 'Arifur Rahman', ai_score: 88, entered_at: new Date(Date.now() - 1*86400000).toISOString(), notes_count: 3 },
+    { id: 'p6', pipeline: 'studio', stage: 'Launched', contact_name: 'David Kim', contact_email: 'david@kimdigital.co', company: 'Kim Digital', submission_type: 'Internal Tool', priority: 'normal', assigned_to: 'Kamrul Hasan', entered_at: new Date(Date.now() - 20*86400000).toISOString(), notes_count: 2 },
+  ],
+  services: [
+    { id: 'ps1', pipeline: 'services', stage: 'New', contact_name: 'James Park', contact_email: 'james@researchlabs.io', company: 'MIT CSAIL', submission_type: 'Monitoring Plan', priority: 'normal', entered_at: new Date(Date.now() - 1*86400000).toISOString(), notes_count: 0 },
+    { id: 'ps2', pipeline: 'services', stage: 'Audit Scheduled', contact_name: 'Leila Novak', contact_email: 'leila@nanofi.io', company: 'NanoFi', submission_type: 'Bug Fix', priority: 'high', assigned_to: 'Arifur Rahman', entered_at: new Date(Date.now() - 3*86400000).toISOString(), notes_count: 1 },
+    { id: 'ps3', pipeline: 'services', stage: 'Active', contact_name: 'Marcus Webb', contact_email: 'marcus@techflow.io', company: 'TechFlow', submission_type: 'Monitoring Plan', priority: 'normal', assigned_to: 'Kamrul Hasan', ai_score: 85, entered_at: new Date(Date.now() - 30*86400000).toISOString(), notes_count: 8 },
+  ],
+  ventures: [
+    { id: 'pv1', pipeline: 'ventures', stage: 'Received', contact_name: 'Tom Okafor', contact_email: 'tom@scale99.io', company: 'Scale99', submission_type: 'Startup Application', priority: 'normal', entered_at: new Date(Date.now() - 2*86400000).toISOString(), notes_count: 0 },
+    { id: 'pv2', pipeline: 'ventures', stage: 'Screening', contact_name: 'Ana Lima', contact_email: 'ana@productco.io', company: 'ProductCo', submission_type: 'Equity Partnership', priority: 'high', assigned_to: 'Arifur Rahman', ai_score: 74, entered_at: new Date(Date.now() - 5*86400000).toISOString(), notes_count: 2 },
+    { id: 'pv3', pipeline: 'ventures', stage: 'Portfolio', contact_name: 'Leila Novak', contact_email: 'leila@nanofi.io', company: 'NanoFi', submission_type: 'Startup Application', priority: 'normal', assigned_to: 'Arifur Rahman', ai_score: 80, entered_at: new Date(Date.now() - 45*86400000).toISOString(), notes_count: 12 },
+  ],
+  academy: [
+    { id: 'pa1', pipeline: 'academy', stage: 'Enrolled', contact_name: 'David Kim', contact_email: 'david@kimdigital.co', company: 'Kim Digital', submission_type: 'Course Enrollment', priority: 'normal', entered_at: new Date(Date.now() - 0.5*86400000).toISOString(), notes_count: 0 },
+    { id: 'pa2', pipeline: 'academy', stage: 'In Progress', contact_name: 'Sarah Chen', contact_email: 'sarah@nexalabs.io', company: 'NexaLabs', submission_type: 'Workshop', priority: 'normal', assigned_to: 'Arifur Rahman', entered_at: new Date(Date.now() - 14*86400000).toISOString(), notes_count: 1 },
+    { id: 'pa3', pipeline: 'academy', stage: 'Certified', contact_name: 'James Park', contact_email: 'james@researchlabs.io', submission_type: 'Course Enrollment', priority: 'normal', entered_at: new Date(Date.now() - 60*86400000).toISOString(), notes_count: 0 },
+  ],
+  cloud: [
+    { id: 'pc1', pipeline: 'cloud', stage: 'New', contact_name: 'Tom Okafor', contact_email: 'tom@scale99.io', company: 'Scale99', submission_type: 'Hosting Assessment', priority: 'normal', entered_at: new Date(Date.now() - 1*86400000).toISOString(), notes_count: 0 },
+    { id: 'pc2', pipeline: 'cloud', stage: 'Assessment', contact_name: 'Marcus Webb', contact_email: 'marcus@techflow.io', company: 'TechFlow', submission_type: 'Migration', priority: 'high', assigned_to: 'Kamrul Hasan', entered_at: new Date(Date.now() - 4*86400000).toISOString(), notes_count: 3 },
+    { id: 'pc3', pipeline: 'cloud', stage: 'Active', contact_name: 'Priya Sharma', contact_email: 'priya@buildfast.io', company: 'BuildFast', submission_type: 'Hosting Assessment', priority: 'normal', assigned_to: 'Kamrul Hasan', entered_at: new Date(Date.now() - 25*86400000).toISOString(), notes_count: 5 },
+  ],
+  agents: [
+    { id: 'pag1', pipeline: 'agents', stage: 'New', contact_name: 'Ana Lima', contact_email: 'ana@productco.io', company: 'ProductCo', submission_type: 'Agent Deploy', priority: 'high', ai_score: 88, entered_at: new Date(Date.now() - 2*86400000).toISOString(), notes_count: 1 },
+    { id: 'pag2', pipeline: 'agents', stage: 'Consultation', contact_name: 'Leila Novak', contact_email: 'leila@nanofi.io', company: 'NanoFi', submission_type: 'Agent Deploy', priority: 'normal', assigned_to: 'Arifur Rahman', entered_at: new Date(Date.now() - 6*86400000).toISOString(), notes_count: 2 },
+    { id: 'pag3', pipeline: 'agents', stage: 'Deployed', contact_name: 'James Park', contact_email: 'james@researchlabs.io', company: 'MIT CSAIL', submission_type: 'Custom Integration', priority: 'normal', assigned_to: 'Kamrul Hasan', entered_at: new Date(Date.now() - 20*86400000).toISOString(), notes_count: 7 },
+  ],
+  labs: [
+    { id: 'pl1', pipeline: 'labs', stage: 'Research', contact_name: 'Internal Team', contact_email: 'team@sociofi.tech', submission_type: 'Research Project', priority: 'normal', entered_at: new Date(Date.now() - 10*86400000).toISOString(), notes_count: 3 },
+    { id: 'pl2', pipeline: 'labs', stage: 'Building', contact_name: 'Internal Team', contact_email: 'team@sociofi.tech', submission_type: 'Experiment', priority: 'normal', entered_at: new Date(Date.now() - 5*86400000).toISOString(), notes_count: 1 },
+  ],
+  products: [
+    { id: 'pp1', pipeline: 'products', stage: 'Beta', contact_name: 'FabricxAI Users', contact_email: 'beta@sociofi.tech', submission_type: 'Beta Access', priority: 'normal', entered_at: new Date(Date.now() - 30*86400000).toISOString(), notes_count: 4 },
+    { id: 'pp2', pipeline: 'products', stage: 'Live', contact_name: 'NEXUS ARIA', contact_email: 'product@sociofi.tech', submission_type: 'Product Launch', priority: 'normal', entered_at: new Date(Date.now() - 60*86400000).toISOString(), notes_count: 8 },
+  ],
+}

@@ -90,3 +90,52 @@ export interface ContactActivity {
   created_at: string
   actor: string
 }
+
+export interface PipelineEntry {
+  id: string
+  pipeline: string
+  stage: string
+  contact_name: string
+  contact_email: string
+  contact_id?: string
+  company?: string
+  submission_type: string
+  priority: SubmissionPriority
+  assigned_to?: string
+  ai_score?: number
+  entered_at: string
+  notes_count: number
+}
+
+export const STAGE_THRESHOLDS: Record<string, Record<string, number>> = {
+  studio: { 'New': 2, 'Review': 5, 'Discovery Call': 3, 'Scoping': 5, 'Proposal Sent': 7, 'Negotiation': 5, 'Building': 30 },
+  services: { 'New': 2, 'Review': 1, 'Audit Scheduled': 7, 'Active': 0 },
+  ventures: { 'Received': 3, 'Screening': 7, 'Deep Review': 14 },
+  academy: { 'Enrolled': 1, 'In Progress': 60 },
+  cloud: { 'New': 2, 'Setup': 14 },
+  agents: { 'New': 2, 'Consultation': 7 },
+  labs: { 'Research': 0 },
+  products: { 'Beta': 0 },
+}
+
+export const DIVISION_STAGES: Record<string, string[]> = {
+  studio: ['New','Review','Discovery Call','Scoping','Proposal Sent','Negotiation','Accepted','Building','Launched','Maintenance','Won','Lost'],
+  agents: ['New','Review','Consultation','Agent Selection','Integration','Testing','Deployed','Active','Churned','Lost'],
+  services: ['New','Review','Audit Scheduled','Audit Done','Plan Recommended','Accepted','Onboarding','Active','Churned','Lost'],
+  cloud: ['New','Review','Assessment','Recommendation','Accepted','Setup','Migration','Active','Churned','Lost'],
+  ventures: ['Received','Screening','Deep Review','Interview Scheduled','Interview Done','Terms Drafting','Terms Sent','Negotiation','Accepted','Building','Launched','Portfolio','Rejected','Waitlisted'],
+  academy: ['Enrolled','In Progress','Completed','Certified','Refunded'],
+  labs: ['Idea','Research','Experiment','Building','Published','Archived'],
+  products: ['Beta','Live','Maintenance','Deprecated'],
+}
+
+export const DIVISION_KPI_LABELS: Record<string, string[]> = {
+  studio: ['New Leads','In Progress','Launched','Revenue (MTD)'],
+  services: ['New Leads','Active Clients','Tickets Open','MRR'],
+  ventures: ['Applications','In Review','Portfolio','Fund Deployed'],
+  academy: ['Enrolled','Active Learners','Certified','Revenue (MTD)'],
+  cloud: ['New Leads','Active','Incidents','MRR'],
+  agents: ['New Leads','Active Deployments','Monitoring','Revenue (MTD)'],
+  labs: ['Projects','In Research','Published','—'],
+  products: ['Products','Beta Users','Live Users','MRR'],
+}
