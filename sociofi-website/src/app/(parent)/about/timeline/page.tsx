@@ -121,7 +121,7 @@ const EVENTS: {
     date: 'December 2025',
     title: 'NEXUS admin system launched',
     desc: '13 AI agents now run SocioFi\'s own operations — NEXUS, INTAKE, HERALD, SCRIBE, and 9 more.',
-    detail: 'The same architecture that ran FabricxAI is now running SocioFi itself. NEXUS coordinates, INTAKE processes leads, HERALD drafts emails, SCRIBE writes content, SENTINEL monitors systems. Every output goes through founder review before action. The team page is updated to list all 13 agents.',
+    detail: 'The same architecture that ran FabricxAI is now running SocioFi itself. 13 admin agents handle internal operations — lead processing, communications, content, monitoring, and reporting. Every output goes through founder review before action. SocioFi\'s development team (DevBridge, 10 agents) was already operational since June 2025.',
     type: 'agents',
   },
   {
@@ -135,7 +135,7 @@ const EVENTS: {
     date: 'March 2026',
     title: 'SocioFi website launches — 8 divisions',
     desc: 'Full website launches with all 8 divisions. Radical transparency about the AI-native team.',
-    detail: 'The new website includes the team page that lists 13 AI agents alongside the founders. The decision to be radically transparent about how the company operates becomes itself a differentiator. PILOT launches as the AI website assistant.',
+    detail: 'The new website includes the team page listing 10 AI development agents (DevBridge) alongside the founders — radically transparent about how the company builds software. The decision to be explicit about AI-native operations becomes itself a differentiator. PILOT launches as the AI website assistant.',
     type: 'milestone',
   },
   {
@@ -290,7 +290,7 @@ export default function TimelinePage() {
               {[
                 { value: '18', label: 'months since founding' },
                 { value: '22', label: 'peak FabricxAI agents' },
-                { value: '13', label: 'internal operational agents' },
+                { value: '10', label: 'DevBridge dev agents' },
                 { value: '45+', label: 'total agents in production' },
               ].map((s) => (
                 <div key={s.label} style={{ textAlign: 'center' }}>

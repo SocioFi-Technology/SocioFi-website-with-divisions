@@ -6,7 +6,7 @@ import CTASection from '@/components/shared/CTASection';
 
 export const metadata: Metadata = {
   title: 'Our Story — SocioFi Technology',
-  description: 'How two BUET graduates built an AI-native company from Dhaka — and why the team page lists 13 AI agents alongside the founders.',
+  description: 'How two BUET graduates built an AI-native company from Dhaka — and why the team page lists 10 AI development agents alongside the founders.',
 };
 
 
@@ -101,7 +101,7 @@ const CHAPTERS = [
   },
   {
     num: '08',
-    title: 'What\'s Next',
+    title: "What's Next",
     body: [
       'The next phase of SocioFi\'s development is straightforward: add human supervisors.',
       'For each of the eight divisions, SocioFi plans to hire a part-time specialist engineer whose job is to supervise the AI agents working in that division. Not to do the work — the agents do the work. But to verify the work, catch edge cases, and provide the human expertise that AI can\'t replicate.',
@@ -150,7 +150,7 @@ export default function StoryPage() {
             The Story of SocioFi Technology
           </h1>
           <p style={{ fontFamily: 'var(--font-body)', fontSize: '1.1rem', lineHeight: 1.8, color: 'var(--text-secondary)', marginBottom: 24 }}>
-            How two BUET graduates built an AI-native company from Dhaka — and why the team page lists 13 AI agents alongside the founders.
+            How two BUET graduates built an AI-native company from Dhaka — and why the team page lists 10 AI development agents alongside the founders.
           </p>
           <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
             <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'var(--text-muted)', letterSpacing: '0.06em' }}>SOCIOFI TEAM · PUBLISHED MARCH 2026</span>

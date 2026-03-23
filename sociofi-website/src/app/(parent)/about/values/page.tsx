@@ -26,7 +26,7 @@ const VALUES = [
       'Ventures terms are published publicly. No negotiation opacity.',
     ],
     founderQuote: { text: 'The moment you say "we\'ll figure out pricing later," you\'ve already created the conditions for someone to feel burned.', attr: 'Arifur Rahman, CEO' },
-    agentEnforcement: 'HERALD\'s welcome emails always include a pricing range that matches the client\'s budget and project scope. INTAKE flags leads where the stated budget is significantly misaligned with the project description — before anyone wastes time on a conversation that can\'t go anywhere.',
+    agentEnforcement: 'SCOUT flags leads where the stated budget is significantly misaligned with the project description — before anyone wastes time on a conversation that can\'t go anywhere. Every SCOUT output includes a plain-language scope summary that Arifur uses to set expectations in the first client call.',
   },
   {
     num: '02',
@@ -41,7 +41,7 @@ const VALUES = [
       'PILOT, our AI assistant, is trained to detect when it\'s using jargon and rewrite in plain English.',
     ],
     founderQuote: { text: 'If a client can\'t understand what we\'re telling them, that\'s our failure. Not their limitation.', attr: 'Arifur Rahman, CEO' },
-    agentEnforcement: 'HERALD\'s system prompt includes explicit instructions to flag any technical jargon in drafts and suggest plain-English alternatives. CHRONICLE\'s client reports use a readability check before they\'re sent for review.',
+    agentEnforcement: 'BEACON\'s output instructions include explicit guidelines to flag technical jargon and rewrite in plain English. Every client-facing document BEACON generates passes a readability check before Arifur reviews it. SCOUT descriptions use client-facing language, not engineering terminology.',
   },
   {
     num: '03',
@@ -56,7 +56,7 @@ const VALUES = [
       'Services division provides ongoing monitoring so issues are caught before they become client problems.',
     ],
     founderQuote: { text: 'AI writes great code at the sentence level. Engineers are responsible for whether it works at the paragraph level, the page level, and the book level.', attr: 'Kamrul Hasan, CTO' },
-    agentEnforcement: 'SENTINEL monitors every client system in Services and Cloud, running continuous health checks. PULSE monitors SENTINEL. CHRONICLE tracks incident rates across the portfolio and flags any system with increasing error rates for immediate review.',
+    agentEnforcement: 'SENTINEL reviews every codebase for security vulnerabilities, logic errors, and architectural problems before any deployment. SHIELD runs automated test suites and health checks on every staging deployment. No project ships without both passing. Kamrul reviews every SENTINEL finding report personally.',
   },
   {
     num: '04',
@@ -71,7 +71,7 @@ const VALUES = [
       'No licensing fees for code we built for you. You paid for it. You own it.',
     ],
     founderQuote: { text: 'The goal is for every client to be capable of walking away with everything they\'ve paid us to build. That\'s what makes us trustworthy — not contractual obligations.', attr: 'Arifur Rahman, CEO' },
-    agentEnforcement: 'NEXUS tracks all client project deliverables and flags any project that hasn\'t had a code handoff scheduled within 2 weeks of completion. BEACON (in DevBridge) generates comprehensive documentation so clients\' future teams can understand the code without needing to call us.',
+    agentEnforcement: 'BEACON generates comprehensive documentation on every project — README, API docs, architecture notes, database schema, and a plain-English client handoff guide — so clients\' future teams can understand the code without ever calling us. SHIELD tracks deliverable handoffs and flags any completed project that hasn\'t had a code delivery scheduled.',
   },
   {
     num: '05',
@@ -87,7 +87,7 @@ const VALUES = [
       'Lab publications document failures and limitations, not just successes.',
     ],
     founderQuote: { text: 'The companies that sell AI as the answer to everything are setting up their clients for expensive disappointments. We\'d rather be the company that said "not this time" when we meant it.', attr: 'Kamrul Hasan, CTO' },
-    agentEnforcement: 'INTAKE\'s scoring system includes a "complexity appropriateness" metric that flags projects where the requested AI complexity may exceed the actual problem complexity. These get a note in the brief for Kamrul to review in the technical assessment.',
+    agentEnforcement: 'SCOUT\'s requirements analysis includes a complexity-appropriateness check that flags projects where the requested AI involvement may exceed the actual problem complexity. These are noted in the spec for Kamrul to review before architecture begins. HUNTER explicitly documents simpler alternatives alongside recommended approaches.',
   },
   {
     num: '06',
@@ -102,7 +102,7 @@ const VALUES = [
       'SENTINEL and WARDEN give Services the operational capacity to monitor and respond without the overhead of a traditional support team.',
     ],
     founderQuote: { text: 'The best maintenance arrangement is one where the people fixing the problem also remember building it. That\'s not a luxury — it\'s how software stays healthy.', attr: 'Kamrul Hasan, CTO' },
-    agentEnforcement: 'COMPASS tracks which clients have active Services engagements and which completed Studio projects don\'t. It flags to Arifur when a client has been without monitoring for more than 30 days post-launch. CHRONICLE tracks time-to-resolution metrics for all Services tickets.',
+    agentEnforcement: 'Every Studio project includes a Services transition brief in the BEACON handoff documentation. SENTINEL is already configured for client systems during the build phase, making Services monitoring a zero-friction handover. Arifur tracks which completed Studio projects have transitioned to Services and follows up at the 30-day post-launch mark.',
   },
 ];
 

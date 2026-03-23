@@ -4,238 +4,215 @@ import Container from '@/components/shared/Container';
 import SectionHeader from '@/components/shared/SectionHeader';
 import ScrollReveal, { StaggerChildren, StaggerItem } from '@/components/shared/ScrollReveal';
 import CTASection from '@/components/shared/CTASection';
-import { LogoMark } from '@/components/shared/Logo';
 import AboutSubNav from '@/components/about/AboutSubNav';
-import type { DivisionSlug } from '@/lib/divisions';
 
-// ── Agent avatar SVGs ─────────────────────────────────────────────────────────
+// ── 10 DevBridge Development Agents ───────────────────────────────────────────
 
-const AGENT_AVATARS: Record<string, { svg: string; color: string }> = {
-  NEXUS: {
+const DEV_AGENTS = [
+  {
+    id: 'SCOUT',
+    role: 'Requirements Analyst',
+    step: '01',
+    color: '#72C4B2',
+    desc: 'Reads project briefs, extracts technical requirements, creates structured specs.',
+    svg: `<path d="M32 32 L50 32" stroke="currentColor" stroke-width="1.2" opacity="0.3" stroke-linecap="round"/>
+      <path d="M32 32 L32 14" stroke="currentColor" stroke-width="1.2" opacity="0.3" stroke-linecap="round"/>
+      <path d="M32 32 L45 19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M16 48 A22 22 0 0 1 54 32" stroke="currentColor" stroke-width="1" fill="none" opacity="0.35"/>
+      <path d="M20 20 A16 16 0 0 1 48 20" stroke="currentColor" stroke-width="1.2" fill="none" opacity="0.55"/>
+      <circle cx="32" cy="32" r="3.5" fill="currentColor"/>
+      <circle cx="45" cy="19" r="2" fill="currentColor" opacity="0.7"/>`,
+  },
+  {
+    id: 'HUNTER',
+    role: 'Pattern Researcher',
+    step: '02',
     color: '#4A6CB8',
-    svg: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <polygon points="32,8 56,20 56,44 32,56 8,44 8,20" stroke="currentColor" stroke-width="1.5" fill="none"/>
-      <circle cx="32" cy="32" r="5" fill="currentColor" opacity="0.8"/>
+    desc: 'Finds relevant code patterns, libraries, and proven technical approaches.',
+    svg: `<circle cx="30" cy="30" r="14" stroke="currentColor" stroke-width="1.5" fill="none"/>
+      <line x1="30" y1="8" x2="30" y2="16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="30" y1="44" x2="30" y2="52" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="8" y1="30" x2="16" y2="30" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="44" y1="30" x2="52" y2="30" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="30" cy="30" r="3" fill="currentColor"/>
+      <line x1="40" y1="40" x2="52" y2="52" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.7"/>`,
+  },
+  {
+    id: 'ATLAS',
+    role: 'System Architect',
+    step: '03',
+    color: '#3A589E',
+    desc: 'Designs architecture — components, data flow, database structure.',
+    svg: `<rect x="14" y="14" width="36" height="36" stroke="currentColor" stroke-width="1.2" fill="none" opacity="0.35"/>
+      <line x1="26" y1="14" x2="26" y2="50" stroke="currentColor" stroke-width="0.8" opacity="0.3"/>
+      <line x1="38" y1="14" x2="38" y2="50" stroke="currentColor" stroke-width="0.8" opacity="0.3"/>
+      <line x1="14" y1="26" x2="50" y2="26" stroke="currentColor" stroke-width="0.8" opacity="0.3"/>
+      <line x1="14" y1="38" x2="50" y2="38" stroke="currentColor" stroke-width="0.8" opacity="0.3"/>
+      <circle cx="26" cy="26" r="3.5" fill="currentColor"/>
+      <circle cx="38" cy="38" r="3.5" fill="currentColor"/>
+      <circle cx="38" cy="26" r="2" fill="currentColor" opacity="0.55"/>
+      <circle cx="26" cy="38" r="2" fill="currentColor" opacity="0.55"/>
+      <line x1="26" y1="26" x2="38" y2="38" stroke="currentColor" stroke-width="1" opacity="0.4"/>`,
+  },
+  {
+    id: 'MIRROR',
+    role: 'UI Developer',
+    step: '04a',
+    color: '#72C4B2',
+    desc: 'Generates frontend — pages, forms, dashboards, responsive layouts.',
+    svg: `<rect x="10" y="18" width="19" height="26" rx="2" stroke="currentColor" stroke-width="1.5" fill="none"/>
+      <rect x="35" y="18" width="19" height="26" rx="2" stroke="currentColor" stroke-width="1.5" fill="none"/>
+      <line x1="32" y1="12" x2="32" y2="52" stroke="currentColor" stroke-width="1" opacity="0.25" stroke-dasharray="3,3"/>
+      <line x1="12" y1="26" x2="27" y2="26" stroke="currentColor" stroke-width="1" opacity="0.5"/>
+      <line x1="37" y1="26" x2="52" y2="26" stroke="currentColor" stroke-width="1" opacity="0.5"/>
+      <rect x="12" y="30" width="15" height="4" rx="1" fill="currentColor" opacity="0.4"/>
+      <rect x="37" y="30" width="15" height="4" rx="1" fill="currentColor" opacity="0.4"/>
+      <rect x="12" y="37" width="10" height="3" rx="1" fill="currentColor" opacity="0.25"/>
+      <rect x="37" y="37" width="10" height="3" rx="1" fill="currentColor" opacity="0.25"/>`,
+  },
+  {
+    id: 'FORGE',
+    role: 'Backend Developer',
+    step: '04b',
+    color: '#E8916F',
+    desc: 'Writes backend — APIs, business logic, database operations, auth.',
+    svg: `<path d="M24 44 L20 52 L44 52 L40 44 Z" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round"/>
+      <rect x="22" y="36" width="20" height="10" rx="1" stroke="currentColor" stroke-width="1.5" fill="none"/>
+      <path d="M29 36 C27 28 25 22 28 16 C30 12 34 12 36 16 C39 22 37 28 35 36" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+      <path d="M32 36 C31 30 30 24 32 20" stroke="currentColor" stroke-width="1" opacity="0.45" stroke-linecap="round"/>`,
+  },
+  {
+    id: 'HAMMER',
+    role: 'Integration Engineer',
+    step: '05',
+    color: '#E8B84D',
+    desc: 'Assembles frontend + backend, wires APIs, resolves conflicts.',
+    svg: `<rect x="10" y="24" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.5" fill="none"/>
+      <rect x="34" y="24" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.5" fill="none"/>
+      <path d="M30 31 L34 31" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+      <path d="M28 27 L36 31 L28 35" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="0.8" opacity="0" />
+      <line x1="12" y1="22" x2="12" y2="16" stroke="currentColor" stroke-width="1" opacity="0.35" stroke-linecap="round"/>
+      <line x1="20" y1="22" x2="20" y2="14" stroke="currentColor" stroke-width="1" opacity="0.35" stroke-linecap="round"/>
+      <line x1="44" y1="22" x2="44" y2="16" stroke="currentColor" stroke-width="1" opacity="0.35" stroke-linecap="round"/>
+      <line x1="52" y1="22" x2="52" y2="14" stroke="currentColor" stroke-width="1" opacity="0.35" stroke-linecap="round"/>`,
+  },
+  {
+    id: 'SENTINEL',
+    role: 'Security & Quality Reviewer',
+    step: '06',
+    color: '#7B6FE8',
+    desc: 'Reviews all code for security vulnerabilities, logic errors, architecture problems.',
+    svg: `<path d="M32 10 L50 18 L50 34 C50 44 42 52 32 54 C22 52 14 44 14 34 L14 18 Z" stroke="currentColor" stroke-width="1.5" fill="none"/>
+      <ellipse cx="32" cy="34" rx="9" ry="5.5" stroke="currentColor" stroke-width="1.2" fill="none"/>
+      <circle cx="32" cy="34" r="2.5" fill="currentColor"/>
+      <path d="M18 34 Q24 24 32 24 Q40 24 46 34" stroke="currentColor" stroke-width="1" opacity="0.35" fill="none" stroke-linecap="round"/>`,
+  },
+  {
+    id: 'SHIELD',
+    role: 'Testing & Deployment',
+    step: '07',
+    color: '#4DBFA8',
+    desc: 'Runs test suites, validates deployments, verifies production readiness.',
+    svg: `<path d="M18 28 L26 38 L46 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M22 34 L30 44 L50 24" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+      <path d="M26 40 L34 50 L54 30" stroke="currentColor" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" opacity="0.25"/>`,
+  },
+  {
+    id: 'BEACON',
+    role: 'Documentation Writer',
+    step: '08',
+    color: '#6BA3E8',
+    desc: 'Generates docs, API documentation, architecture notes, client handoff.',
+    svg: `<line x1="32" y1="50" x2="32" y2="22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="32" cy="18" r="4" stroke="currentColor" stroke-width="1.5" fill="none"/>
+      <path d="M22 46 L32 50 L42 46" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M26 30 C20 22 16 16 18 12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.6"/>
+      <path d="M38 30 C44 22 48 16 46 12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.6"/>
+      <path d="M22 36 C14 26 10 18 12 12" stroke="currentColor" stroke-width="0.9" stroke-linecap="round" fill="none" opacity="0.3"/>
+      <path d="M42 36 C50 26 54 18 52 12" stroke="currentColor" stroke-width="0.9" stroke-linecap="round" fill="none" opacity="0.3"/>`,
+  },
+  {
+    id: 'NEXUS',
+    role: 'Build Orchestrator',
+    step: 'ALL',
+    color: '#4A6CB8',
+    desc: 'Coordinates all agents, manages task order, handles errors — the pipeline conductor.',
+    svg: `<polygon points="32,8 55,20.5 55,43.5 32,56 9,43.5 9,20.5" stroke="currentColor" stroke-width="1.5" fill="none"/>
+      <circle cx="32" cy="32" r="5" fill="currentColor" opacity="0.85"/>
       <line x1="32" y1="27" x2="32" y2="14" stroke="currentColor" stroke-width="1" opacity="0.6"/>
       <line x1="36.5" y1="29.4" x2="47" y2="23" stroke="currentColor" stroke-width="1" opacity="0.6"/>
       <line x1="36.5" y1="34.6" x2="47" y2="41" stroke="currentColor" stroke-width="1" opacity="0.6"/>
       <line x1="32" y1="37" x2="32" y2="50" stroke="currentColor" stroke-width="1" opacity="0.6"/>
       <line x1="27.5" y1="34.6" x2="17" y2="41" stroke="currentColor" stroke-width="1" opacity="0.6"/>
-      <line x1="27.5" y1="29.4" x2="17" y2="23" stroke="currentColor" stroke-width="1" opacity="0.6"/>
-    </svg>`,
+      <line x1="27.5" y1="29.4" x2="17" y2="23" stroke="currentColor" stroke-width="1" opacity="0.6"/>`,
   },
-  INTAKE: {
-    color: '#72C4B2',
-    svg: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M12 16 L32 16 L52 16" stroke="currentColor" stroke-width="1.5" opacity="0.4"/>
-      <path d="M16 24 L32 24 L48 24" stroke="currentColor" stroke-width="1.5" opacity="0.6"/>
-      <path d="M20 32 L32 32 L44 32" stroke="currentColor" stroke-width="1.5" opacity="0.8"/>
-      <path d="M24 40 L32 40 L40 40" stroke="currentColor" stroke-width="1.5"/>
-      <path d="M28 48 L32 48 L36 48" stroke="currentColor" stroke-width="1.5" opacity="0.8"/>
-      <circle cx="32" cy="52" r="3" fill="currentColor"/>
-    </svg>`,
-  },
-  SCRIBE: {
-    color: '#7B6FE8',
-    svg: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M22 42 L30 22 L38 42" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M20 50 Q30 42 40 50" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-      <line x1="14" y1="32" x2="22" y2="32" stroke="currentColor" stroke-width="1" opacity="0.5"/>
-      <line x1="14" y1="36" x2="20" y2="36" stroke="currentColor" stroke-width="1" opacity="0.5"/>
-      <line x1="42" y1="32" x2="50" y2="32" stroke="currentColor" stroke-width="1" opacity="0.5"/>
-      <line x1="44" y1="36" x2="50" y2="36" stroke="currentColor" stroke-width="1" opacity="0.5"/>
-    </svg>`,
-  },
-  HERALD: {
-    color: '#4DBFA8',
-    svg: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="32" cy="32" r="5" fill="currentColor"/>
-      <circle cx="32" cy="32" r="11" stroke="currentColor" stroke-width="1" opacity="0.7" fill="none"/>
-      <circle cx="32" cy="32" r="18" stroke="currentColor" stroke-width="1" opacity="0.4" fill="none"/>
-      <circle cx="32" cy="32" r="25" stroke="currentColor" stroke-width="1" opacity="0.2" fill="none"/>
-    </svg>`,
-  },
-  COMPASS: {
-    color: '#72C4B2',
-    svg: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="32" cy="32" r="20" stroke="currentColor" stroke-width="1.5" fill="none"/>
-      <path d="M32 12 L35 26 L32 22 L29 26 Z" fill="currentColor"/>
-      <path d="M32 52 L29 38 L32 42 L35 38 Z" fill="currentColor" opacity="0.5"/>
-      <path d="M12 32 L26 29 L22 32 L26 35 Z" fill="currentColor" opacity="0.5"/>
-      <path d="M52 32 L38 35 L42 32 L38 29 Z" fill="currentColor" opacity="0.5"/>
-      <circle cx="32" cy="32" r="3" fill="currentColor"/>
-    </svg>`,
-  },
-  SENTINEL: {
-    color: '#4DBFA8',
-    svg: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M32 10 L50 18 L50 34 C50 44 42 52 32 54 C22 52 14 44 14 34 L14 18 Z" stroke="currentColor" stroke-width="1.5" fill="none"/>
-      <path d="M18 36 Q22 28 26 32 Q30 36 34 28 Q38 20 42 28" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-    </svg>`,
-  },
-  CHRONICLE: {
-    color: '#72C4B2',
-    svg: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="12" y="44" width="8" height="8" fill="currentColor" opacity="0.5"/>
-      <rect x="24" y="36" width="8" height="16" fill="currentColor" opacity="0.7"/>
-      <rect x="36" y="26" width="8" height="26" fill="currentColor" opacity="0.9"/>
-      <rect x="48" y="16" width="8" height="36" fill="currentColor"/>
-      <path d="M14 40 Q22 32 30 26 Q38 20 52 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/>
-    </svg>`,
-  },
-  MENTOR: {
-    color: '#E8B84D',
-    svg: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M10 42 Q10 32 20 28 L32 24 L44 28 Q54 32 54 42 L54 46 Q32 52 10 46 Z" stroke="currentColor" stroke-width="1.5" fill="none"/>
-      <line x1="32" y1="24" x2="32" y2="14" stroke="currentColor" stroke-width="1.5"/>
-      <path d="M32 14 Q24 10 20 14" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
-      <path d="M32 14 Q40 10 44 14" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
-      <path d="M32 8 Q26 4 22 8" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity="0.3"/>
-      <path d="M32 8 Q38 4 42 8" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity="0.3"/>
-    </svg>`,
-  },
-  CURATOR: {
-    color: '#7B6FE8',
-    svg: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="16" y="12" width="28" height="36" rx="3" stroke="currentColor" stroke-width="1.5" fill="none"/>
-      <line x1="22" y1="22" x2="38" y2="22" stroke="currentColor" stroke-width="1.2" opacity="0.8"/>
-      <line x1="22" y1="28" x2="38" y2="28" stroke="currentColor" stroke-width="1.2" opacity="0.6"/>
-      <line x1="22" y1="34" x2="32" y2="34" stroke="currentColor" stroke-width="1.2" opacity="0.4"/>
-      <rect x="28" y="36" width="20" height="16" rx="3" fill="var(--bg-card)" stroke="currentColor" stroke-width="1.5"/>
-      <line x1="32" y1="42" x2="44" y2="42" stroke="currentColor" stroke-width="1.2" opacity="0.8"/>
-      <line x1="32" y1="46" x2="42" y2="46" stroke="currentColor" stroke-width="1.2" opacity="0.5"/>
-    </svg>`,
-  },
-  WARDEN: {
-    color: '#4DBFA8',
-    svg: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="12" y="18" width="32" height="20" rx="3" stroke="currentColor" stroke-width="1.5" fill="none"/>
-      <line x1="16" y1="26" x2="40" y2="26" stroke="currentColor" stroke-width="1" opacity="0.5"/>
-      <line x1="16" y1="30" x2="36" y2="30" stroke="currentColor" stroke-width="1" opacity="0.5"/>
-      <path d="M44 22 L52 30 L44 38" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-      <circle cx="44" cy="46" r="3" fill="currentColor" opacity="0.3"/>
-      <circle cx="44" cy="46" r="1.5" fill="currentColor" opacity="0.8"/>
-      <circle cx="52" cy="46" r="3" fill="currentColor" opacity="0.6"/>
-      <circle cx="52" cy="46" r="1.5" fill="currentColor"/>
-    </svg>`,
-  },
-  BRIDGE: {
-    color: '#6BA3E8',
-    svg: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="16" cy="32" r="8" stroke="currentColor" stroke-width="1.5" fill="none"/>
-      <circle cx="48" cy="32" r="8" stroke="currentColor" stroke-width="1.5" fill="none"/>
-      <path d="M24 32 L40 32" stroke="currentColor" stroke-width="1.5"/>
-      <path d="M35 28 L40 32 L35 36" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>`,
-  },
-  ORACLE: {
-    color: '#4A6CB8',
-    svg: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="32" cy="32" rx="18" ry="12" stroke="currentColor" stroke-width="1.5" fill="none"/>
-      <circle cx="32" cy="32" r="5" stroke="currentColor" stroke-width="1.5" fill="none"/>
-      <circle cx="32" cy="32" r="2" fill="currentColor"/>
-      <line x1="14" y1="24" x2="22" y2="28" stroke="currentColor" stroke-width="1" opacity="0.4"/>
-      <line x1="14" y1="40" x2="22" y2="36" stroke="currentColor" stroke-width="1" opacity="0.4"/>
-      <line x1="50" y1="24" x2="42" y2="28" stroke="currentColor" stroke-width="1" opacity="0.4"/>
-      <line x1="50" y1="40" x2="42" y2="36" stroke="currentColor" stroke-width="1" opacity="0.4"/>
-    </svg>`,
-  },
-  PULSE: {
-    color: '#E8916F',
-    svg: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="32" cy="32" r="22" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.3"/>
-      <path d="M10 32 L20 32 L24 20 L28 44 L32 26 L36 38 L40 32 L54 32" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>`,
-  },
-};
+];
 
-const AGENTS = [
-  { id: 'NEXUS', title: 'Operations Director', desc: 'Coordinates the entire team. Routes tasks. Manages priorities.', divisions: ['All'] },
-  { id: 'INTAKE', title: 'Lead Analyst', desc: 'Reads every inquiry. Scores and classifies. Makes sure the right person responds within hours.', divisions: ['All'] },
-  { id: 'HERALD', title: 'Communications Lead', desc: 'Manages all email communication. Drafts responses, schedules follow-ups. Every email approved by a founder before it reaches you.', divisions: ['All'] },
-  { id: 'SCRIBE', title: 'Content Writer', desc: 'Researches topics, writes articles, maintains the blog. Everything published goes through human review.', divisions: ['Labs', 'Academy'] },
-  { id: 'SENTINEL', title: 'Systems Monitor', desc: 'Watches your software 24/7. Detects issues before they become problems. Never sleeps.', divisions: ['Services', 'Cloud'] },
-  { id: 'COMPASS', title: 'Pipeline Manager', desc: 'Watches every lead\'s journey. Flags when someone needs attention. Recommends next steps.', divisions: ['Studio', 'Services', 'Cloud'] },
-  { id: 'WARDEN', title: 'Support Triage', desc: 'Reads every support ticket. Classifies urgency. Routes to the right engineer.', divisions: ['Services'] },
-  { id: 'CHRONICLE', title: 'Analytics Lead', desc: 'Generates daily reports, tracks metrics, identifies trends. The team\'s memory.', divisions: ['All'] },
-  { id: 'ORACLE', title: 'Strategy Analyst', desc: 'Forecasts revenue. Detects churn risk. Scores pipeline health. Sees patterns humans miss.', divisions: ['All'] },
-  { id: 'MENTOR', title: 'Course Designer', desc: 'Creates educational content. Designs syllabi. Writes lessons. All content reviewed by humans before publishing.', divisions: ['Academy'] },
-  { id: 'CURATOR', title: 'Newsletter Editor', desc: 'Curates the best content each month. Writes the editorial. Prepares the newsletter.', divisions: ['All'] },
-  { id: 'BRIDGE', title: 'Partnership Advisor', desc: 'Identifies when a client needs more than one division. Creates cross-referrals. Connects the dots.', divisions: ['All'] },
-  { id: 'PULSE', title: 'System Health', desc: 'Monitors the AI team itself. Makes sure every agent is running correctly. The agent that watches the agents.', divisions: ['Internal'] },
+// Pipeline steps (excluding NEXUS which orchestrates all)
+const PIPELINE = [
+  { id: 'SCOUT', color: '#72C4B2', label: 'Requirements' },
+  { id: 'HUNTER', color: '#4A6CB8', label: 'Research' },
+  { id: 'ATLAS', color: '#3A589E', label: 'Architecture' },
+  { id: 'MIRROR+FORGE', color: '#E8916F', label: 'Build (parallel)', parallel: true },
+  { id: 'HAMMER', color: '#E8B84D', label: 'Integration' },
+  { id: 'SENTINEL', color: '#7B6FE8', label: 'Security Review' },
+  { id: 'SHIELD', color: '#4DBFA8', label: 'Testing & Deploy' },
+  { id: 'BEACON', color: '#6BA3E8', label: 'Documentation' },
+];
+
+const DIVISIONS = [
+  { name: 'Studio', slug: 'studio', accent: '#72C4B2', desc: 'Custom software development for founders and SMBs' },
+  { name: 'Services', slug: 'services', accent: '#4DBFA8', desc: 'Ongoing maintenance, monitoring, and bug fixes' },
+  { name: 'Labs', slug: 'labs', accent: '#7B6FE8', desc: 'Research, open source, and public experiments' },
+  { name: 'Products', slug: 'products', accent: '#E8916F', desc: 'FabricxAI, NEXUS ARIA, DevBridge OS' },
+  { name: 'Academy', slug: 'academy', accent: '#E8B84D', desc: 'Courses, workshops, and corporate training' },
+  { name: 'Ventures', slug: 'ventures', accent: '#6BA3E8', desc: 'Equity co-builds with early-stage startups' },
+  { name: 'Cloud', slug: 'cloud', accent: '#5BB5E0', desc: 'Managed infrastructure and hosting' },
+  { name: 'Technology', slug: '', accent: '#4A6CB8', desc: 'Parent company — strategy, research, and leadership' },
 ];
 
 const SUPERVISORS = [
-  { division: 'Studio', color: '#72C4B2', desc: 'Review all AI-generated code, architecture decisions, and client deliverables.' },
-  { division: 'Agents', color: '#8B5CF6', desc: 'Monitor deployed agents, review accuracy, handle edge cases in production.' },
-  { division: 'Services', color: '#4DBFA8', desc: 'Verify bug fixes, review security patches, validate performance changes.' },
-  { division: 'Cloud', color: '#5BB5E0', desc: 'Verify deployment configs, review scaling decisions, security audit.' },
-  { division: 'Academy', color: '#E8B84D', desc: 'Review course content for accuracy, test assessments, moderate community.' },
-  { division: 'Labs', color: '#7B6FE8', desc: 'Validate experiment results, review publications, maintain methodology.' },
-  { division: 'Products', color: '#E8916F', desc: 'Monitor production platforms (FabricxAI, NEXARA, DevBridge).' },
-  { division: 'Ventures', color: '#6BA3E8', desc: 'Review application evaluations, validate term sheet recommendations.' },
+  { division: 'Studio', role: 'Lead Software Architect', accent: '#72C4B2' },
+  { division: 'Services', role: 'Site Reliability Engineer', accent: '#4DBFA8' },
+  { division: 'Labs', role: 'Research Engineer', accent: '#7B6FE8' },
+  { division: 'Products', role: 'Product Engineer', accent: '#E8916F' },
+  { division: 'Academy', role: 'Curriculum Architect', accent: '#E8B84D' },
+  { division: 'Ventures', role: 'Technical Due Diligence Lead', accent: '#6BA3E8' },
+  { division: 'Cloud', role: 'Infrastructure Engineer', accent: '#5BB5E0' },
+  { division: 'Technology', role: 'Chief of Staff (AI Operations)', accent: '#4A6CB8' },
 ];
 
-const DIVISIONS: { name: string; slug: DivisionSlug; accent: string; desc: string; url: string }[] = [
-  { name: 'Studio', slug: 'studio', accent: '#72C4B2', desc: 'Custom software development', url: '/studio' },
-  { name: 'Services', slug: 'services', accent: '#4DBFA8', desc: 'Maintenance & monitoring', url: '/services' },
-  { name: 'Labs', slug: 'labs', accent: '#7B6FE8', desc: 'Research & open source', url: '/labs' },
-  { name: 'Products', slug: 'products', accent: '#E8916F', desc: 'Own platforms & tools', url: '/products' },
-  { name: 'Academy', slug: 'academy', accent: '#E8B84D', desc: 'Courses & education', url: '/academy' },
-  { name: 'Ventures', slug: 'ventures', accent: '#6BA3E8', desc: 'Equity co-builds', url: '/ventures' },
-  { name: 'Cloud', slug: 'cloud', accent: '#5BB5E0', desc: 'Managed infrastructure', url: '/cloud' },
-  { name: 'Agents', slug: 'agents' as DivisionSlug, accent: '#8B5CF6', desc: 'AI agent subscriptions', url: '/aaas' },
+const VALUES_SUMMARY = [
+  { num: '01', title: 'We say what things cost.', href: '/about/values#value-1' },
+  { num: '02', title: 'We explain in plain English.', href: '/about/values#value-2' },
+  { num: '03', title: 'We build things that work.', href: '/about/values#value-3' },
+  { num: '04', title: 'Your code is yours.', href: '/about/values#value-4' },
+  { num: '05', title: "We tell you when AI isn't the answer.", href: '/about/values#value-5' },
+  { num: '06', title: 'We stay.', href: '/about/values#value-6' },
 ];
 
-const TIMELINE_EVENTS = [
-  { date: 'Aug 2024', title: 'SocioFi Technology founded', desc: 'Arifur Rahman and Kamrul Hasan launch from Dhaka, Bangladesh.', badge: 'MILESTONE' },
-  { date: 'Sep 2024', title: 'FabricxAI development begins', desc: 'Our first multi-agent system — proving AI agents work in production.' },
-  { date: 'Oct 2024', title: 'First 5 agents deployed', desc: 'Quality control agents running in garment factories.' },
-  { date: 'Dec 2024', title: 'Component library v2 (AI-optimized)', desc: 'Restructured how AI agents generate code. Errors dropped 70%.', badge: 'LABS' },
-  { date: 'Jan 2025', title: 'FabricxAI reaches 22 agents', desc: 'Full manufacturing intelligence platform live in production.', badge: 'MILESTONE' },
-  { date: 'Mar 2025', title: 'NEXUS ARIA development begins', desc: '13-agent GTM operations system for enterprise data analysis.' },
-  { date: 'Jun 2025', title: 'DevBridge OS goes internal', desc: 'Our 10-agent development pipeline powers every Studio project.' },
-  { date: 'Sep 2025', title: 'AI pair programming study completed', desc: '4.2x feature output. Labs publishes results.', badge: 'LABS' },
-  { date: 'Dec 2025', title: 'NEXUS admin agent system launched', desc: '13 AI agents now run SocioFi\'s own operations.', badge: 'MILESTONE' },
-  { date: 'Mar 2026', title: 'SocioFi website launches with 8 divisions', desc: 'Studio, Agents, Services, Cloud, Labs, Products, Academy, Ventures.' },
-  { date: 'Now', title: 'Building the team', desc: 'Hiring human division supervisors. Growing the agent catalog. Accepting Ventures applications.', badge: 'NOW' },
-];
-
-const VALUES = [
-  { title: '"We say what things cost."', body: 'Real numbers on the website. No "contact sales." No surprise change orders.' },
-  { title: '"We explain in plain English."', body: 'Every update written for business people, not developers. No jargon, no mystery.' },
-  { title: '"We build things that work."', body: 'Production systems, not demos. Every line reviewed by a human engineer.' },
-  { title: '"Your code is yours."', body: '100% ownership. No lock-in. Leave anytime with everything. Full IP transfer.' },
-  { title: '"We tell you when AI isn\'t the answer."', body: 'Honest about limitations. We\'d rather lose a deal than promise the wrong thing.' },
-  { title: '"We stay."', body: 'Same team builds and maintains. No handoff. No starting over six months later.' },
-];
-
-// ── Agent Avatar Component ────────────────────────────────────────────────────
-
-function AgentAvatar({ agentId, size = 64 }: { agentId: string; size?: number }) {
-  const agent = AGENT_AVATARS[agentId];
-  if (!agent) return null;
+function AgentAvatar({ id, color, svgContent }: { id: string; color: string; svgContent: string }) {
   return (
     <div style={{
-      width: size, height: size, borderRadius: '50%',
-      background: `${agent.color}18`,
-      border: `2px solid ${agent.color}50`,
+      width: 64, height: 64, borderRadius: '50%',
+      border: `1.5px solid ${color}40`,
+      background: `${color}10`,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      color: agent.color, flexShrink: 0,
+      flexShrink: 0,
       animation: 'agentPulse 4s ease-in-out infinite',
     }}>
-      <div
-        style={{ width: size * 0.55, height: size * 0.55 }}
-        dangerouslySetInnerHTML={{ __html: agent.svg }}
+      <svg
+        viewBox="0 0 64 64"
+        style={{ width: 36, height: 36, color }}
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+        dangerouslySetInnerHTML={{ __html: svgContent }}
       />
     </div>
   );
 }
-
-// ── Subpage nav ───────────────────────────────────────────────────────────────
-
-
-// ── Main Page ─────────────────────────────────────────────────────────────────
 
 export default function AboutPage() {
   return (
@@ -245,653 +222,368 @@ export default function AboutPage() {
           0%, 100% { transform: scale(1); opacity: 1; }
           50% { transform: scale(1.025); opacity: 0.85; }
         }
-        @keyframes nowPulse {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.5; transform: scale(0.85); }
-        }
-        .agent-card:hover { transform: translateY(-3px); border-color: var(--border-hover) !important; }
-        .agent-card:hover .agent-avatar { animation-duration: 1s !important; }
-        .value-card:hover { transform: translateY(-4px); border-color: var(--teal) !important; }
-        .division-node:hover { transform: scale(1.05); }
-        .supervisor-card { opacity: 0.7; }
-        .supervisor-card:hover { opacity: 0.9; }
+        @keyframes nowDot { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .about-agent-card:hover .agent-card-border { opacity: 1 !important; }
+        .about-agent-card:hover { transform: translateY(-4px); }
+        .about-agent-card { transition: transform 0.35s var(--ease); }
+        .division-card:hover { border-color: var(--card-accent-color) !important; transform: translateY(-3px); }
+        .division-card { transition: all 0.3s var(--ease); }
+        .value-card:hover { border-color: var(--teal) !important; }
+        .value-card { transition: border-color 0.2s; }
 
-        /* ── About page mobile ── */
         @media (max-width: 640px) {
-          .about-founder-cards {
-            grid-template-columns: 1fr !important;
-          }
-          .about-founder-card-inner {
-            padding: 28px 24px !important;
-          }
-          .about-founder-avatar-circle {
-            width: 56px !important; height: 56px !important;
-            font-size: 1rem !important;
-          }
-          .about-stats-row {
-            gap: 20px 28px !important;
-          }
-          .about-metrics-row {
-            gap: 20px 28px !important;
-          }
-          .about-agent-grid {
-            grid-template-columns: 1fr !important;
-          }
-          .about-division-grid {
-            grid-template-columns: 1fr 1fr !important;
-          }
-          .about-supervisor-grid {
-            grid-template-columns: 1fr !important;
-          }
-          .about-values-grid {
-            grid-template-columns: 1fr !important;
-          }
-          .about-timeline-inner {
-            max-width: 100% !important;
-          }
-          .about-flow-steps {
-            flex-direction: column !important;
-            align-items: flex-start !important;
-          }
-        }
-        @media (max-width: 768px) {
-          .about-hero { padding-top: 120px !important; padding-bottom: 64px !important; }
+          .about-hero-grid { grid-template-columns: 1fr !important; }
+          .about-founder-cards { grid-template-columns: 1fr !important; }
+          .about-agent-grid { grid-template-columns: 1fr !important; }
+          .about-division-grid { grid-template-columns: 1fr 1fr !important; }
+          .about-supervisor-grid { grid-template-columns: 1fr 1fr !important; }
+          .about-values-grid { grid-template-columns: 1fr 1fr !important; }
+          .pipeline-flow { flex-direction: column !important; }
+          .pipeline-arrow { transform: rotate(90deg) !important; }
         }
       `}</style>
 
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <section className="about-hero" style={{
-        paddingTop: 160, paddingBottom: 100,
-        background: 'var(--bg)',
-        position: 'relative', overflow: 'hidden',
-        textAlign: 'center',
-      }}>
-        {/* Background orbs */}
+      <section style={{ paddingTop: 160, paddingBottom: 100, background: 'var(--bg)', position: 'relative', overflow: 'hidden', textAlign: 'center' }}>
         <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-          <div style={{ position: 'absolute', top: '20%', left: '15%', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(58,88,158,0.12) 0%, transparent 70%)', filter: 'blur(60px)' }} />
-          <div style={{ position: 'absolute', top: '30%', right: '10%', width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(89,163,146,0.08) 0%, transparent 70%)', filter: 'blur(60px)' }} />
+          <div style={{ position: 'absolute', top: '10%', left: '10%', width: 700, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(58,88,158,0.08) 0%, transparent 70%)', filter: 'blur(100px)' }} />
+          <div style={{ position: 'absolute', bottom: '5%', right: '5%', width: 500, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(89,163,146,0.07) 0%, transparent 70%)', filter: 'blur(80px)' }} />
         </div>
-
         <Container>
-          <p className="sec-label" style={{ justifyContent: 'center' }}>About SocioFi</p>
-
-          <h1 style={{
-            fontFamily: 'var(--font-headline)',
-            fontSize: 'clamp(2.4rem, 5vw, 3.6rem)',
-            fontWeight: 800,
-            letterSpacing: '-0.035em',
-            lineHeight: 1.06,
-            color: 'var(--text-primary)',
-            marginBottom: 28,
-            maxWidth: 800,
-            marginInline: 'auto',
-          }}>
-            Two Founders. Thirteen AI Agents.{' '}
-            <span className="gradient-text">One Mission.</span>
-          </h1>
-
-          <p style={{
-            fontFamily: 'var(--font-body)',
-            fontSize: 'clamp(1rem, 1.5vw, 1.15rem)',
-            lineHeight: 1.85,
-            color: 'var(--text-secondary)',
-            maxWidth: 620,
-            marginInline: 'auto',
-            marginBottom: 48,
-          }}>
-            SocioFi Technology was founded on August 1, 2024, to solve a problem that shouldn&apos;t exist:
-            great software shouldn&apos;t require a Fortune 500 budget or a computer science degree to get built.
-            We&apos;re a small, AI-native company — and that&apos;s by design.
-          </p>
-
-          {/* Founding stats */}
-          <div style={{
-            display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '32px 48px',
-          }}>
-            {[
-              { value: 'Aug 1, 2024', label: 'Founded' },
-              { value: 'Dhaka, Bangladesh', label: 'Based in' },
-              { value: '2 humans + 13 AI agents', label: 'Team' },
-              { value: '45+', label: 'Agents deployed' },
-            ].map((s) => (
-              <div key={s.label} style={{ textAlign: 'center' }}>
-                <div style={{
-                  fontFamily: 'var(--font-headline)',
-                  fontSize: 'clamp(1rem, 2vw, 1.4rem)',
-                  fontWeight: 700,
-                  color: 'var(--text-primary)',
-                  letterSpacing: '-0.02em',
-                }}>
-                  {s.value}
+          <ScrollReveal>
+            <p className="sec-label" style={{ justifyContent: 'center' }}>About SocioFi Technology</p>
+            <h1 style={{ fontFamily: 'var(--font-headline)', fontSize: 'clamp(2.6rem, 5vw, 4rem)', fontWeight: 800, letterSpacing: '-0.035em', color: 'var(--text-primary)', marginBottom: 24, lineHeight: 1.06 }}>
+              Two Founders.<br />
+              <span className="gradient-text">Ten AI Developers.</span>
+            </h1>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: '1.15rem', lineHeight: 1.8, color: 'var(--text-secondary)', maxWidth: 620, marginInline: 'auto', marginBottom: 48 }}>
+              SocioFi Technology is an AI-native software development company based in Dhaka, Bangladesh. We operate 10 AI development agents and 8 divisions — and we&apos;re radically transparent about all of it.
+            </p>
+            {/* Founding stats */}
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '16px 48px', flexWrap: 'wrap' }}>
+              {[
+                { value: 'Aug 1, 2024', label: 'Founded' },
+                { value: '10', label: 'AI dev agents' },
+                { value: '8', label: 'Divisions' },
+                { value: 'Dhaka, BD', label: 'Headquarters' },
+              ].map((s) => (
+                <div key={s.label} style={{ textAlign: 'center' }}>
+                  <div style={{ fontFamily: 'var(--font-headline)', fontSize: '1.6rem', fontWeight: 800, color: 'var(--teal)', letterSpacing: '-0.03em', lineHeight: 1.1 }}>{s.value}</div>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: 4 }}>{s.label}</div>
                 </div>
-                <div style={{
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '0.62rem',
-                  color: 'var(--text-muted)',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.12em',
-                  marginTop: 4,
-                }}>
-                  {s.label}
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </ScrollReveal>
         </Container>
       </section>
 
       <AboutSubNav active="/about" />
 
-      {/* ── The Origin ───────────────────────────────────────────────────── */}
-      <section style={{ paddingBlock: 'var(--space-section)', background: 'var(--bg)' }}>
+      {/* ── Origin Story ─────────────────────────────────────────────────── */}
+      <section style={{ paddingBlock: 'var(--space-section)', background: 'var(--bg-2)' }}>
         <Container>
-          <ScrollReveal>
-            <div style={{ maxWidth: 720, marginInline: 'auto' }}>
-              <p className="sec-label">How It Started</p>
-              <h2 style={{
-                fontFamily: 'var(--font-headline)',
-                fontSize: 'clamp(1.8rem, 3vw, 2.4rem)',
-                fontWeight: 700,
-                letterSpacing: '-0.02em',
-                color: 'var(--text-primary)',
-                marginBottom: 32,
-              }}>
-                We Built SocioFi Because This Problem Shouldn&apos;t Exist.
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'start', maxWidth: 1100, marginInline: 'auto' }} className="about-hero-grid">
+            <ScrollReveal>
+              <p className="sec-label">The origin</p>
+              <h2 style={{ fontFamily: 'var(--font-headline)', fontSize: 'clamp(1.8rem, 3vw, 2.4rem)', fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--text-primary)', marginBottom: 24, lineHeight: 1.15 }}>
+                Built to close the gap AI tools left open.
               </h2>
-
-              <div style={{ fontFamily: 'var(--font-body)', fontSize: '1.05rem', lineHeight: 1.85, color: 'var(--text-secondary)' }}>
-                <p style={{ marginBottom: 20 }}>
-                  In early 2024, Arifur Rahman had ideas he couldn&apos;t build. Not because the ideas were bad — because the development industry was broken. Agencies quoted $50K–$200K and timelines measured in quarters. Freelancers started strong and vanished. AI coding tools got him 70% there — but deployment, databases, security, and the hundred things that make software actually work in production? That was a wall he couldn&apos;t climb alone.
-                </p>
-                <p style={{ marginBottom: 20 }}>
-                  He wasn&apos;t alone. Every founder he talked to had the same story. Every small business owner who needed custom software hit the same wall. Smart people. Validated ideas. Stuck at the gap between &ldquo;AI can build this&rdquo; and &ldquo;this actually runs in production.&rdquo;
-                </p>
-                <p style={{ marginBottom: 40 }}>
-                  Kamrul Hasan saw the same problem from the engineering side. As a BUET-trained computer scientist, he watched AI tools generate impressive code that fell apart in production. On August 1, 2024, they launched SocioFi Technology. Not as another agency. Not as an AI tool. As the team that bridges the gap.
-                </p>
+              <p style={{ fontFamily: 'var(--font-body)', fontSize: '1rem', lineHeight: 1.85, color: 'var(--text-secondary)', marginBottom: 20 }}>
+                In early 2024, Arifur Rahman had a product idea, a working prototype, and a deployment problem that no AI tool would fix. Agencies quoted $80,000. Freelancers disappeared. The AI code worked on localhost and broke in production.
+              </p>
+              <p style={{ fontFamily: 'var(--font-body)', fontSize: '1rem', lineHeight: 1.85, color: 'var(--text-secondary)', marginBottom: 20 }}>
+                Kamrul Hasan was watching the same problem from the other side — a BUET-trained engineer who had reviewed hundreds of AI-generated codebases. The code looked right. The security configurations had subtle flaws. The database queries worked under light load and became catastrophically slow at scale.
+              </p>
+              <p style={{ fontFamily: 'var(--font-body)', fontSize: '1rem', lineHeight: 1.85, color: 'var(--text-secondary)' }}>
+                They founded SocioFi to be the team that bridges that gap — AI agents for the volume, engineers for the judgment.
+              </p>
+            </ScrollReveal>
+            <ScrollReveal delay={0.15}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {[
+                  { label: 'Problem', text: 'AI coding tools build the code. Nobody builds the production system around it.' },
+                  { label: 'The Gap', text: 'Deployment, security, scaling, debugging, maintenance — AI tools leave these to humans who don\'t have them.' },
+                  { label: 'Our Answer', text: 'A hybrid team: 10 AI agents handle the volume, human engineers handle the judgment. Both, together, at a fixed price.' },
+                ].map((item) => (
+                  <div key={item.label} style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '20px 24px' }}>
+                    <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', color: 'var(--teal)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8 }}>{item.label}</p>
+                    <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.92rem', lineHeight: 1.7, color: 'var(--text-secondary)', margin: 0 }}>{item.text}</p>
+                  </div>
+                ))}
               </div>
-
-              {/* Pull quote */}
-              <div style={{
-                background: 'var(--glass-bg)',
-                border: '1px solid var(--glass-border)',
-                borderRadius: 'var(--radius-lg)',
-                padding: '32px 36px',
-                backdropFilter: 'blur(12px)',
-              }}>
-                <p style={{
-                  fontFamily: 'var(--font-body)',
-                  fontSize: '1.05rem',
-                  fontStyle: 'italic',
-                  lineHeight: 1.75,
-                  color: 'var(--text-primary)',
-                  marginBottom: 16,
-                }}>
-                  &ldquo;We didn&apos;t start by pitching clients. We started by building FabricxAI — a 22-agent manufacturing platform. We needed to prove to ourselves that multi-agent AI systems work in production. Not in a demo. In a factory.&rdquo;
-                </p>
-                <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--teal)', letterSpacing: '0.06em', margin: 0 }}>
-                  — KAMRUL HASAN, CTO
-                </p>
-              </div>
-            </div>
-          </ScrollReveal>
+            </ScrollReveal>
+          </div>
         </Container>
       </section>
 
       {/* ── 8 Divisions ──────────────────────────────────────────────────── */}
-      <section style={{ paddingBlock: 'var(--space-section)', background: 'var(--bg-2)' }}>
-        <Container>
-          <ScrollReveal>
-            <SectionHeader
-              label="Today"
-              title="8 Divisions. 45+ Agents. Real Products in Production."
-              centered
-              className="mb-14"
-            />
-          </ScrollReveal>
-
-          <div className="about-division-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: 48 }}>
-            <StaggerChildren>
-            {DIVISIONS.map((div) => (
-              <StaggerItem key={div.slug}>
-                <a
-                  href={div.url}
-                  className="division-node"
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 14,
-                    padding: '20px 24px',
-                    background: 'var(--bg-card)',
-                    border: `1px solid ${div.accent}30`,
-                    borderRadius: 'var(--radius-md)',
-                    textDecoration: 'none',
-                    transition: 'all 0.3s var(--ease)',
-                  }}
-                >
-                  <LogoMark division={div.slug} size="sm" />
-                  <div>
-                    <div style={{ fontFamily: 'var(--font-headline)', fontSize: '0.95rem', fontWeight: 600, color: 'var(--text-primary)' }}>{div.name}</div>
-                    <div style={{ fontFamily: 'var(--font-body)', fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 2 }}>{div.desc}</div>
-                  </div>
-                </a>
-              </StaggerItem>
-            ))}
-          </StaggerChildren>
-          </div>
-
-          {/* Metrics */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '24px 48px' }}>
-            {[
-              { value: '45+', label: 'production agents' },
-              { value: '3', label: 'live platforms' },
-              { value: '8', label: 'specialized divisions' },
-              { value: 'Global', label: 'serving clients from Dhaka' },
-            ].map((m) => (
-              <div key={m.label} style={{ textAlign: 'center' }}>
-                <div style={{ fontFamily: 'var(--font-headline)', fontSize: '2rem', fontWeight: 700, color: 'var(--teal)', letterSpacing: '-0.03em' }}>{m.value}</div>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.66rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: 4 }}>{m.label}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* CEO quote */}
-          <div style={{ maxWidth: 640, marginInline: 'auto', marginTop: 48, textAlign: 'center' }}>
-            <p style={{ fontFamily: 'var(--font-body)', fontSize: '1rem', fontStyle: 'italic', lineHeight: 1.75, color: 'var(--text-secondary)', marginBottom: 12 }}>
-              &ldquo;We structured SocioFi as eight divisions because accountability requires specialization. When the team that builds your software also hosts it and maintains it, nobody can point fingers. If something breaks, it&apos;s on us.&rdquo;
-            </p>
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--teal)', letterSpacing: '0.06em', margin: 0 }}>— ARIFUR RAHMAN, CEO</p>
-          </div>
-        </Container>
-      </section>
-
-      {/* ── The Team ─────────────────────────────────────────────────────── */}
       <section style={{ paddingBlock: 'var(--space-section)', background: 'var(--bg)' }}>
         <Container>
           <ScrollReveal>
-            <SectionHeader
-              label="The Team"
-              title="2 Founders. 13 AI Agents. Future Human Supervisors."
-              subtitle="We don't pretend to be a 50-person agency. We're a small, AI-native company where AI agents do the operational work and human founders make the decisions."
-              centered
-              className="mb-16"
-            />
+            <SectionHeader label="8 divisions" title="One Company, Eight Specialisations" subtitle="Every division is a distinct capability. Same standards, same team, different focus." centered className="mb-14" />
           </ScrollReveal>
-
-          {/* Sub A: Founders */}
-          <ScrollReveal>
-            <p className="sec-label" style={{ marginBottom: 24 }}>The Founders — Human</p>
-          </ScrollReveal>
-
-          <div className="about-founder-cards" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24, marginBottom: 80 }}>
-            {/* Arifur */}
-            <ScrollReveal direction="right">
-              <div style={{
-                background: 'var(--glass-bg)',
-                border: '1px solid var(--glass-border)',
-                borderRadius: 'var(--radius-lg)',
-                padding: '40px 40px',
-                backdropFilter: 'blur(12px)',
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 24 }}>
-                  <div style={{
-                    width: 72, height: 72, borderRadius: '50%',
-                    background: 'linear-gradient(135deg, var(--navy) 0%, var(--teal) 100%)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontFamily: 'var(--font-headline)', fontWeight: 800, fontSize: '1.4rem', color: 'white', flexShrink: 0,
-                  }}>AR</div>
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', color: 'var(--teal)', border: '1px solid var(--teal)', borderRadius: 'var(--radius-full)', padding: '2px 8px', letterSpacing: '0.06em' }}>HUMAN</span>
-                    </div>
-                    <h3 style={{ fontFamily: 'var(--font-headline)', fontWeight: 800, fontSize: '1.15rem', color: 'var(--text-primary)', margin: 0 }}>Arifur Rahman</h3>
-                    <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'var(--teal)', letterSpacing: '0.06em', margin: '4px 0 0' }}>CEO & CO-FOUNDER</p>
-                  </div>
-                </div>
-                <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.9rem', lineHeight: 1.75, color: 'var(--text-secondary)', marginBottom: 20 }}>
-                  The non-technical founder who built SocioFi because he lived the problem it solves. Handles business strategy, client relationships, pricing, and company vision across all eight divisions.
-                </p>
-                <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.88rem', fontStyle: 'italic', color: 'var(--teal)', lineHeight: 1.6, marginBottom: 20 }}>
-                  &ldquo;I built SocioFi for the version of me that existed two years ago — a founder with a great idea and no way to get it built without going broke or getting burned.&rdquo;
-                </p>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                  {['BUET', 'Dhaka, Bangladesh', 'Since Aug 1, 2024'].map((tag) => (
-                    <span key={tag} style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', color: 'var(--text-muted)', border: '1px solid var(--border)', borderRadius: 'var(--radius-full)', padding: '3px 10px' }}>{tag}</span>
-                  ))}
-                </div>
-              </div>
-            </ScrollReveal>
-
-            {/* Kamrul */}
-            <ScrollReveal direction="left">
-              <div style={{
-                background: 'var(--glass-bg)',
-                border: '1px solid var(--glass-border)',
-                borderRadius: 'var(--radius-lg)',
-                padding: '40px 40px',
-                backdropFilter: 'blur(12px)',
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 24 }}>
-                  <div style={{
-                    width: 72, height: 72, borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #7B6FE8 0%, #4A6CB8 100%)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontFamily: 'var(--font-headline)', fontWeight: 800, fontSize: '1.4rem', color: 'white', flexShrink: 0,
-                  }}>KH</div>
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', color: 'var(--teal)', border: '1px solid var(--teal)', borderRadius: 'var(--radius-full)', padding: '2px 8px', letterSpacing: '0.06em' }}>HUMAN</span>
-                    </div>
-                    <h3 style={{ fontFamily: 'var(--font-headline)', fontWeight: 800, fontSize: '1.15rem', color: 'var(--text-primary)', margin: 0 }}>Kamrul Hasan</h3>
-                    <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'var(--teal)', letterSpacing: '0.06em', margin: '4px 0 0' }}>CTO & CO-FOUNDER</p>
-                  </div>
-                </div>
-                <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.9rem', lineHeight: 1.75, color: 'var(--text-secondary)', marginBottom: 20 }}>
-                  BUET Computer Science graduate who built every technical system SocioFi runs on — FabricxAI, NEXUS ARIA, DevBridge, and the 13-agent NEXUS operations system. Handles architecture, AI development, and engineering standards.
-                </p>
-                <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.88rem', fontStyle: 'italic', color: 'var(--teal)', lineHeight: 1.6, marginBottom: 20 }}>
-                  &ldquo;The most dangerous thing in our industry is a company that tells clients AI can do everything. It can&apos;t. Knowing the boundaries is what makes us good at this.&rdquo;
-                </p>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                  {['BUET CS', 'Dhaka, Bangladesh', 'Since Aug 1, 2024'].map((tag) => (
-                    <span key={tag} style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', color: 'var(--text-muted)', border: '1px solid var(--border)', borderRadius: 'var(--radius-full)', padding: '3px 10px' }}>{tag}</span>
-                  ))}
-                </div>
-              </div>
-            </ScrollReveal>
-          </div>
-
-          {/* Sub B: AI Agents */}
-          <ScrollReveal>
-            <p className="sec-label" style={{ marginBottom: 8 }}>The AI Agent Team — Running 24/7</p>
-            <h3 style={{ fontFamily: 'var(--font-headline)', fontWeight: 700, fontSize: 'clamp(1.4rem, 2.5vw, 1.9rem)', color: 'var(--text-primary)', letterSpacing: '-0.02em', marginBottom: 12 }}>
-              Meet the Team That Never Sleeps.
-            </h3>
-            <p style={{ fontFamily: 'var(--font-body)', fontSize: '1rem', lineHeight: 1.75, color: 'var(--text-secondary)', maxWidth: 680, marginBottom: 12 }}>
-              13 AI agents — each with a specific job, running 24/7, coordinated by the NEXUS orchestrator. Every agent&apos;s output is reviewed by a founder before it reaches a client.
-            </p>
-          </ScrollReveal>
-
-          {/* CTO quote */}
-          <ScrollReveal>
-            <div style={{ maxWidth: 680, marginBottom: 40, paddingLeft: 20, borderLeft: '2px solid var(--teal)' }}>
-              <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.95rem', fontStyle: 'italic', lineHeight: 1.75, color: 'var(--text-secondary)', marginBottom: 8 }}>
-                &ldquo;People ask &apos;how does a 2-person company serve multiple clients?&apos; This is how. Thirteen specialized agents handle the operational load that would normally require a team of 20.&rdquo;
-              </p>
-              <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'var(--teal)', letterSpacing: '0.06em', margin: 0 }}>— KAMRUL HASAN, CTO</p>
-            </div>
-          </ScrollReveal>
-
-          {/* Agent grid */}
-          <div className="about-agent-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 16, marginBottom: 48 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }} className="about-division-grid">
             <StaggerChildren>
-            {AGENTS.map((agent) => {
-              const avatarColor = AGENT_AVATARS[agent.id]?.color || '#72C4B2';
-              return (
-                <StaggerItem key={agent.id}>
+              {DIVISIONS.map((div) => (
+                <StaggerItem key={div.slug}>
                   <a
-                    href={`/about/team#${agent.id.toLowerCase()}`}
-                    className="agent-card"
+                    href={div.slug ? `/${div.slug}` : '/'}
+                    className="division-card"
                     style={{
-                      display: 'flex', flexDirection: 'column', gap: 12,
-                      padding: '24px',
-                      background: 'var(--bg-card)',
-                      border: '1px solid var(--border)',
-                      borderRadius: 'var(--radius-md)',
-                      textDecoration: 'none',
-                      transition: 'all 0.3s var(--ease)',
-                      cursor: 'pointer',
+                      display: 'block', textDecoration: 'none',
+                      background: 'var(--bg-card)', border: '1px solid var(--border)',
+                      borderRadius: 'var(--radius-md)', padding: '20px 22px',
+                      ['--card-accent-color' as string]: div.accent,
                     }}
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                      <div className="agent-avatar">
-                        <AgentAvatar agentId={agent.id} size={52} />
-                      </div>
-                      <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
-                          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.58rem', color: avatarColor, border: `1px solid ${avatarColor}60`, borderRadius: 'var(--radius-full)', padding: '1px 7px', letterSpacing: '0.06em' }}>AI AGENT</span>
-                          <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e', animation: 'nowPulse 2s ease-in-out infinite', display: 'inline-block' }} />
-                        </div>
-                        <h4 style={{ fontFamily: 'var(--font-headline)', fontWeight: 700, fontSize: '0.92rem', color: 'var(--text-primary)', margin: 0 }}>{agent.id}</h4>
-                        <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', color: avatarColor, letterSpacing: '0.05em', margin: '2px 0 0', textTransform: 'uppercase' }}>{agent.title}</p>
-                      </div>
-                    </div>
-                    <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.8rem', lineHeight: 1.65, color: 'var(--text-secondary)', margin: 0 }}>{agent.desc}</p>
-                    <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                      {agent.divisions.map((d) => (
-                        <span key={d} style={{ fontFamily: 'var(--font-mono)', fontSize: '0.58rem', color: 'var(--text-muted)', border: '1px solid var(--border)', borderRadius: 'var(--radius-full)', padding: '1px 7px' }}>{d}</span>
-                      ))}
-                    </div>
+                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: div.accent, marginBottom: 14 }} />
+                    <h3 style={{ fontFamily: 'var(--font-headline)', fontWeight: 700, fontSize: '1rem', color: 'var(--text-primary)', margin: '0 0 8px', letterSpacing: '-0.01em' }}>{div.name}</h3>
+                    <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.82rem', lineHeight: 1.6, color: 'var(--text-secondary)', margin: 0 }}>{div.desc}</p>
                   </a>
                 </StaggerItem>
-              );
-            })}
-          </StaggerChildren>
+              ))}
+            </StaggerChildren>
           </div>
-
-          {/* How human + AI works together */}
-          <ScrollReveal>
-            <div style={{
-              background: 'var(--bg-2)',
-              border: '1px solid var(--border)',
-              borderRadius: 'var(--radius-lg)',
-              padding: '40px',
-              marginBottom: 80,
-            }}>
-              <p className="sec-label" style={{ marginBottom: 16 }}>How It Works</p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, marginBottom: 24 }}>
-                {[
-                  'AI Agent does the work',
-                  '→',
-                  'Creates draft / recommendation',
-                  '→',
-                  'Human founder reviews',
-                  '→',
-                  'Approves, edits, or rejects',
-                  '→',
-                  'Action executes',
-                ].map((step, i) => (
-                  <span key={i} style={{
-                    fontFamily: step === '→' ? 'var(--font-body)' : 'var(--font-mono)',
-                    fontSize: step === '→' ? '1.2rem' : '0.72rem',
-                    color: step === '→' ? 'var(--text-muted)' : 'var(--text-primary)',
-                    background: step === '→' ? 'transparent' : 'var(--bg-3)',
-                    border: step === '→' ? 'none' : '1px solid var(--border)',
-                    borderRadius: 'var(--radius-full)',
-                    padding: step === '→' ? '0' : '5px 14px',
-                    letterSpacing: step === '→' ? 0 : '0.04em',
-                  }}>{step}</span>
-                ))}
-              </div>
-              <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.9rem', lineHeight: 1.75, color: 'var(--text-secondary)', maxWidth: 680, margin: 0 }}>
-                Every email you receive from SocioFi was drafted by an AI agent and approved by a founder. Every blog post was written by SCRIBE and edited by a human. Every lead classification was done by INTAKE and verified by the team. AI handles the volume. Humans handle the judgment.
-              </p>
-            </div>
-          </ScrollReveal>
-
-          {/* Sub C: Human Supervisors */}
-          <ScrollReveal>
-            <p className="sec-label" style={{ marginBottom: 8 }}>Coming Soon</p>
-            <h3 style={{ fontFamily: 'var(--font-headline)', fontWeight: 700, fontSize: 'clamp(1.4rem, 2.5vw, 1.9rem)', color: 'var(--text-primary)', letterSpacing: '-0.02em', marginBottom: 12 }}>
-              Next: Human Supervisors for Every Division.
-            </h3>
-            <p style={{ fontFamily: 'var(--font-body)', fontSize: '1rem', lineHeight: 1.75, color: 'var(--text-secondary)', maxWidth: 680, marginBottom: 32 }}>
-              We&apos;re building the next layer of the team — part-time human specialists who supervise AI agent output in their area of expertise.
-            </p>
-          </ScrollReveal>
-
-          <div className="about-supervisor-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 14, marginBottom: 32 }}>
-            <StaggerChildren>
-            {SUPERVISORS.map((s) => (
-              <StaggerItem key={s.division}>
-                <div
-                  className="supervisor-card"
-                  style={{
-                    padding: '20px 22px',
-                    border: `1px dashed ${s.color}40`,
-                    borderRadius: 'var(--radius-md)',
-                    background: `${s.color}05`,
-                    transition: 'opacity 0.2s',
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: s.color, opacity: 0.6 }} />
-                    <span style={{ fontFamily: 'var(--font-headline)', fontWeight: 600, fontSize: '0.88rem', color: 'var(--text-primary)' }}>{s.division} Supervisor</span>
-                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.58rem', color: '#E8B84D', border: '1px solid #E8B84D60', borderRadius: 'var(--radius-full)', padding: '1px 7px', marginLeft: 'auto' }}>COMING SOON</span>
-                  </div>
-                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.78rem', lineHeight: 1.6, color: 'var(--text-muted)', margin: 0 }}>{s.desc}</p>
-                </div>
-              </StaggerItem>
-            ))}
-          </StaggerChildren>
-          </div>
-
-          <ScrollReveal>
-            <a
-              href="/careers"
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: 8,
-                fontFamily: 'var(--font-body)', fontSize: '0.9rem', color: 'var(--teal)',
-                textDecoration: 'none', borderBottom: '1px solid var(--teal)',
-                paddingBottom: 2,
-              }}
-            >
-              Interested in a supervisor role? See open roles
-            </a>
-          </ScrollReveal>
         </Container>
       </section>
 
-      {/* ── Company Timeline ──────────────────────────────────────────────── */}
+      {/* ── The Founders ─────────────────────────────────────────────────── */}
       <section style={{ paddingBlock: 'var(--space-section)', background: 'var(--bg-2)' }}>
         <Container>
           <ScrollReveal>
-            <SectionHeader
-              label="Our Journey"
-              title="From Idea to 45+ Production Agents in 18 Months."
-              centered
-              className="mb-14"
-            />
+            <SectionHeader label="Layer 1 — Human" title="The Founders" subtitle="Every decision, every output, every client relationship — they review it all." centered className="mb-12" />
           </ScrollReveal>
-
-          <div style={{ maxWidth: 680, marginInline: 'auto', position: 'relative' }}>
-            {/* Vertical line */}
-            <div style={{
-              position: 'absolute', left: 20, top: 0, bottom: 0, width: 2,
-              background: 'linear-gradient(180deg, var(--navy) 0%, var(--teal) 100%)',
-              opacity: 0.4,
-            }} />
-
-            {TIMELINE_EVENTS.map((event, i) => (
-              <ScrollReveal key={i} delay={i * 0.06}>
-                <div style={{ display: 'flex', gap: 24, paddingBottom: 36, position: 'relative' }}>
-                  {/* Dot */}
-                  <div style={{
-                    width: 40, flexShrink: 0, display: 'flex', justifyContent: 'center', paddingTop: 4,
-                  }}>
-                    <div style={{
-                      width: 10, height: 10, borderRadius: '50%',
-                      background: event.badge === 'NOW' ? '#22c55e' : event.badge === 'MILESTONE' ? 'var(--teal)' : 'var(--bg-3)',
-                      border: '2px solid var(--teal)',
-                      zIndex: 1,
-                      animation: event.badge === 'NOW' ? 'nowPulse 2s ease-in-out infinite' : 'none',
-                    }} />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, maxWidth: 860, marginInline: 'auto' }} className="about-founder-cards">
+            {[
+              {
+                name: 'Arifur Rahman',
+                title: 'CEO & Co-founder',
+                since: 'Aug 1, 2024',
+                background: 'BUET graduate. Product strategist. The person who lived the problem SocioFi was built to solve.',
+                focus: 'Client relationships, Studio pipeline, business development, and final approval on all external communications.',
+                color: '#4A6CB8',
+              },
+              {
+                name: 'Kamrul Hasan',
+                title: 'CTO & Co-founder',
+                since: 'Aug 1, 2024',
+                background: 'BUET graduate. Production systems engineer. Built FabricxAI\'s 22-agent system and designed DevBridge OS.',
+                focus: 'All technical architecture, agent system design, code reviews, DevBridge pipeline, and infrastructure decisions.',
+                color: '#72C4B2',
+              },
+            ].map((f) => (
+              <ScrollReveal key={f.name}>
+                <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: '32px 36px', height: '100%' }}>
+                  <div style={{ width: 48, height: 48, borderRadius: '50%', background: `${f.color}20`, border: `1.5px solid ${f.color}40`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
+                    <span style={{ fontFamily: 'var(--font-headline)', fontWeight: 800, fontSize: '1rem', color: f.color }}>{f.name.charAt(0)}</span>
                   </div>
-                  <div style={{ flex: 1, paddingTop: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'var(--text-muted)', letterSpacing: '0.08em' }}>{event.date}</span>
-                      {event.badge && (
-                        <span style={{
-                          fontFamily: 'var(--font-mono)', fontSize: '0.58rem',
-                          color: event.badge === 'NOW' ? '#22c55e' : event.badge === 'MILESTONE' ? 'var(--teal)' : 'var(--text-muted)',
-                          border: `1px solid ${event.badge === 'NOW' ? '#22c55e' : event.badge === 'MILESTONE' ? 'var(--teal)' : 'var(--border)'}`,
-                          borderRadius: 'var(--radius-full)', padding: '1px 7px', letterSpacing: '0.06em',
-                        }}>{event.badge}</span>
-                      )}
-                    </div>
-                    <h4 style={{ fontFamily: 'var(--font-headline)', fontWeight: 600, fontSize: '0.95rem', color: 'var(--text-primary)', margin: '0 0 4px' }}>{event.title}</h4>
-                    <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.84rem', lineHeight: 1.65, color: 'var(--text-secondary)', margin: 0 }}>{event.desc}</p>
+                  <h3 style={{ fontFamily: 'var(--font-headline)', fontWeight: 700, fontSize: '1.15rem', color: 'var(--text-primary)', margin: '0 0 4px', letterSpacing: '-0.01em' }}>{f.name}</h3>
+                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', color: f.color, letterSpacing: '0.08em', margin: '0 0 20px' }}>{f.title.toUpperCase()} · SINCE {f.since.toUpperCase()}</p>
+                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.9rem', lineHeight: 1.75, color: 'var(--text-secondary)', margin: '0 0 16px' }}>{f.background}</p>
+                  <div style={{ borderTop: '1px solid var(--border)', paddingTop: 16 }}>
+                    <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'var(--text-muted)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6 }}>Responsibilities</p>
+                    <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.86rem', lineHeight: 1.7, color: 'var(--text-secondary)', margin: 0 }}>{f.focus}</p>
                   </div>
                 </div>
               </ScrollReveal>
             ))}
           </div>
-
-          <div style={{ textAlign: 'center', marginTop: 16 }}>
-            <a href="/about/timeline" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--teal)', letterSpacing: '0.08em', textDecoration: 'none', borderBottom: '1px solid var(--teal)', paddingBottom: 2 }}>
-              VIEW FULL TIMELINE
-            </a>
-          </div>
         </Container>
       </section>
 
-      {/* ── Values ───────────────────────────────────────────────────────── */}
+      {/* ── Dev Agents ───────────────────────────────────────────────────── */}
       <section style={{ paddingBlock: 'var(--space-section)', background: 'var(--bg)' }}>
         <Container>
           <ScrollReveal>
             <SectionHeader
-              label="Our Values"
-              title='Six Things We Won&apos;t Compromise On.'
+              label="Layer 2 — AI Developers"
+              title="The DevBridge Development Team"
+              subtitle="10 specialized agents. Each owns a specific phase of every software build. Coordinated by NEXUS, supervised by Kamrul."
               centered
               className="mb-14"
             />
           </ScrollReveal>
 
-          <div className="about-values-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 16 }}>
+          {/* Agent Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 14, marginBottom: 64 }} className="about-agent-grid">
             <StaggerChildren>
-            {VALUES.map((val, i) => (
-              <StaggerItem key={i}>
-                <div
-                  className="value-card"
-                  style={{
-                    padding: '28px 28px',
-                    background: 'var(--bg-card)',
-                    border: '1px solid var(--border)',
-                    borderRadius: 'var(--radius-md)',
-                    transition: 'all 0.3s var(--ease)',
-                  }}
-                >
-                  <h3 style={{ fontFamily: 'var(--font-headline)', fontWeight: 700, fontSize: '1rem', color: 'var(--teal)', marginBottom: 10 }}>{val.title}</h3>
-                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.88rem', lineHeight: 1.7, color: 'var(--text-secondary)', margin: 0 }}>{val.body}</p>
-                </div>
-              </StaggerItem>
-            ))}
-          </StaggerChildren>
+              {DEV_AGENTS.map((agent) => (
+                <StaggerItem key={agent.id}>
+                  <div className="about-agent-card" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '22px 20px', position: 'relative', overflow: 'hidden' }}>
+                    {/* Top accent bar */}
+                    <div className="agent-card-border" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: agent.color, opacity: 0, transition: 'opacity 0.3s' }} />
+                    <AgentAvatar id={agent.id} color={agent.color} svgContent={agent.svg} />
+                    <div style={{ marginTop: 16, marginBottom: 10 }}>
+                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.58rem', color: agent.color, border: `1px solid ${agent.color}50`, borderRadius: 'var(--radius-full)', padding: '2px 8px', letterSpacing: '0.06em', display: 'inline-block' }}>AI DEVELOPER</span>
+                    </div>
+                    <h3 style={{ fontFamily: 'var(--font-headline)', fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-primary)', margin: '0 0 3px', letterSpacing: '-0.01em' }}>{agent.id}</h3>
+                    <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.58rem', color: 'var(--text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase', margin: '0 0 10px' }}>{agent.role}</p>
+                    <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.8rem', lineHeight: 1.65, color: 'var(--text-secondary)', margin: 0 }}>{agent.desc}</p>
+                    {agent.step !== 'ALL' && (
+                      <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid var(--border)' }}>
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'var(--text-muted)', letterSpacing: '0.06em' }}>PIPELINE STEP {agent.step}</span>
+                      </div>
+                    )}
+                    {agent.step === 'ALL' && (
+                      <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid var(--border)' }}>
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: agent.color, letterSpacing: '0.06em' }}>ORCHESTRATES ALL STEPS</span>
+                      </div>
+                    )}
+                  </div>
+                </StaggerItem>
+              ))}
+            </StaggerChildren>
           </div>
 
-          <div style={{ textAlign: 'center', marginTop: 32 }}>
-            <a href="/about/values" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--teal)', letterSpacing: '0.08em', textDecoration: 'none', borderBottom: '1px solid var(--teal)', paddingBottom: 2 }}>
-              READ THE FULL VALUES
-            </a>
-          </div>
+          {/* Pipeline Flow Diagram */}
+          <ScrollReveal>
+            <div style={{ background: 'var(--bg-2)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: '36px 32px' }}>
+              <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.66rem', color: 'var(--text-muted)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 24, textAlign: 'center' }}>DevBridge Pipeline — every Studio project runs through these steps in order</p>
+              <div className="pipeline-flow" style={{ display: 'flex', alignItems: 'center', gap: 0, justifyContent: 'center', flexWrap: 'nowrap', overflowX: 'auto', paddingBottom: 4 }}>
+                {PIPELINE.map((step, i) => (
+                  <div key={step.id} style={{ display: 'flex', alignItems: 'center', gap: 0, flexShrink: 0 }}>
+                    {step.parallel ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'center' }}>
+                        {['MIRROR', 'FORGE'].map((p) => {
+                          const a = DEV_AGENTS.find(ag => ag.id === p)!;
+                          return (
+                            <div key={p} style={{ padding: '6px 12px', background: `${a.color}15`, border: `1px solid ${a.color}40`, borderRadius: 'var(--radius-full)', textAlign: 'center' }}>
+                              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', color: a.color, letterSpacing: '0.06em', fontWeight: 600 }}>{p}</span>
+                            </div>
+                          );
+                        })}
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.52rem', color: 'var(--text-muted)', letterSpacing: '0.08em' }}>parallel</span>
+                      </div>
+                    ) : (
+                      <div style={{ padding: '8px 14px', background: `${step.color}15`, border: `1px solid ${step.color}40`, borderRadius: 'var(--radius-full)', textAlign: 'center' }}>
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.66rem', color: step.color, letterSpacing: '0.06em', fontWeight: 600, display: 'block' }}>{step.id}</span>
+                      </div>
+                    )}
+                    {i < PIPELINE.length - 1 && (
+                      <div className="pipeline-arrow" style={{ width: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <svg viewBox="0 0 16 16" style={{ width: 14, height: 14, color: 'var(--text-muted)' }} fill="none">
+                          <path d="M4 8 L12 8 M9 5 L12 8 L9 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.8rem', lineHeight: 1.7, color: 'var(--text-muted)', textAlign: 'center', marginTop: 20, marginBottom: 0 }}>
+                NEXUS orchestrates every step — routing work, managing dependencies, escalating to Kamrul when judgment is needed.
+              </p>
+            </div>
+          </ScrollReveal>
         </Container>
       </section>
 
-      {/* ── Why Dhaka ────────────────────────────────────────────────────── */}
+      {/* ── Supervisors Coming Soon ───────────────────────────────────────── */}
       <section style={{ paddingBlock: 'var(--space-section)', background: 'var(--bg-2)' }}>
         <Container>
-          <div style={{ maxWidth: 720, marginInline: 'auto' }}>
-            <ScrollReveal>
-              <p className="sec-label">Based in Dhaka, Serving Globally</p>
-              <h2 style={{ fontFamily: 'var(--font-headline)', fontWeight: 700, fontSize: 'clamp(1.8rem, 3vw, 2.4rem)', letterSpacing: '-0.02em', color: 'var(--text-primary)', marginBottom: 24 }}>
-                Dhaka-Based. World-Ready.
-              </h2>
-              <p style={{ fontFamily: 'var(--font-body)', fontSize: '1.05rem', lineHeight: 1.85, color: 'var(--text-secondary)', marginBottom: 20 }}>
-                SocioFi is based in Dhaka, Bangladesh. Our founders graduated from BUET — the Bangladesh University of Engineering and Technology, one of the most competitive technical universities in South Asia.
-              </p>
-              <p style={{ fontFamily: 'var(--font-body)', fontSize: '1.05rem', lineHeight: 1.85, color: 'var(--text-secondary)', margin: 0 }}>
-                We serve clients globally. Time zones work in our favor — we often work while our clients sleep, delivering progress overnight. Our location means operational costs are lower than Silicon Valley, which is why we offer Studio quality at a fraction of the typical price. We&apos;re not a low-cost outsourcing shop. We&apos;re a technology company based in one of the fastest-growing tech ecosystems in the world.
-              </p>
-            </ScrollReveal>
+          <ScrollReveal>
+            <SectionHeader
+              label="Layer 3 — Human Supervisors (Coming)"
+              title="One specialist per division."
+              subtitle="Part-time engineers from SocioFi Guild who review agent output, catch edge cases, and provide domain expertise AI can't replicate."
+              centered
+              className="mb-12"
+            />
+          </ScrollReveal>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }} className="about-supervisor-grid">
+            <StaggerChildren>
+              {SUPERVISORS.map((sup) => (
+                <StaggerItem key={sup.division}>
+                  <div style={{
+                    background: 'transparent',
+                    border: `1px dashed ${sup.accent}40`,
+                    borderRadius: 'var(--radius-md)',
+                    padding: '22px 20px',
+                    opacity: 0.75,
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: sup.accent, opacity: 0.6 }} />
+                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'var(--text-muted)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Coming</span>
+                    </div>
+                    <h4 style={{ fontFamily: 'var(--font-headline)', fontWeight: 600, fontSize: '0.88rem', color: 'var(--text-secondary)', margin: '0 0 6px' }}>{sup.division} Division</h4>
+                    <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.78rem', color: 'var(--text-muted)', margin: 0 }}>{sup.role}</p>
+                  </div>
+                </StaggerItem>
+              ))}
+            </StaggerChildren>
           </div>
+          <ScrollReveal delay={0.2}>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.88rem', lineHeight: 1.75, color: 'var(--text-muted)', textAlign: 'center', marginTop: 32, maxWidth: 600, marginInline: 'auto' }}>
+              Supervisors come from SocioFi Guild — a curated network of specialist engineers who know how to work alongside AI agents, not in spite of them.
+              {' '}<a href="/careers" style={{ color: 'var(--teal)', textDecoration: 'none' }}>Join the Guild →</a>
+            </p>
+          </ScrollReveal>
         </Container>
       </section>
 
-      {/* ── CTA ──────────────────────────────────────────────────────────── */}
+      {/* ── Values Summary ───────────────────────────────────────────────── */}
+      <section style={{ paddingBlock: 'var(--space-section)', background: 'var(--bg)' }}>
+        <Container>
+          <ScrollReveal>
+            <SectionHeader label="Our values" title="Six things we won't compromise on." centered className="mb-12" />
+          </ScrollReveal>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, maxWidth: 860, marginInline: 'auto' }} className="about-values-grid">
+            <StaggerChildren>
+              {VALUES_SUMMARY.map((v) => (
+                <StaggerItem key={v.num}>
+                  <a href={v.href} className="value-card" style={{
+                    display: 'block', textDecoration: 'none',
+                    background: 'var(--bg-card)', border: '1px solid var(--border)',
+                    borderRadius: 'var(--radius-md)', padding: '20px 22px',
+                  }}>
+                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.58rem', color: 'var(--text-muted)', letterSpacing: '0.1em', display: 'block', marginBottom: 8 }}>{v.num}</span>
+                    <span style={{ fontFamily: 'var(--font-headline)', fontWeight: 600, fontSize: '0.9rem', color: 'var(--teal)', lineHeight: 1.35 }}>{v.title}</span>
+                  </a>
+                </StaggerItem>
+              ))}
+            </StaggerChildren>
+          </div>
+          <ScrollReveal delay={0.2}>
+            <div style={{ textAlign: 'center', marginTop: 28 }}>
+              <a href="/about/values" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--text-muted)', letterSpacing: '0.08em', textDecoration: 'none', borderBottom: '1px solid var(--border)', paddingBottom: 2 }}>
+                Read the stories behind each value →
+              </a>
+            </div>
+          </ScrollReveal>
+        </Container>
+      </section>
+
+      {/* ── Timeline teaser ──────────────────────────────────────────────── */}
+      <section style={{ paddingBlock: 80, background: 'var(--bg-2)', borderTop: '1px solid var(--border)' }}>
+        <Container>
+          <ScrollReveal>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 32, flexWrap: 'wrap' }}>
+              <div>
+                <p className="sec-label">Company timeline</p>
+                <h2 style={{ fontFamily: 'var(--font-headline)', fontSize: 'clamp(1.5rem, 2.5vw, 2rem)', fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--text-primary)', margin: 0, lineHeight: 1.2 }}>
+                  From 2 founders to 45+ agents in 18 months.
+                </h2>
+              </div>
+              <a
+                href="/about/timeline"
+                style={{
+                  fontFamily: 'var(--font-mono)', fontSize: '0.76rem', color: 'var(--teal)',
+                  border: '1px solid var(--teal)', borderRadius: 'var(--radius-full)',
+                  padding: '10px 24px', textDecoration: 'none', letterSpacing: '0.06em',
+                  flexShrink: 0, transition: 'all 0.2s',
+                }}
+              >
+                View full timeline →
+              </a>
+            </div>
+          </ScrollReveal>
+        </Container>
+      </section>
+
       <CTASection
-        title="Want to Work With Us? Or For Us?"
-        subtitle="Three paths forward — choose yours."
-        primaryCTA={{ label: 'Build software', href: '/studio/start-project' }}
-        ghostCTA={{ label: 'Join the team', href: '/careers' }}
-        note="Or just talk: /contact"
+        title="Ready to work with the team?"
+        subtitle="Tell us what you're building. We'll tell you exactly how our agents would approach it, what it costs, and when it would ship."
+        primaryCTA={{ label: 'Start a project', href: '/studio/start-project' }}
+        ghostCTA={{ label: 'Meet the full team', href: '/about/team' }}
       />
     </>
   );

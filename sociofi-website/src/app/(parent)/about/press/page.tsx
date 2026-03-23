@@ -30,20 +30,20 @@ const KEY_FACTS = [
   { label: 'Founded', value: 'August 1, 2024' },
   { label: 'Headquarters', value: 'Dhaka, Bangladesh' },
   { label: 'Founders', value: 'Arifur Rahman (CEO), Kamrul Hasan (CTO)' },
-  { label: 'Team', value: '2 human founders + 13 AI agents' },
+  { label: 'Team', value: '2 human founders + 10 AI development agents (DevBridge) + 13 internal ops agents (NEXUS admin system)' },
   { label: 'Divisions', value: '8 (Studio, Agents, Services, Cloud, Labs, Products, Academy, Ventures)' },
   { label: 'AI agents deployed', value: '45+ across all systems' },
   { label: 'Live platforms', value: 'FabricxAI, NEXUS ARIA, DevBridge OS' },
   { label: 'Education background', value: 'Both founders — BUET (Bangladesh University of Engineering and Technology)' },
 ];
 
-const BOILERPLATE = `SocioFi Technology is an AI-native software development company founded on August 1, 2024, by Arifur Rahman and Kamrul Hasan in Dhaka, Bangladesh. The company operates a hybrid model where 13 specialized AI agents handle operational work — lead processing, content creation, communications, monitoring, and analytics — while human founders make all final decisions.
+const BOILERPLATE = `SocioFi Technology is an AI-native software development company founded on August 1, 2024, by Arifur Rahman and Kamrul Hasan in Dhaka, Bangladesh. The company operates a hybrid model where specialized AI agents handle development and operations work while human founders make all final decisions.
 
-SocioFi operates across eight divisions: Studio (custom software development), Agents (AI agent subscriptions), Services (maintenance and monitoring), Cloud (managed infrastructure), Labs (research and open source), Products (own platforms), Academy (education and training), and Ventures (equity co-build partnerships). The company has deployed 45+ AI agents in production across three live platforms: FabricxAI (22-agent manufacturing intelligence), NEXUS ARIA (13-agent GTM operations), and DevBridge OS (10-agent development pipeline).
+SocioFi's development team is DevBridge OS — a 10-agent pipeline (SCOUT through BEACON, coordinated by NEXUS) that handles requirements analysis, research, architecture, frontend, backend, integration, security review, testing, and documentation for every client project. All DevBridge outputs are reviewed and approved by Kamrul Hasan (CTO) before deployment.
 
-SocioFi's approach — radical transparency about AI-native operations, fixed pricing published on the website, and full code ownership for clients — represents a new model for software development companies serving founders and SMBs globally.`;
+SocioFi operates across eight divisions: Studio (custom software development), Services (maintenance and monitoring), Cloud (managed infrastructure), Labs (research and open source), Products (own platforms), Academy (education and training), Ventures (equity co-build partnerships), and Technology (parent). The company has deployed 45+ AI agents in production across three live platforms: FabricxAI (22-agent manufacturing intelligence), NEXUS ARIA (13-agent GTM operations), and DevBridge OS (10-agent development pipeline). SocioFi's approach — radical transparency about AI-native operations, fixed pricing published on the website, and full code ownership for clients — represents a new model for software development companies serving founders and SMBs globally.`;
 
-const SHORT_BOILERPLATE = `SocioFi Technology is an AI-native software development company based in Dhaka, Bangladesh. Founded in 2024 by two BUET graduates, SocioFi deploys specialized AI agents alongside human founders to build, maintain, and host software for founders and small businesses globally. 45+ agents deployed across 8 divisions. Radically transparent about how it operates.`;
+const SHORT_BOILERPLATE = `SocioFi Technology is an AI-native software development company based in Dhaka, Bangladesh. Founded in 2024 by two BUET graduates, SocioFi runs a 10-agent development pipeline (DevBridge OS) that builds production software for founders and SMBs globally — with every output reviewed by a human engineer before deployment. 45+ agents in production across 8 divisions. Radically transparent about how it operates.`;
 
 function CopyBox({ content, label }: { content: string; label: string }) {
   return (
