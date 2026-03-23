@@ -10,6 +10,8 @@ export function useScrollDirection() {
 
     const handler = () => {
       const y = window.scrollY;
+      // On mobile the hamburger is the only navigation — never hide it
+      if (window.innerWidth < 768) { setNavVisible(true); setScrollDir('up'); lastY = y; return; }
       if (y < 60) { setNavVisible(true); setScrollDir('up'); return; }
       if (Math.abs(y - lastY) < threshold) return;
       const dir = y < lastY ? 'up' : 'down';
