@@ -504,6 +504,102 @@ const PROJECTS: Project[] = [
     href: '/studio/portfolio/nexara',
     image: '/images/portfolio/nexara.jpg',
   },
+
+  // ── Automation ────────────────────────────────────────────────────────────────
+  {
+    id: 'recruitflow',
+    name: 'RecruitFlow Hiring Pipeline',
+    category: 'Automation',
+    featured: true,
+    colSpan: true,
+    clientType: '20-person staffing agency',
+    problem: 'Three hours per candidate on CV screening, interview scheduling, and status emails. Couldn\'t handle more than 40 active roles without hiring another coordinator.',
+    solution: 'AI pipeline that screens CVs against job criteria, auto-schedules interviews with calendar sync, and sends personalised status updates. The coordinator now reviews final shortlists only.',
+    metrics: [
+      { value: '85%', label: 'Screening time saved' },
+      { value: '200+', label: 'Active role capacity' },
+      { value: '2 weeks', label: 'Deployed in' },
+    ],
+    href: '/studio/portfolio/recruitflow',
+  },
+  {
+    id: 'ordersync',
+    name: 'OrderSync Fulfillment Automation',
+    category: 'Automation',
+    clientType: 'DTC e-commerce, 300+ orders/day',
+    problem: 'Manual routing across 3 fulfillment centres based on product type, stock level, and shipping zone — errors daily, delayed shipments, customer refunds piling up.',
+    solution: 'Rules-based automation with real-time inventory polling, smart routing logic, and Slack alerts for anything that needs a human eye.',
+    metrics: [
+      { value: '0', label: 'Routing errors / week' },
+      { value: '6 hrs/day', label: 'Coordinator time freed' },
+      { value: '99.2%', label: 'On-time dispatch rate' },
+    ],
+    href: '/studio/portfolio/ordersync',
+  },
+
+  // ── Rescue ────────────────────────────────────────────────────────────────────
+  {
+    id: 'healthtrack',
+    name: 'HealthTrack App Rescue',
+    category: 'Rescue',
+    featured: true,
+    colSpan: true,
+    clientType: 'Health & wellness startup, post-Series A',
+    problem: 'Spent $80k on a dev agency. App launched, crashed under 200 concurrent users, data sync broke daily, payment webhooks failed silently. Investors were watching.',
+    solution: 'Full architecture audit, database query optimisation, WebSocket connection pooling, idempotent payment handling, and monitoring setup — no ground-up rebuild needed.',
+    metrics: [
+      { value: '5,000+', label: 'Concurrent users now' },
+      { value: '3 weeks', label: 'Stabilised in' },
+      { value: '$0', label: 'Data loss since fix' },
+    ],
+    href: '/studio/portfolio/healthtrack',
+  },
+  {
+    id: 'brandforge',
+    name: 'BrandForge Platform Rescue',
+    category: 'Rescue',
+    clientType: 'B2B SaaS startup',
+    problem: 'Co-founder built the MVP with AI coding tools. Authentication broke in production, file uploads corrupted intermittently, and the codebase had no error handling anywhere.',
+    solution: 'Code audit found 14 critical issues. Fixed auth flow, rewrote the file pipeline, added error boundaries throughout, deployed with proper environment config.',
+    metrics: [
+      { value: '14', label: 'Critical issues fixed' },
+      { value: '12 days', label: 'Back in production' },
+      { value: '4.8★', label: 'App Store rating now' },
+    ],
+    href: '/studio/portfolio/brandforge',
+  },
+
+  // ── Consulting ────────────────────────────────────────────────────────────────
+  {
+    id: 'techpath',
+    name: 'TechPath Architecture Advisory',
+    category: 'Consulting',
+    featured: true,
+    colSpan: true,
+    clientType: 'Non-technical founder, pre-seed',
+    problem: 'Product vision, a no-code prototype, and $120k in pre-seed funding — but no idea what to build first, in what order, or with what stack before hiring engineers.',
+    solution: '4-week technical co-founder engagement: product architecture, database schema, API spec, vendor evaluation, and a hiring brief for a 3-person engineering team.',
+    metrics: [
+      { value: '4 weeks', label: 'Engagement length' },
+      { value: '48 pages', label: 'Technical specification' },
+      { value: '$60k', label: 'Estimated savings vs. trial-and-error hiring' },
+    ],
+    href: '/studio/portfolio/techpath',
+  },
+  {
+    id: 'mediflow',
+    name: 'MediFlow Stack Audit',
+    category: 'Consulting',
+    clientType: 'Healthcare SaaS, pre-acquisition',
+    problem: 'Acquirer required technical due diligence before closing. Internal team couldn\'t produce the documentation needed. Deal timeline was at risk.',
+    solution: 'Full codebase audit, security review, architecture documentation, HIPAA compliance assessment, and a plain-English findings summary for the non-technical acquiring team.',
+    metrics: [
+      { value: '2 weeks', label: 'Delivered in' },
+      { value: '$4.2M', label: 'Acquisition closed' },
+      { value: 'Zero', label: 'Deal-blocking issues found' },
+    ],
+    href: '/studio/portfolio/mediflow',
+  },
 ];
 
 function ArrowIcon() {
@@ -623,7 +719,7 @@ export default function PortfolioPage() {
         <div className="port-metrics">
           <div className="port-metrics-inner">
             {[
-              { val: '12', lab: 'Projects Delivered' },
+              { val: '18+', lab: 'Projects Delivered' },
               { val: '3 Weeks', lab: 'Average Ship Time' },
               { val: '100%', lab: 'Client Retention' },
             ].map((m) => (
