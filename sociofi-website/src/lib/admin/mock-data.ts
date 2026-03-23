@@ -379,3 +379,75 @@ export const MOCK_PIPELINE: Record<string, PipelineEntry[]> = {
     { id: 'pp2', pipeline: 'products', stage: 'Live', contact_name: 'NEXUS ARIA', contact_email: 'product@sociofi.tech', submission_type: 'Product Launch', priority: 'normal', entered_at: new Date(Date.now() - 60*86400000).toISOString(), notes_count: 8 },
   ],
 }
+
+// ── CMS Mock Data ─────────────────────────────────────────────────────────────
+
+import type { ContentItem, ContentVersion } from './types'
+
+export const MOCK_CONTENT: ContentItem[] = [
+  {
+    id: 'ct1', status: 'published', type: 'blog_post',
+    title: 'Why AI Prototypes Break in Production',
+    slug: 'why-ai-prototypes-break-in-production',
+    division: 'studio', author: 'SCRIBE', author_type: 'agent', edited_by: 'Arifur Rahman',
+    updated_at: new Date(Date.now() - 2*3600000).toISOString(),
+    published_at: new Date(Date.now() - 1*86400000).toISOString(),
+    word_count: 1240, tags: ['ai', 'development', 'debugging'],
+    seo_title: 'Why AI Prototypes Break in Production — SocioFi',
+    seo_description: 'Most AI-generated code looks great in demos but falls apart under real conditions. Here\'s what breaks and how to fix it.',
+    metadata: { reading_time: 5 },
+  },
+  {
+    id: 'ct2', status: 'draft', type: 'blog_post',
+    title: 'The SocioFi Development Pipeline: How 10 AI Agents Build Software',
+    slug: 'devbridge-pipeline-how-it-works',
+    division: 'studio', author: 'SCRIBE', author_type: 'agent',
+    updated_at: new Date(Date.now() - 5*3600000).toISOString(),
+    word_count: 820, tags: ['devbridge', 'ai-agents', 'process'],
+    metadata: { reading_time: 4 },
+  },
+  {
+    id: 'ct3', status: 'review', type: 'case_study',
+    title: 'From Broken Prototype to Production: Priya\'s Rescue Ship Story',
+    slug: 'priya-rescue-ship-case-study',
+    division: 'studio', author: 'SCRIBE', author_type: 'agent', edited_by: 'Kamrul Hasan',
+    updated_at: new Date(Date.now() - 1*3600000).toISOString(),
+    word_count: 980, tags: ['rescue', 'nextjs', 'case-study'],
+    metadata: {},
+  },
+  {
+    id: 'ct4', status: 'published', type: 'faq',
+    title: 'How long does a typical project take?',
+    slug: 'how-long-does-a-project-take',
+    division: 'studio', author: 'Arifur Rahman', author_type: 'human',
+    updated_at: new Date(Date.now() - 3*86400000).toISOString(),
+    published_at: new Date(Date.now() - 3*86400000).toISOString(),
+    word_count: 120, tags: ['faq', 'timeline'],
+    metadata: { question: 'How long does a typical project take?', answer: 'Most projects take 4–12 weeks...', sort_order: 1 },
+  },
+  {
+    id: 'ct5', status: 'draft', type: 'course',
+    title: 'AI Development Bootcamp: Zero to Production',
+    slug: 'ai-development-bootcamp',
+    division: 'academy', author: 'Arifur Rahman', author_type: 'human',
+    updated_at: new Date(Date.now() - 2*86400000).toISOString(),
+    word_count: 2100, tags: ['bootcamp', 'ai', 'development'],
+    metadata: { price: '$497', duration: '8 weeks', modules: 12 },
+  },
+  {
+    id: 'ct6', status: 'published', type: 'testimonial',
+    title: 'Sarah Chen — NexaLabs',
+    slug: 'sarah-chen-nexalabs-testimonial',
+    division: 'studio', author: 'Arifur Rahman', author_type: 'human',
+    updated_at: new Date(Date.now() - 7*86400000).toISOString(),
+    published_at: new Date(Date.now() - 7*86400000).toISOString(),
+    word_count: 80, tags: ['testimonial', 'studio'],
+    metadata: { rating: 5, company: 'NexaLabs', author_role: 'Founder' },
+  },
+]
+
+export const MOCK_VERSIONS: ContentVersion[] = [
+  { id: 'v1', content_id: 'ct1', version: 3, author: 'Arifur Rahman', author_type: 'human', note: 'Updated pricing section', created_at: new Date(Date.now() - 2*3600000).toISOString(), content_json: {} },
+  { id: 'v2', content_id: 'ct1', version: 2, author: 'SCRIBE', author_type: 'agent', note: 'Added code examples', created_at: new Date(Date.now() - 1*86400000).toISOString(), content_json: {} },
+  { id: 'v3', content_id: 'ct1', version: 1, author: 'SCRIBE', author_type: 'agent', note: 'Initial draft', created_at: new Date(Date.now() - 2*86400000).toISOString(), content_json: {} },
+]

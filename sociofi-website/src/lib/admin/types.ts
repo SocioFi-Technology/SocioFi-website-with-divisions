@@ -139,3 +139,57 @@ export const DIVISION_KPI_LABELS: Record<string, string[]> = {
   labs: ['Projects','In Research','Published','—'],
   products: ['Products','Beta Users','Live Users','MRR'],
 }
+
+export type ContentStatus = 'draft' | 'review' | 'published' | 'archived'
+export type ContentType = 'blog_post' | 'case_study' | 'testimonial' | 'faq' | 'course' | 'workshop' | 'agent_catalog' | 'experiment' | 'open_source'
+
+export const CONTENT_STATUS_COLORS: Record<ContentStatus, string> = {
+  draft: '#64748B',
+  review: '#E8B84D',
+  published: '#4ade80',
+  archived: '#EF4444',
+}
+
+export const CONTENT_TYPE_LABELS: Record<ContentType, string> = {
+  blog_post: 'Blog Post',
+  case_study: 'Case Study',
+  testimonial: 'Testimonial',
+  faq: 'FAQ',
+  course: 'Course',
+  workshop: 'Workshop',
+  agent_catalog: 'Agent Catalog',
+  experiment: 'Experiment',
+  open_source: 'Open Source',
+}
+
+export interface ContentItem {
+  id: string
+  status: ContentStatus
+  type: ContentType
+  title: string
+  slug: string
+  division?: string
+  author: string
+  author_type: 'human' | 'agent'
+  edited_by?: string
+  updated_at: string
+  published_at?: string
+  word_count?: number
+  tags: string[]
+  seo_title?: string
+  seo_description?: string
+  featured_image?: string
+  metadata: Record<string, unknown>
+  content_json?: Record<string, unknown>
+}
+
+export interface ContentVersion {
+  id: string
+  content_id: string
+  version: number
+  author: string
+  author_type: 'human' | 'agent'
+  note?: string
+  created_at: string
+  content_json: Record<string, unknown>
+}
