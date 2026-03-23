@@ -499,6 +499,171 @@ const PROJECTS: Record<string, ProjectData> = {
       { slug: 'brightpath', name: 'BrightPath Ops Dashboard', desc: '30-person logistics company saved 20 hours per week with a custom real-time dashboard.' },
     ],
   },
+
+  // ── Automation ────────────────────────────────────────────────────────────────
+  recruitflow: {
+    name: 'RecruitFlow Hiring Pipeline',
+    client: 'Apex Talent Solutions',
+    industry: 'Staffing / HR Tech',
+    category: 'Automation',
+    problem: 'Apex Talent Solutions runs 20 recruiters placing candidates across finance and tech roles. Their process was entirely manual — every CV was read by a person, every interview invitation typed by hand, and every status update emailed one by one. With 40 active roles at any given time, a single recruiter was spending close to three hours a day just on screening and communication before they had a single meaningful conversation with a candidate. Growth had hit a ceiling: to take on more roles they would need to hire another coordinator, which erased the margin on new business.',
+    solution: 'We built an end-to-end hiring automation pipeline. When a CV lands, an AI agent screens it against the role criteria and scores it on a 0–100 scale with a plain-English summary of fit and gaps. Candidates who score above the threshold are automatically sent a personalised availability request that syncs with the recruiter\'s Google Calendar — the first interview slot is booked without any human involvement. Candidates below the threshold receive a thoughtful rejection email referencing specific aspects of the role. The recruiter\'s day now starts with a ranked shortlist and a calendar already partially booked. The system also logs every decision so the team can tune criteria over time. Deployed and handling live roles in 2 weeks.',
+    stack: ['Python', 'FastAPI', 'PostgreSQL', 'Google Calendar API', 'SendGrid', 'Next.js', 'Vercel', 'OpenAI API'],
+    metrics: [
+      { label: 'Screening time saved', value: '85%' },
+      { label: 'Active role capacity', value: '200+ roles' },
+      { label: 'Coordinator hours freed / week', value: '18 hrs' },
+      { label: 'Deployed in', value: '2 weeks' },
+    ],
+    timeline: '2 weeks',
+    price: 'Fixed scope',
+    quote: {
+      text: 'We went from 40 active roles to over 200 with the same team. The pipeline handles everything up to the first real conversation — and that\'s exactly where our recruiters should be spending their time.',
+      author: 'Natalie F.',
+      role: 'Operations Director, Apex Talent Solutions',
+    },
+    related: [
+      { slug: 'ordersync', name: 'OrderSync Fulfillment Automation', desc: 'DTC e-commerce: routing errors eliminated, 6 hrs/day freed, 99.2% on-time dispatch.' },
+      { slug: 'brightpath', name: 'BrightPath Ops Dashboard', desc: '30-person logistics company saved 20 hours per week with a custom real-time dashboard.' },
+    ],
+  },
+
+  ordersync: {
+    name: 'OrderSync Fulfillment Automation',
+    client: 'DTC brand (anonymised at client request)',
+    industry: 'E-Commerce / Fulfilment',
+    category: 'Automation',
+    problem: 'A direct-to-consumer brand processing 300+ orders per day was routing every order manually. They had three fulfilment centres — each handling different product categories and shipping zones — and a coordinator who spent most of the working day deciding which centre to send each order to, then entering it into the right portal. The logic wasn\'t complicated, but it was relentless. Mistakes happened every day: wrong centre, wrong carrier, delayed dispatch. Customer service spent half its time on "where is my order" tickets. The coordinator had become the bottleneck for the entire operation.',
+    solution: 'We built a rules engine that sits between Shopify and all three fulfilment portals. Every incoming order is evaluated in real time against product type, live stock levels at each centre, and shipping zone logic. The right fulfilment portal receives the order automatically with zero human input. Edge cases — out-of-stock, split shipments, address flags — trigger a Slack alert with all context so the coordinator makes one decision instead of three hundred. The system also generates a daily dispatch report and tracks carrier performance over time. Routing errors dropped to zero in the first week.',
+    stack: ['Python', 'FastAPI', 'PostgreSQL', 'Redis', 'Shopify API', 'Slack API', 'Railway', 'Celery'],
+    metrics: [
+      { label: 'Routing errors / week', value: '0' },
+      { label: 'Coordinator time freed / day', value: '6 hrs' },
+      { label: 'On-time dispatch rate', value: '99.2%' },
+      { label: 'Deployed in', value: '10 days' },
+    ],
+    timeline: '10 days',
+    price: '$2,800',
+    quote: {
+      text: 'Our coordinator went from firefighting all day to reviewing a Slack summary in the morning. The routing errors just stopped. We haven\'t had a misdirected order in four months.',
+      author: 'Tom W.',
+      role: 'Head of Operations',
+    },
+    related: [
+      { slug: 'recruitflow', name: 'RecruitFlow Hiring Pipeline', desc: 'Staffing agency automated CV screening and interview scheduling, tripling active role capacity.' },
+      { slug: 'brightpath', name: 'BrightPath Ops Dashboard', desc: '30-person logistics company saved 20 hours per week with a custom real-time dashboard.' },
+    ],
+  },
+
+  // ── Rescue ────────────────────────────────────────────────────────────────────
+  healthtrack: {
+    name: 'HealthTrack App Rescue',
+    client: 'HealthTrack (name changed at client request)',
+    industry: 'Health & Wellness',
+    category: 'Rescue',
+    problem: 'HealthTrack had just closed a Series A. The app — a habit tracking and coaching platform — had been built over 18 months by an external agency at a cost of $80,000. It launched to strong early interest, then fell apart. Under 200 concurrent users the API started returning errors. Data sync between devices broke intermittently. Payment webhooks failed silently, meaning users were being charged without their subscriptions activating. The engineering contact at the agency had left the company. Investors were watching closely. The team had two weeks before a scheduled press mention would bring a spike in traffic they couldn\'t handle.',
+    solution: 'We started with a full architecture audit rather than a rebuild — the underlying data model was sound, the problems were concentrated in specific areas. Database query analysis revealed 14 unindexed queries that were doing full-table scans on tables with 500k+ rows; adding the right indexes alone cut average API response time by 64%. WebSocket connection pooling was rewritten to handle load spikes without cascading failures. The payment webhook handler was made idempotent with proper retry logic and a reconciliation job to fix the 340 users whose subscriptions had silently failed. Monitoring and alerting were set up for the first time — the team had been discovering issues from user complaints rather than dashboards. Three weeks after we started, the app handled a 5,000 concurrent user spike without a single error.',
+    stack: ['React Native', 'FastAPI', 'PostgreSQL', 'Redis', 'AWS EC2', 'AWS RDS', 'Stripe', 'WebSockets', 'Sentry', 'Datadog'],
+    metrics: [
+      { label: 'Concurrent users (stable)', value: '5,000+' },
+      { label: 'API response time improvement', value: '64% faster' },
+      { label: 'Data loss since fix', value: '$0' },
+      { label: 'Stabilised in', value: '3 weeks' },
+    ],
+    timeline: '3 weeks',
+    price: '$8,500',
+    quote: {
+      text: 'We were days away from a PR crisis. They audited everything, fixed the actual root causes, and had us stable before the press hit. The app has handled every spike since without a single incident.',
+      author: 'Riya M.',
+      role: 'CTO, HealthTrack',
+    },
+    related: [
+      { slug: 'brandforge', name: 'BrandForge Platform Rescue', desc: '14 critical issues fixed in an AI-generated codebase — auth, file uploads, error handling — back in production in 12 days.' },
+      { slug: 'inboxflow', name: 'InboxFlow', desc: 'AI prototype rescue — 70% of existing code preserved, shipped in 18 days for $3,200.' },
+    ],
+  },
+
+  brandforge: {
+    name: 'BrandForge Platform Rescue',
+    client: 'BrandForge',
+    industry: 'B2B SaaS',
+    category: 'Rescue',
+    problem: 'BrandForge\'s technical co-founder had built the MVP using AI coding tools over two months. In development it worked perfectly. In production, three things broke immediately: the authentication system issued tokens that expired inconsistently, causing random logouts; file uploads (central to the product — users upload brand assets for AI processing) corrupted about 1 in 8 files silently, meaning users received processed output based on broken input; and the entire codebase had been generated without any error handling, so when something failed the user saw a blank screen and the team had no logs to investigate with. The product had been submitted to Product Hunt. The launch was 10 days away.',
+    solution: 'We ran a systematic code audit using SENTINEL, our automated analysis agent, which flagged 14 critical issues across security, data integrity, and reliability. We prioritised by impact and worked through them in two parallel tracks. Auth was rebuilt with proper token rotation, refresh logic, and secure session storage — all existing user sessions were migrated without forcing re-logins. The file upload pipeline was rewritten with chunk verification, integrity checks, and an async retry queue so corrupted uploads are detected and re-requested rather than processed silently. Error boundaries were added throughout the React frontend, and a structured logging system was set up so every server-side failure writes a searchable log entry. We also added Sentry for real-time error monitoring. The team deployed to production on day 12 with a clean audit report. The Product Hunt launch went ahead on schedule. The app currently holds a 4.8-star App Store rating.',
+    stack: ['Next.js', 'Node.js', 'PostgreSQL', 'AWS S3', 'JWT', 'Vercel', 'Sentry', 'Winston', 'React Error Boundaries'],
+    metrics: [
+      { label: 'Critical issues resolved', value: '14' },
+      { label: 'Back in production', value: '12 days' },
+      { label: 'App Store rating', value: '4.8 ★' },
+      { label: 'Security incidents since fix', value: '0' },
+    ],
+    timeline: '12 days',
+    price: '$4,200',
+    quote: {
+      text: 'The audit report alone was worth the cost — it told us exactly what was wrong and why, not just "it\'s broken." We launched on time, the app works, and for the first time we actually know what\'s happening inside our own product.',
+      author: 'David L.',
+      role: 'Co-founder, BrandForge',
+    },
+    related: [
+      { slug: 'healthtrack', name: 'HealthTrack App Rescue', desc: 'Post-Series A app crashing at 200 users — stabilised to handle 5,000+ concurrent without a rebuild.' },
+      { slug: 'inboxflow', name: 'InboxFlow', desc: 'AI prototype rescue — 70% of existing code preserved, shipped in 18 days for $3,200.' },
+    ],
+  },
+
+  // ── Consulting ────────────────────────────────────────────────────────────────
+  techpath: {
+    name: 'TechPath Architecture Advisory',
+    client: 'TechPath (pre-seed fintech)',
+    industry: 'FinTech / Startup Advisory',
+    category: 'Consulting',
+    problem: 'The founder of TechPath had a clear product vision: a personal finance tool that helps first-generation professionals in emerging markets manage irregular income and build savings habits. She had validated the concept with 200 users on a no-code prototype built with Glide and Airtable. She had $120,000 in pre-seed funding from a regional angel group. And she had no idea what to do next. Every engineer she spoke to gave different advice — build native, build web-first, use Firebase, use PostgreSQL, build a microservice architecture from day one. One freelancer quoted $180,000 for a two-year build. She had 18 months of runway and needed to make decisions that would determine whether the company succeeded or failed, with no way to evaluate the advice she was getting.',
+    solution: 'We ran a 4-week technical co-founder engagement. Week 1: deep product analysis — we mapped every feature of the no-code prototype, identified what was essential for launch versus what was premature, and built a prioritised feature list that separated the $20k MVP from the $120k full product. Week 2: architecture decision record — we evaluated and documented every major technical decision (stack, hosting, database, auth, payment infrastructure) with clear rationale she could present to any future engineer or investor. Week 3: specification — a 48-page technical document covering database schema, API contracts, third-party integrations, and infrastructure setup. Week 4: hiring — we wrote job descriptions, defined a screening process, and sat in on the first three engineer interviews. The founder hired a two-person engineering team six weeks after the engagement ended. They shipped the MVP in 11 weeks using the spec as their guide.',
+    stack: ['Architecture Design', 'System Design', 'API Specification', 'Database Schema', 'Vendor Evaluation', 'Hiring Advisory', 'AWS', 'Next.js', 'PostgreSQL'],
+    metrics: [
+      { label: 'Engagement length', value: '4 weeks' },
+      { label: 'Technical specification', value: '48 pages' },
+      { label: 'MVP shipped after engagement', value: '11 weeks' },
+      { label: 'Engineering team hired', value: '6 weeks post-engagement' },
+    ],
+    timeline: '4 weeks',
+    price: '$6,000',
+    quote: {
+      text: 'Every engineer I spoke to before had an agenda. SocioFi\'s only interest was making sure I made the right decision for the product. The spec they delivered became the entire foundation of our engineering culture.',
+      author: 'Amara N.',
+      role: 'Founder, TechPath',
+    },
+    related: [
+      { slug: 'mediflow', name: 'MediFlow Stack Audit', desc: 'Technical due diligence for a $4.2M healthcare SaaS acquisition — full audit and HIPAA assessment in 2 weeks.' },
+      { slug: 'healthtrack', name: 'HealthTrack App Rescue', desc: 'Post-Series A app crashing at 200 users — stabilised to handle 5,000+ concurrent without a rebuild.' },
+    ],
+  },
+
+  mediflow: {
+    name: 'MediFlow Stack Audit',
+    client: 'MediFlow (name changed at acquirer request)',
+    industry: 'Healthcare SaaS',
+    category: 'Consulting',
+    problem: 'MediFlow, a patient communication SaaS serving outpatient clinics, had agreed on a $4.2M acquisition in principle. The acquirer — a healthcare group with a legal and compliance team — required full technical due diligence before signing. MediFlow\'s founding team was three people, none of them senior engineers. They had no architecture documentation, no formal security review, no written record of their HIPAA compliance controls, and no one capable of producing what the acquirer needed in the two-week window before the deal would expire. The acquisition represented four years of work. The timeline was the only obstacle.',
+    solution: 'We assembled a structured due diligence package across four workstreams running in parallel. Security review: full codebase scan for vulnerabilities, dependency audit, authentication and authorisation analysis, data-at-rest and in-transit encryption verification. HIPAA compliance: documented Business Associate Agreement status, audit log coverage, access control mapping, and breach notification procedure. Architecture documentation: produced system architecture diagrams, data flow maps, API documentation, and a database schema reference from the existing codebase. Plain-English executive summary: translated all findings into a 12-page document written for the non-technical acquiring team\'s board, distinguishing between findings that required remediation before close and observations that could be addressed post-acquisition. We found no deal-blocking issues — the codebase was more solid than the team\'s documentation suggested. The acquirer\'s technical reviewer signed off at the end of week two. The acquisition closed on schedule.',
+    stack: ['Security Audit', 'HIPAA Compliance Review', 'Architecture Documentation', 'Code Analysis', 'Dependency Audit', 'Technical Due Diligence Report'],
+    metrics: [
+      { label: 'Audit delivered in', value: '2 weeks' },
+      { label: 'Acquisition value', value: '$4.2M' },
+      { label: 'Deal-blocking issues found', value: '0' },
+      { label: 'Documentation produced', value: '62 pages' },
+    ],
+    timeline: '2 weeks',
+    price: '$5,500',
+    quote: {
+      text: 'We had two weeks and four years on the line. SocioFi produced documentation in 14 days that we couldn\'t have produced ourselves in six months. The deal closed without a single issue raised by the acquirer\'s technical team.',
+      author: 'Chris O.',
+      role: 'CEO, MediFlow',
+    },
+    related: [
+      { slug: 'techpath', name: 'TechPath Architecture Advisory', desc: 'Pre-seed fintech founder got a 48-page technical spec and a hired engineering team in 4 weeks.' },
+      { slug: 'brandforge', name: 'BrandForge Platform Rescue', desc: '14 critical issues fixed in an AI-generated codebase — back in production in 12 days.' },
+    ],
+  },
 };
 
 function ArrowIcon() {
