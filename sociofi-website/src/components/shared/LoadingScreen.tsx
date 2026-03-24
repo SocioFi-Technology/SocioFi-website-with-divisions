@@ -6,11 +6,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 
 // ── Timing ────────────────────────────────────────────────────────────────────
-// On mobile (< 768px) use shorter durations — 3.2s intro feels like a freeze
-const IS_MOBILE_SCREEN = typeof window !== 'undefined' && window.innerWidth < 768;
-const FIRST_LOAD_MS = IS_MOBILE_SCREEN ? 2000 : 3200;  // 2s on mobile, 3.2s desktop
-const TRANSITION_MS = IS_MOBILE_SCREEN ?  900 : 1400;  // shorter transitions on mobile
-const EXIT_MS       = 500;
+// NOTE: DO NOT read window.innerWidth at module level — that runs during SSR
+// where `window` is undefined, and also captures the width only once (stale).
+// Mobile detection is done inside useEffect where window is always available.
+const FIRST_LOAD_DESKTOP_MS = 3200;
+const FIRST_LOAD_MOBILE_MS  = 1500;  // 1.5s on mobile — skip character stagger
+const TRANSITION_DESKTOP_MS = 1400;
+const TRANSITION_MOBILE_MS  =  600;  // 0.6s transition on mobile — feels snappy
+const EXIT_MS = 500;
 
 // ── Division helpers ──────────────────────────────────────────────────────────
 const TOP_DIVISIONS = ['studio', 'services', 'labs', 'products', 'academy', 'ventures', 'cloud'];
@@ -34,25 +37,26 @@ const TECHNOLOGY_CHARS = 'Technology'.split('');
 export default function LoadingScreen() {
   const pathname = usePathname();
 
-  // 'full'       → 3.2 s: logo draw + wordmark stagger + tagline + progress bar
-  // 'transition' → 1.4 s: logo draw + static wordmark + progress bar
-  const [mode,         setMode]         = useState<'full' | 'transition'>('full');
-  const [visible,      setVisible]      = useState(true);
+  // 'full'       → logo draw + wordmark stagger + tagline + progress bar
+  // 'transition' → logo draw + static wordmark + progress bar
+  const [mode,          setMode]         = useState<'full' | 'transition'>('full');
+  const [visible,       setVisible]      = useState(true);
   const [reducedMotion, setReducedMotion] = useState(false);
+  // isMobile is resolved in useEffect (window is available there, not at module level)
+  const [isMobile,      setIsMobile]     = useState(false);
 
-  const timerRef   = useRef<ReturnType<typeof setTimeout> | null>(null);
-  // Keep a ref to the latest pathname so the click handler can read it
-  // without stale-closure problems
+  const timerRef    = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pathnameRef = useRef(pathname);
   useEffect(() => { pathnameRef.current = pathname; }, [pathname]);
 
   // ── 1. First page load (mount only) ──────────────────────────────────────
   useEffect(() => {
+    const mobile = window.innerWidth < 768;
+    setIsMobile(mobile);
+
     const done = () => {
-      if (typeof window !== 'undefined') {
-        (window as any).__sfLoadingDone = true;
-        window.dispatchEvent(new CustomEvent('loading-done'));
-      }
+      (window as any).__sfLoadingDone = true;
+      window.dispatchEvent(new CustomEvent('loading-done'));
       setVisible(false);
     };
 
@@ -61,7 +65,8 @@ export default function LoadingScreen() {
       setReducedMotion(true);
       timerRef.current = setTimeout(done, 400);
     } else {
-      timerRef.current = setTimeout(done, FIRST_LOAD_MS);
+      const holdMs = mobile ? FIRST_LOAD_MOBILE_MS : FIRST_LOAD_DESKTOP_MS;
+      timerRef.current = setTimeout(done, holdMs);
     }
 
     return () => { if (timerRef.current) clearTimeout(timerRef.current); };
@@ -101,9 +106,13 @@ export default function LoadingScreen() {
           setVisible(true);
         });
 
+        const transitionMs = window.innerWidth < 768
+          ? TRANSITION_MOBILE_MS
+          : TRANSITION_DESKTOP_MS;
+
         timerRef.current = setTimeout(() => {
           setVisible(false);
-        }, TRANSITION_MS);
+        }, transitionMs);
       }
     };
 
@@ -112,7 +121,9 @@ export default function LoadingScreen() {
     return () => document.removeEventListener('click', handleClick, true);
   }, []); // stable — reads pathname via ref
 
-  const holdMs = mode === 'full' ? FIRST_LOAD_MS : TRANSITION_MS;
+  const holdMs = mode === 'full'
+    ? (isMobile ? FIRST_LOAD_MOBILE_MS  : FIRST_LOAD_DESKTOP_MS)
+    : (isMobile ? TRANSITION_MOBILE_MS  : TRANSITION_DESKTOP_MS);
 
   return (
     <AnimatePresence>
@@ -128,6 +139,8 @@ export default function LoadingScreen() {
             display: 'flex', flexDirection: 'column',
             alignItems: 'center', justifyContent: 'center',
             overflow: 'hidden',
+            // Prevent the background page from scrolling on touch while overlay is up
+            touchAction: 'none',
           }}
           aria-label="Loading SocioFi Technology"
           role="progressbar"
@@ -199,8 +212,9 @@ export default function LoadingScreen() {
               </svg>
             </div>
 
-            {/* Full mode — animated character-by-character wordmark */}
-            {mode === 'full' && (
+            {/* Full mode — animated character-by-character wordmark (desktop only).
+                On mobile use the instant static wordmark to keep the intro snappy. */}
+            {mode === 'full' && !isMobile && (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
                 <div style={{ display: 'flex', overflow: 'hidden', paddingBottom: 2 }}>
                   {SOCIOFI_CHARS.map((char, i) => (
@@ -233,8 +247,8 @@ export default function LoadingScreen() {
               </div>
             )}
 
-            {/* Transition mode — instant static wordmark */}
-            {mode === 'transition' && (
+            {/* Transition mode OR mobile full mode — instant static wordmark */}
+            {(mode === 'transition' || isMobile) && (
               <motion.div
                 initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.35, delay: 0.25 }}

@@ -7,7 +7,7 @@
       "runtimeArgs": [
         "C:/Program Files/nodejs/node_modules/npm/bin/npm-cli.js",
         "--prefix",
-        "D:/work/SocioFi-Website-Update_16march/.claude/worktrees/admiring-satoshi/sociofi-website",
+        "D:/work/SocioFi-Website-Update_16march/.claude/worktrees/funny-boyd/sociofi-website",
         "run",
         "dev"
       ],

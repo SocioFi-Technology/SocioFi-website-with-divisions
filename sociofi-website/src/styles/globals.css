@@ -228,13 +228,19 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  /* scroll-behavior: smooth removed — interferes with Framer Motion useScroll transforms.
+     Use .smooth-scroll on individual anchor containers instead. */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   /* Prevent width jump when scrollbar appears */
   scrollbar-gutter: stable;
+  /* Prevent scroll chaining from modals / drawers on iOS */
+  overscroll-behavior-y: none;
 }
+
+/* Opt-in smooth scroll for anchor link containers */
+.smooth-scroll { scroll-behavior: smooth; }
 
 /* ── General Sans — place files in /public/fonts/ ────────────────────────
    Download free from: https://pangrampangram.com/products/general-sans
@@ -270,23 +276,39 @@ body {
 }
 
 /* ── Extended theme transitions — key containers & components ── */
-/* Only background/color/border — never position/transform to avoid jank */
+/* Only background/color/border — never position/transform to avoid jank.
+   Use explicit class selectors (not [class*=]) to prevent unintended matches. */
 .nav,
 section,
 header,
 footer,
 aside,
-[class*="card"],
-[class*="glass"],
-[class*="btn"],
-[class*="badge"] {
+.card,
+.service-card,
+.pricing-card,
+.portfolio-card,
+.testimonial-card,
+.course-card,
+.team-card,
+.glass-panel,
+.glass-panel-strong,
+.btn,
+.btn-primary,
+.btn-ghost,
+.btn-accent,
+.badge,
+.badge-accent,
+.badge-muted {
   transition:
     background-color 0.3s var(--ease),
     border-color 0.3s var(--ease),
     color 0.3s var(--ease);
 }
 
-/* Noise grain layer — CSS only, no image files needed */
+/* Noise grain layer — CSS only, no image files needed.
+   position: fixed at z-index 9999 creates a full-viewport compositing layer that
+   forces a repaint on every scroll event on mobile. We keep it on desktop (where
+   it looks great) but disable it on touch devices to eliminate this GPU cost. */
 body::before {
   content: '';
   position: fixed;
@@ -295,8 +317,14 @@ body::before {
   pointer-events: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
   opacity: var(--noise-opacity);
-  /* Disable interaction with links/buttons */
   mix-blend-mode: overlay;
+}
+
+/* Disable the noise layer on touch/mobile — eliminates a costly compositing layer */
+@media (max-width: 768px), (hover: none) and (pointer: coarse) {
+  body::before {
+    display: none;
+  }
 }
 
 /* ──────────────────────────────────────────────────────────────
@@ -497,6 +525,9 @@ ul, ol {
     box-shadow 0.4s var(--ease);
   position: relative;
   overflow: hidden;
+  /* CSS containment: tell the browser each card is a self-contained paint rect.
+     This prevents a single card's hover shadow from triggering sibling repaints. */
+  contain: layout style paint;
 }
 
 /* Top gradient line — reveals on hover */
@@ -810,6 +841,8 @@ ul, ol {
   filter: blur(100px);
   pointer-events: none;
   opacity: var(--glow-opacity);
+  /* Isolate orb repaints so they don't trigger parent relayout */
+  will-change: transform;
 }
 
 .orb-navy {
@@ -1584,4 +1617,58 @@ pre code {
   .agent-section {
     padding-block: 40px !important;
   }
+}
+
+/* ═══════════════════════════════════════
+   CONTENT VISIBILITY — BELOW-FOLD SECTIONS
+   Lets the browser skip rendering off-screen sections on initial paint.
+   Apply .section-lazy to any section that appears below the hero fold.
+   The browser will auto-render it when it approaches the viewport.
+   ═══════════════════════════════════════ */
+
+.section-lazy {
+  content-visibility: auto;
+  /* Hint the approximate height so the scrollbar stays accurate before render */
+  contain-intrinsic-size: auto 600px;
+}
+
+/* ═══════════════════════════════════════
+   OVERSCROLL — PREVENT SCROLL CHAINING
+   Prevents the page from scrolling when a modal/drawer hits its boundary.
+   ═══════════════════════════════════════ */
+
+.mnav-overlay,
+.modal,
+.drawer,
+.filter-drawer,
+[role="dialog"] {
+  overscroll-behavior: contain;
+}
+
+/* ═══════════════════════════════════════
+   SECTION CONTAINMENT
+   Sections don't affect each other's layout — speeds up style recalc on scroll.
+   ═══════════════════════════════════════ */
+
+.section,
+.section-sm,
+.section-alt {
+  contain: layout style;
+}
+
+/* ═══════════════════════════════════════
+   TAP HIGHLIGHT REMOVAL
+   Prevents the default blue flash on touch tap across all interactive elements.
+   ═══════════════════════════════════════ */
+
+a,
+button,
+[role="button"],
+.btn,
+.card,
+.nav-link,
+.mnav-link,
+.mnav-pill,
+.mnav-cta {
+  -webkit-tap-highlight-color: transparent;
 }

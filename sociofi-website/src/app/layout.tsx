@@ -1,5 +1,8 @@
 import type { Metadata } from 'next';
-import { Plus_Jakarta_Sans, Inter, Fira_Code, Manrope, DM_Sans, JetBrains_Mono, Syne, Outfit, Space_Grotesk } from 'next/font/google';
+// Only load fonts that are actually referenced by CSS variables.
+// Plus_Jakarta_Sans, Inter, and Space_Grotesk were loaded but never used —
+// removing them saves 3 network requests + parse time on every page load.
+import { Fira_Code, Manrope, DM_Sans, JetBrains_Mono, Syne, Outfit } from 'next/font/google';
 import { ThemeProvider } from 'next-themes';
 import { OrganizationJsonLd, WebsiteJsonLd } from '@/components/shared/JsonLd';
 import LoadingScreen from '@/components/shared/LoadingScreen';
@@ -7,25 +10,12 @@ import '../styles/globals.css';
 import '../styles/animations.css';
 import '../styles/responsive.css';
 
-const plusJakarta = Plus_Jakarta_Sans({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-jakarta',
-  display: 'swap',
-});
-
-const inter = Inter({
-  subsets: ['latin'],
-  weight: ['400', '500', '600'],
-  variable: '--font-inter',
-  display: 'swap',
-});
-
 const firaCode = Fira_Code({
   subsets: ['latin'],
   weight: ['300', '400', '500', '600'],
   variable: '--font-fira',
   display: 'swap',
+  preload: false, // mono font — not on critical path; load after main fonts
 });
 
 const manrope = Manrope({
@@ -47,13 +37,7 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ['400', '500', '600'],
   variable: '--font-jb-mono',
   display: 'swap',
-});
-
-const spaceGrotesk = Space_Grotesk({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
-  variable: '--font-display',
-  display: 'swap',
+  preload: false, // mono font — not on critical path
 });
 
 const syne = Syne({
@@ -104,7 +88,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${plusJakarta.variable} ${inter.variable} ${firaCode.variable} ${manrope.variable} ${dmSans.variable} ${jetbrainsMono.variable} ${syne.variable} ${outfit.variable} ${spaceGrotesk.variable}`}>
+      <body className={`${firaCode.variable} ${manrope.variable} ${dmSans.variable} ${jetbrainsMono.variable} ${syne.variable} ${outfit.variable}`}>
         <OrganizationJsonLd />
         <WebsiteJsonLd />
         <ThemeProvider
