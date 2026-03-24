@@ -4,10 +4,8 @@ import CTASection from '@/components/shared/CTASection';
 import Container from '@/components/shared/Container';
 import ScrollReveal, { StaggerChildren, StaggerItem } from '@/components/shared/ScrollReveal';
 import Card from '@/components/cards/Card';
-import dynamic from 'next/dynamic';
-
-const AnimatedGrid = dynamic(() => import('@/components/visual/AnimatedGrid'), { ssr: false });
-const GradientOrbs = dynamic(() => import('@/components/visual/GradientOrbs'), { ssr: false });
+import AnimatedGrid from '@/components/visual/AnimatedGridLazy';
+import GradientOrbs from '@/components/visual/GradientOrbsLazy';
 
 // ── Content Interfaces ────────────────────────────────────────────────────────
 
