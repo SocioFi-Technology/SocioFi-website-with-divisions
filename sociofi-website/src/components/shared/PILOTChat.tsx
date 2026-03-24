@@ -5,13 +5,33 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import PILOTAvatar from './PILOTAvatar';
 import type { Division } from '@/lib/divisions';
 
+// ── Mobile detection hook ────────────────────────────────────────────────────
+
+function useIsMobile(breakpoint = 640) {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia(`(max-width: ${breakpoint}px)`);
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, [breakpoint]);
+  return isMobile;
+}
+
 // ── Types ─────────────────────────────────────────────────────────────────────
+
+interface QuickAction {
+  label: string;
+  action?: 'navigate' | 'message';
+  url?: string;
+}
 
 interface Message {
   id: string;
   role: 'pilot' | 'user';
   content: string;
-  quickActions?: string[];
+  quickActions?: (string | QuickAction)[];
   timestamp: Date;
 }
 
@@ -65,6 +85,93 @@ const DEFAULT_OPENER = {
   quickActions: ["What does SocioFi do?", "Which division is right for me?", "Pricing info", "Talk to a human"],
 };
 
+// ── Rich text parser ─────────────────────────────────────────────────────────
+// Converts plain-text PILOT responses into React nodes:
+// - **bold** → <strong>
+// - [link text](url) → <a>
+// - /path/to/page → clickable internal link
+// - Lines starting with - or • → list items
+
+function parseRichText(text: string, accent: string): React.ReactNode[] {
+  const lines = text.split('\n');
+  const nodes: React.ReactNode[] = [];
+
+  lines.forEach((line, li) => {
+    if (li > 0) nodes.push(<br key={`br-${li}`} />);
+
+    // List item detection
+    const listMatch = line.match(/^(\s*[-•]\s+)(.*)/);
+    const content = listMatch ? listMatch[2] : line;
+    const isListItem = !!listMatch;
+
+    // Parse inline: **bold**, [text](url), and bare /paths
+    const inlinePattern = /(\*\*(.+?)\*\*|\[([^\]]+)\]\(([^)]+)\)|(\/[a-z][a-z0-9\-/]*(?:#[a-z0-9\-]*)?))/g;
+    const parts: React.ReactNode[] = [];
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+
+    while ((match = inlinePattern.exec(content)) !== null) {
+      // Text before the match
+      if (match.index > lastIndex) {
+        parts.push(content.slice(lastIndex, match.index));
+      }
+
+      if (match[2]) {
+        // **bold**
+        parts.push(
+          <strong key={`b-${li}-${match.index}`} style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+            {match[2]}
+          </strong>
+        );
+      } else if (match[3] && match[4]) {
+        // [text](url)
+        const isExternal = match[4].startsWith('http');
+        parts.push(
+          <a
+            key={`a-${li}-${match.index}`}
+            href={match[4]}
+            target={isExternal ? '_blank' : undefined}
+            rel={isExternal ? 'noopener noreferrer' : undefined}
+            style={{ color: accent, textDecoration: 'underline', textUnderlineOffset: 2 }}
+          >
+            {match[3]}
+          </a>
+        );
+      } else if (match[5]) {
+        // Bare /path
+        parts.push(
+          <a
+            key={`p-${li}-${match.index}`}
+            href={match[5]}
+            style={{ color: accent, textDecoration: 'underline', textUnderlineOffset: 2 }}
+          >
+            {match[5]}
+          </a>
+        );
+      }
+
+      lastIndex = match.index + match[0].length;
+    }
+
+    if (lastIndex < content.length) {
+      parts.push(content.slice(lastIndex));
+    }
+
+    if (isListItem) {
+      nodes.push(
+        <span key={`li-${li}`} style={{ display: 'flex', gap: 6, paddingLeft: 4 }}>
+          <span style={{ color: accent, flexShrink: 0 }}>&#x2022;</span>
+          <span>{parts}</span>
+        </span>
+      );
+    } else {
+      nodes.push(<span key={`t-${li}`}>{parts}</span>);
+    }
+  });
+
+  return nodes;
+}
+
 // ── Main Component ────────────────────────────────────────────────────────────
 
 export default function PILOTChat({
@@ -78,17 +185,22 @@ export default function PILOTChat({
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [hasUnread, setHasUnread] = useState(false);
+  const [showLeadForm, setShowLeadForm] = useState(false);
   const [conversationId] = useState(() => Math.random().toString(36).slice(2));
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const reduced = useReducedMotion();
+  const isMobile = useIsMobile();
   const proactiveSentRef = useRef(0);
 
   const accent = division.accent || 'var(--teal)';
   const divisionKey = division.slug || 'technology';
   const opener = DIVISION_OPENERS[divisionKey] ?? DEFAULT_OPENER;
+
+  // ── Session storage key ─────────────────────────────────────────────────────
+  const storageKey = `pilot-chat-${divisionKey}`;
 
   // ── Scroll to bottom ────────────────────────────────────────────────────────
   const scrollToBottom = useCallback(() => {
@@ -99,8 +211,48 @@ export default function PILOTChat({
     scrollToBottom();
   }, [messages, scrollToBottom]);
 
-  // ── Init messages with opener ───────────────────────────────────────────────
+  // ── Persist messages to sessionStorage ─────────────────────────────────────
+  const skipPersistRef = useRef(true);
   useEffect(() => {
+    if (skipPersistRef.current) { skipPersistRef.current = false; return; }
+    if (messages.length <= 1) return; // Don't persist just the welcome message
+    try {
+      const toStore = messages
+        .filter(m => m.content !== '...' && m.content !== '')
+        .map(m => ({
+          id: m.id,
+          role: m.role,
+          content: m.content,
+          quickActions: m.quickActions,
+          timestamp: m.timestamp.toISOString(),
+        }));
+      sessionStorage.setItem(storageKey, JSON.stringify({
+        messages: toStore,
+        conversationId,
+        savedAt: Date.now(),
+      }));
+    } catch { /* sessionStorage full or unavailable */ }
+  }, [messages, storageKey, conversationId]);
+
+  // ── Init messages: restore from session or show opener ─────────────────────
+  useEffect(() => {
+    try {
+      const stored = sessionStorage.getItem(storageKey);
+      if (stored) {
+        const data = JSON.parse(stored) as {
+          messages: Array<{ id: string; role: 'pilot' | 'user'; content: string; quickActions?: (string | QuickAction)[]; timestamp: string }>;
+          savedAt: number;
+        };
+        // Restore if saved within the last 24 hours
+        const age = Date.now() - data.savedAt;
+        if (age < 24 * 60 * 60 * 1000 && data.messages.length > 1) {
+          setMessages(data.messages.map(m => ({ ...m, timestamp: new Date(m.timestamp) })));
+          return;
+        }
+        sessionStorage.removeItem(storageKey);
+      }
+    } catch { /* ignore parse errors */ }
+
     setMessages([
       {
         id: 'welcome',
@@ -164,6 +316,24 @@ export default function PILOTChat({
     async (text: string) => {
       if (!text.trim() || isLoading) return;
 
+      // Direct lead capture trigger phrases
+      const lowerText = text.trim().toLowerCase();
+      if (lowerText === 'talk to a human' || lowerText === 'connect me with someone' || lowerText === 'talk to someone') {
+        setMessages(prev => [
+          ...prev,
+          { id: Date.now().toString(), role: 'user', content: text.trim(), timestamp: new Date() },
+          {
+            id: (Date.now() + 1).toString(),
+            role: 'pilot',
+            content: "Absolutely! Let me collect a couple of details so the right person can reach out to you with full context of our conversation.",
+            timestamp: new Date(),
+          },
+        ]);
+        setInput('');
+        setShowLeadForm(true);
+        return;
+      }
+
       const userMessage: Message = {
         id: Date.now().toString(),
         role: 'user',
@@ -192,6 +362,7 @@ export default function PILOTChat({
             division: divisionKey,
             page_url: pageUrl,
             page_title: pageTitle,
+            stream: true,
             history: messages
               .filter(m => m.id !== 'welcome')
               .map(m => ({
@@ -201,20 +372,92 @@ export default function PILOTChat({
           }),
         });
 
-        const data = (await response.json()) as { message?: string; quickActions?: string[] };
+        const contentType = response.headers.get('content-type') || '';
 
-        setMessages(prev => [
-          ...prev.filter(m => m.id !== typingId),
-          {
-            id: Date.now().toString(),
-            role: 'pilot',
-            content:
-              data.message ||
-              "I'm not sure how to help with that. Want me to connect you with a real person?",
-            quickActions: data.quickActions,
-            timestamp: new Date(),
-          },
-        ]);
+        if (contentType.includes('text/event-stream') && response.body) {
+          // ── Streaming mode ────────────────────────────────────────────────
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          let streamedText = '';
+          let buffer = '';
+          const streamMsgId = Date.now().toString();
+
+          // Replace typing indicator with empty streaming message
+          setMessages(prev => [
+            ...prev.filter(m => m.id !== typingId),
+            { id: streamMsgId, role: 'pilot', content: '', timestamp: new Date() },
+          ]);
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || '';
+
+            for (const line of lines) {
+              if (!line.startsWith('data: ')) continue;
+              try {
+                const event = JSON.parse(line.slice(6)) as {
+                  type: string;
+                  text?: string;
+                  message?: string;
+                  quickActions?: (string | QuickAction)[];
+                };
+
+                if (event.type === 'delta' && event.text) {
+                  streamedText += event.text;
+                  setMessages(prev =>
+                    prev.map(m => m.id === streamMsgId ? { ...m, content: streamedText } : m)
+                  );
+                } else if (event.type === 'done') {
+                  const finalText = event.message || streamedText;
+                  const handoffSignals = ['connect you with', 'pass your details', 'reach out to you', 'connect you to', 'talk to arifur', 'talk to kamrul', 'email hello@'];
+                  const shouldShowForm = handoffSignals.some(s => finalText.toLowerCase().includes(s));
+
+                  setMessages(prev =>
+                    prev.map(m => m.id === streamMsgId ? {
+                      ...m,
+                      content: finalText,
+                      quickActions: shouldShowForm
+                        ? [{ label: 'Talk to a human', action: 'message' as const }, ...(event.quickActions || [])]
+                        : event.quickActions,
+                    } : m)
+                  );
+
+                  if (shouldShowForm) setShowLeadForm(true);
+                } else if (event.type === 'error') {
+                  setMessages(prev =>
+                    prev.map(m => m.id === streamMsgId ? { ...m, content: event.message || 'Something went wrong.' } : m)
+                  );
+                }
+              } catch { /* skip malformed SSE lines */ }
+            }
+          }
+        } else {
+          // ── Non-streaming fallback (NEXUS or JSON response) ────────────────
+          const data = (await response.json()) as { message?: string; quickActions?: (string | QuickAction)[] };
+          const responseText = data.message || "I'm not sure how to help with that. Want me to connect you with a real person?";
+
+          const handoffSignals = ['connect you with', 'pass your details', 'reach out to you', 'connect you to', 'talk to arifur', 'talk to kamrul', 'email hello@'];
+          const shouldShowForm = handoffSignals.some(s => responseText.toLowerCase().includes(s));
+
+          setMessages(prev => [
+            ...prev.filter(m => m.id !== typingId),
+            {
+              id: Date.now().toString(),
+              role: 'pilot',
+              content: responseText,
+              quickActions: shouldShowForm
+                ? [{ label: 'Talk to a human', action: 'message' as const }, ...(data.quickActions || [])]
+                : data.quickActions,
+              timestamp: new Date(),
+            },
+          ]);
+
+          if (shouldShowForm) setShowLeadForm(true);
+        }
       } catch {
         setMessages(prev => [
           ...prev.filter(m => m.id !== typingId),
@@ -238,6 +481,28 @@ export default function PILOTChat({
     sendMessage(input);
   };
 
+  // ── Lead capture ────────────────────────────────────────────────────────
+  const requestLeadCapture = useCallback(() => {
+    setShowLeadForm(true);
+  }, []);
+
+  const handleLeadComplete = useCallback((name: string) => {
+    setShowLeadForm(false);
+    setMessages(prev => [
+      ...prev,
+      {
+        id: Date.now().toString(),
+        role: 'pilot',
+        content: `Done! I've passed everything along to the ${division.name} team. They'll reach out within 4 hours on business days. In the meantime, feel free to keep exploring or ask me anything else.`,
+        quickActions: [
+          { label: 'Browse services', action: 'navigate', url: '/studio' },
+          { label: 'See pricing', action: 'navigate', url: '/studio/start-project' },
+        ],
+        timestamp: new Date(),
+      },
+    ]);
+  }, [division.name]);
+
   // ── Embedded mode ───────────────────────────────────────────────────────────
   if (embedded) {
     return (
@@ -252,6 +517,11 @@ export default function PILOTChat({
         messagesEndRef={messagesEndRef}
         inputRef={inputRef}
         division={division}
+        showLeadForm={showLeadForm}
+        onRequestLead={requestLeadCapture}
+        onLeadComplete={handleLeadComplete}
+        conversationId={conversationId}
+        pageUrl={pageUrl}
       />
     );
   }
@@ -259,20 +529,62 @@ export default function PILOTChat({
   // ── Floating mode ───────────────────────────────────────────────────────────
   return (
     <>
+      {/* Mobile backdrop overlay */}
+      <AnimatePresence>
+        {isOpen && isMobile && (
+          <motion.div
+            key="backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setIsOpen(false)}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(0,0,0,0.5)',
+              zIndex: 9998,
+            }}
+            aria-hidden="true"
+          />
+        )}
+      </AnimatePresence>
+
       {/* Chat Panel */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
             key="chat-panel"
             ref={panelRef}
-            initial={reduced ? { opacity: 0 } : { opacity: 0, y: 20, scale: 0.97 }}
-            animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
-            exit={reduced ? { opacity: 0 } : { opacity: 0, y: 16, scale: 0.97 }}
-            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            initial={reduced ? { opacity: 0 } : isMobile ? { opacity: 0, y: '100%' } : { opacity: 0, y: 20, scale: 0.97 }}
+            animate={reduced ? { opacity: 1 } : isMobile ? { opacity: 1, y: 0 } : { opacity: 1, y: 0, scale: 1 }}
+            exit={reduced ? { opacity: 0 } : isMobile ? { opacity: 0, y: '100%' } : { opacity: 0, y: 16, scale: 0.97 }}
+            transition={isMobile
+              ? { duration: 0.3, ease: [0.32, 0.72, 0, 1] }
+              : { duration: 0.25, ease: [0.16, 1, 0.3, 1] }
+            }
             role="dialog"
             aria-label="PILOT chat assistant"
             aria-modal="true"
-            style={{
+            style={isMobile ? {
+              // ── Mobile: full-width bottom sheet ──────────────────────
+              position: 'fixed',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              width: '100%',
+              height: '75vh',
+              maxHeight: 'calc(100vh - 40px)',
+              zIndex: 9999,
+              display: 'flex',
+              flexDirection: 'column',
+              background: 'var(--bg-card)',
+              border: `1px solid ${accent}26`,
+              borderRadius: '24px 24px 0 0',
+              boxShadow: '0 -8px 40px rgba(0,0,0,0.3)',
+              overflow: 'hidden',
+            } : {
+              // ── Desktop: positioned panel ───────────────────────────
               position: 'fixed',
               bottom: 96,
               right: 24,
@@ -302,6 +614,12 @@ export default function PILOTChat({
               inputRef={inputRef}
               division={division}
               onClose={() => setIsOpen(false)}
+              showLeadForm={showLeadForm}
+              onRequestLead={requestLeadCapture}
+              onLeadComplete={handleLeadComplete}
+              conversationId={conversationId}
+              pageUrl={pageUrl}
+              isMobile={isMobile}
             />
           </motion.div>
         )}
@@ -319,10 +637,10 @@ export default function PILOTChat({
         aria-haspopup="dialog"
         style={{
           position: 'fixed',
-          bottom: 24,
-          right: 24,
-          width: 56,
-          height: 56,
+          bottom: isMobile ? 16 : 24,
+          right: isMobile ? 16 : 24,
+          width: isMobile ? 48 : 56,
+          height: isMobile ? 48 : 56,
           borderRadius: '50%',
           background: accent,
           border: 'none',
@@ -332,7 +650,7 @@ export default function PILOTChat({
           justifyContent: 'center',
           boxShadow: `0 4px 20px rgba(0,0,0,0.25), 0 0 0 0px ${accent}`,
           zIndex: 10000,
-          transition: 'transform 0.2s var(--ease), box-shadow 0.2s var(--ease)',
+          transition: 'transform 0.2s var(--ease), box-shadow 0.2s var(--ease), width 0.2s, height 0.2s, bottom 0.2s, right 0.2s',
         }}
         whileHover={{ scale: 1.08, boxShadow: '0 8px 32px rgba(0,0,0,0.3)' }}
         whileTap={{ scale: 0.96 }}
@@ -414,6 +732,12 @@ interface PanelProps {
   inputRef: React.RefObject<HTMLInputElement | null>;
   division: Division;
   onClose?: () => void;
+  showLeadForm?: boolean;
+  onRequestLead?: () => void;
+  onLeadComplete?: (name: string) => void;
+  conversationId?: string;
+  pageUrl?: string;
+  isMobile?: boolean;
 }
 
 function ChatPanel({
@@ -428,15 +752,44 @@ function ChatPanel({
   inputRef,
   division,
   onClose,
+  showLeadForm,
+  onLeadComplete,
+  conversationId = '',
+  pageUrl = '',
+  isMobile = false,
 }: PanelProps) {
   return (
     <>
+      {/* Mobile drag handle */}
+      {isMobile && (
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            paddingTop: 10,
+            paddingBottom: 2,
+            flexShrink: 0,
+            background: `linear-gradient(135deg, ${accent}12 0%, transparent 100%)`,
+          }}
+        >
+          <div
+            style={{
+              width: 36,
+              height: 4,
+              borderRadius: 2,
+              background: 'var(--text-muted)',
+              opacity: 0.35,
+            }}
+          />
+        </div>
+      )}
+
       {/* Header */}
       <div
         style={{
-          padding: '14px 16px 12px',
+          padding: isMobile ? '8px 16px 12px' : '14px 16px 12px',
           borderBottom: '1px solid var(--border)',
-          background: `linear-gradient(135deg, ${accent}12 0%, transparent 100%)`,
+          background: isMobile ? 'transparent' : `linear-gradient(135deg, ${accent}12 0%, transparent 100%)`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -470,30 +823,71 @@ function ChatPanel({
             </div>
           </div>
         </div>
-        {onClose && (
-          <button
-            onClick={onClose}
-            aria-label="Close chat"
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              color: 'var(--text-muted)',
-              padding: 4,
-              borderRadius: 8,
-              display: 'flex',
-            }}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path
-                d="M18 6L6 18M6 6l12 12"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-            </svg>
-          </button>
-        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          {/* Export conversation */}
+          {messages.length > 1 && (
+            <button
+              onClick={() => {
+                const transcript = messages
+                  .filter(m => m.content !== '...' && m.content !== '')
+                  .map(m => `[${m.role === 'pilot' ? 'PILOT' : 'You'}] ${m.content}`)
+                  .join('\n\n');
+                const blob = new Blob(
+                  [`SocioFi PILOT Conversation\n${division.name} Division\n${new Date().toLocaleDateString()}\n${'─'.repeat(40)}\n\n${transcript}\n`],
+                  { type: 'text/plain' }
+                );
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `pilot-conversation-${Date.now()}.txt`;
+                a.click();
+                URL.revokeObjectURL(url);
+              }}
+              aria-label="Export conversation"
+              title="Export conversation"
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: 'var(--text-muted)',
+                padding: 4,
+                borderRadius: 8,
+                display: 'flex',
+                transition: 'color 0.2s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.color = accent; }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          )}
+          {onClose && (
+            <button
+              onClick={onClose}
+              aria-label="Close chat"
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: 'var(--text-muted)',
+                padding: 4,
+                borderRadius: 8,
+                display: 'flex',
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="M18 6L6 18M6 6l12 12"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Messages */}
@@ -517,8 +911,25 @@ function ChatPanel({
             msg={msg}
             accent={accent}
             onQuickAction={sendMessage}
+            conversationId={conversationId}
+            divisionKey={division.slug}
           />
         ))}
+        {showLeadForm && onLeadComplete && (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 6 }}>
+            <LeadCaptureForm
+              accent={accent}
+              division={division.slug || 'technology'}
+              pageUrl={pageUrl}
+              conversationId={conversationId}
+              transcript={messages.filter(m => m.id !== 'welcome').map(m => ({
+                role: m.role === 'pilot' ? 'assistant' : 'user',
+                content: m.content,
+              }))}
+              onComplete={onLeadComplete}
+            />
+          </div>
+        )}
         <div ref={messagesEndRef} />
       </div>
 
@@ -620,13 +1031,33 @@ function MessageBubble({
   msg,
   accent,
   onQuickAction,
+  conversationId,
+  divisionKey,
 }: {
   msg: Message;
   accent: string;
   onQuickAction: (text: string) => void;
+  conversationId?: string;
+  divisionKey?: string;
 }) {
   const isPilot = msg.role === 'pilot';
-  const isTyping = msg.content === '...';
+  const isTyping = msg.content === '...' || msg.content === '';
+  const [feedback, setFeedback] = useState<'up' | 'down' | null>(null);
+
+  const handleFeedback = (rating: 'up' | 'down') => {
+    if (feedback) return; // Already voted
+    setFeedback(rating);
+    fetch('/api/pilot/feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message_id: msg.id,
+        conversation_id: conversationId,
+        rating,
+        division: divisionKey,
+      }),
+    }).catch(() => { /* silent fail */ });
+  };
 
   return (
     <div
@@ -652,6 +1083,10 @@ function MessageBubble({
       >
         {isTyping ? (
           <TypingDots accent={accent} />
+        ) : isPilot ? (
+          <span style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {parseRichText(msg.content, accent)}
+          </span>
         ) : (
           <span style={{ whiteSpace: 'pre-wrap' }}>{msg.content}</span>
         )}
@@ -660,46 +1095,299 @@ function MessageBubble({
       {/* Quick Actions */}
       {isPilot && msg.quickActions && msg.quickActions.length > 0 && !isTyping && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, maxWidth: '85%' }}>
-          {msg.quickActions.map(action => (
-            <button
-              key={action}
-              onClick={() => onQuickAction(action)}
-              style={{
-                padding: '4px 12px',
-                borderRadius: 'var(--radius-full)',
-                background: `${accent}12`,
-                border: `1px solid ${accent}30`,
-                fontFamily: 'var(--font-mono)',
-                fontSize: '0.68rem',
-                color: accent,
-                cursor: 'pointer',
-                letterSpacing: '0.04em',
-                transition: 'background 0.2s',
-              }}
-              onMouseEnter={e => {
-                (e.target as HTMLElement).style.background = `${accent}22`;
-              }}
-              onMouseLeave={e => {
-                (e.target as HTMLElement).style.background = `${accent}12`;
-              }}
-            >
-              {action}
-            </button>
-          ))}
+          {msg.quickActions.map((raw, idx) => {
+            const qa: QuickAction = typeof raw === 'string' ? { label: raw } : raw;
+            const isNav = qa.action === 'navigate' && qa.url;
+
+            if (isNav) {
+              return (
+                <a
+                  key={`${qa.label}-${idx}`}
+                  href={qa.url}
+                  style={{
+                    padding: '4px 12px',
+                    borderRadius: 'var(--radius-full)',
+                    background: `${accent}12`,
+                    border: `1px solid ${accent}30`,
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '0.68rem',
+                    color: accent,
+                    cursor: 'pointer',
+                    letterSpacing: '0.04em',
+                    transition: 'background 0.2s',
+                    textDecoration: 'none',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 4,
+                  }}
+                  onMouseEnter={e => {
+                    (e.currentTarget as HTMLElement).style.background = `${accent}22`;
+                  }}
+                  onMouseLeave={e => {
+                    (e.currentTarget as HTMLElement).style.background = `${accent}12`;
+                  }}
+                >
+                  {qa.label}
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" aria-hidden="true" style={{ opacity: 0.6 }}>
+                    <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </a>
+              );
+            }
+
+            return (
+              <button
+                key={`${qa.label}-${idx}`}
+                onClick={() => onQuickAction(qa.label)}
+                style={{
+                  padding: '4px 12px',
+                  borderRadius: 'var(--radius-full)',
+                  background: `${accent}12`,
+                  border: `1px solid ${accent}30`,
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.68rem',
+                  color: accent,
+                  cursor: 'pointer',
+                  letterSpacing: '0.04em',
+                  transition: 'background 0.2s',
+                }}
+                onMouseEnter={e => {
+                  (e.target as HTMLElement).style.background = `${accent}22`;
+                }}
+                onMouseLeave={e => {
+                  (e.target as HTMLElement).style.background = `${accent}12`;
+                }}
+              >
+                {qa.label}
+              </button>
+            );
+          })}
         </div>
       )}
 
-      {/* Timestamp */}
-      <span
-        style={{
-          fontFamily: 'var(--font-mono)',
-          fontSize: '0.58rem',
-          color: 'var(--text-muted)',
-          paddingInline: 4,
-        }}
-      >
-        {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-      </span>
+      {/* Feedback + Timestamp */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingInline: 4 }}>
+        {isPilot && !isTyping && msg.id !== 'welcome' && msg.content.length > 0 && (
+          <div style={{ display: 'flex', gap: 2 }}>
+            <button
+              onClick={() => handleFeedback('up')}
+              aria-label="Good response"
+              title="Good response"
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: feedback ? 'default' : 'pointer',
+                padding: 2,
+                borderRadius: 4,
+                display: 'flex',
+                opacity: feedback === 'down' ? 0.25 : feedback === 'up' ? 1 : 0.4,
+                color: feedback === 'up' ? accent : 'var(--text-muted)',
+                transition: 'opacity 0.2s, color 0.2s',
+              }}
+              onMouseEnter={e => { if (!feedback) (e.currentTarget).style.opacity = '0.8'; }}
+              onMouseLeave={e => { if (!feedback) (e.currentTarget).style.opacity = '0.4'; }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill={feedback === 'up' ? 'currentColor' : 'none'} aria-hidden="true">
+                <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+            <button
+              onClick={() => handleFeedback('down')}
+              aria-label="Poor response"
+              title="Poor response"
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: feedback ? 'default' : 'pointer',
+                padding: 2,
+                borderRadius: 4,
+                display: 'flex',
+                opacity: feedback === 'up' ? 0.25 : feedback === 'down' ? 1 : 0.4,
+                color: feedback === 'down' ? '#EF4444' : 'var(--text-muted)',
+                transition: 'opacity 0.2s, color 0.2s',
+              }}
+              onMouseEnter={e => { if (!feedback) (e.currentTarget).style.opacity = '0.8'; }}
+              onMouseLeave={e => { if (!feedback) (e.currentTarget).style.opacity = '0.4'; }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill={feedback === 'down' ? 'currentColor' : 'none'} aria-hidden="true">
+                <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10zM17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          </div>
+        )}
+        <span
+          style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: '0.58rem',
+            color: 'var(--text-muted)',
+          }}
+        >
+          {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ── Lead Capture Form (In-Chat) ───────────────────────────────────────────────
+
+interface LeadFormProps {
+  accent: string;
+  division: string;
+  pageUrl: string;
+  conversationId: string;
+  transcript: { role: string; content: string }[];
+  onComplete: (name: string) => void;
+}
+
+function LeadCaptureForm({ accent, division, pageUrl, conversationId, transcript, onComplete }: LeadFormProps) {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [notes, setNotes] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim() || !email.trim()) return;
+    setSubmitting(true);
+    setError('');
+
+    try {
+      const res = await fetch('/api/pilot/lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          notes: notes.trim(),
+          division,
+          page_url: pageUrl,
+          conversation_id: conversationId,
+          transcript,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error || 'Something went wrong.');
+        return;
+      }
+
+      onComplete(name.trim());
+    } catch {
+      setError('Connection failed. Try emailing hello@sociofitechnology.com directly.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const inputStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '8px 10px',
+    background: 'var(--bg-2)',
+    border: '1px solid var(--border)',
+    borderRadius: 'var(--radius-sm)',
+    fontFamily: 'var(--font-body)',
+    fontSize: '0.82rem',
+    color: 'var(--text-primary)',
+    outline: 'none',
+    transition: 'border-color 0.2s',
+    boxSizing: 'border-box' as const,
+  };
+
+  const labelStyle: React.CSSProperties = {
+    fontFamily: 'var(--font-mono)',
+    fontSize: '0.65rem',
+    color: 'var(--text-muted)',
+    textTransform: 'uppercase',
+    letterSpacing: '0.08em',
+    marginBottom: 3,
+    display: 'block',
+  };
+
+  return (
+    <div
+      style={{
+        maxWidth: '85%',
+        padding: '14px 16px',
+        borderRadius: '4px 16px 16px 16px',
+        background: `${accent}10`,
+        border: `1px solid ${accent}25`,
+      }}
+    >
+      <div style={{ fontFamily: 'var(--font-body)', fontSize: '0.84rem', color: 'var(--text-primary)', marginBottom: 12, lineHeight: 1.5 }}>
+        To connect you with the right person, I just need a couple of details. They will have the full context of our conversation.
+      </div>
+
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div>
+          <label style={labelStyle}>Name *</label>
+          <input
+            value={name}
+            onChange={e => setName(e.target.value)}
+            placeholder="Your name"
+            required
+            style={inputStyle}
+            onFocus={e => { e.target.style.borderColor = accent; }}
+            onBlur={e => { e.target.style.borderColor = 'var(--border)'; }}
+          />
+        </div>
+
+        <div>
+          <label style={labelStyle}>Email *</label>
+          <input
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            placeholder="you@example.com"
+            type="email"
+            required
+            style={inputStyle}
+            onFocus={e => { e.target.style.borderColor = accent; }}
+            onBlur={e => { e.target.style.borderColor = 'var(--border)'; }}
+          />
+        </div>
+
+        <div>
+          <label style={labelStyle}>Anything else? (optional)</label>
+          <textarea
+            value={notes}
+            onChange={e => setNotes(e.target.value)}
+            placeholder="Budget, timeline, or other details..."
+            rows={2}
+            style={{ ...inputStyle, resize: 'vertical', minHeight: 48 }}
+            onFocus={e => { e.target.style.borderColor = accent; }}
+            onBlur={e => { e.target.style.borderColor = 'var(--border)'; }}
+          />
+        </div>
+
+        {error && (
+          <div style={{ fontFamily: 'var(--font-body)', fontSize: '0.75rem', color: '#EF4444' }}>
+            {error}
+          </div>
+        )}
+
+        <button
+          type="submit"
+          disabled={submitting || !name.trim() || !email.trim()}
+          style={{
+            padding: '9px 16px',
+            background: accent,
+            color: 'white',
+            border: 'none',
+            borderRadius: 'var(--radius-sm)',
+            fontFamily: 'var(--font-display)',
+            fontSize: '0.82rem',
+            fontWeight: 600,
+            cursor: submitting ? 'wait' : 'pointer',
+            opacity: submitting || !name.trim() || !email.trim() ? 0.6 : 1,
+            transition: 'opacity 0.2s, transform 0.15s',
+            letterSpacing: '-0.01em',
+          }}
+        >
+          {submitting ? 'Sending...' : 'Send to Team'}
+        </button>
+      </form>
     </div>
   );
 }

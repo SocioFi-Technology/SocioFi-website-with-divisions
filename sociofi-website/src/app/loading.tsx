@@ -43,8 +43,11 @@ export default function RootLoading() {
 
       <style>{`
         @keyframes skeleton-pulse {
-          0%, 100% { opacity: 0.5; }
-          50% { opacity: 1; }
+          0%, 100% { opacity: 0.4; }
+          50% { opacity: 0.85; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          div[style*="skeleton-pulse"] { animation: none !important; opacity: 0.5; }
         }
       `}</style>
     </div>
