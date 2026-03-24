@@ -345,9 +345,20 @@ export const divisions: Record<DivisionSlug, Division> = {
   },
 };
 
-export const divisionList = Object.values(divisions).filter(
-  (d): d is Division => d.slug !== 'technology'
-);
+// Canonical display order: parent first, then all 8 divisions
+export const DIVISION_ORDER: DivisionSlug[] = [
+  'technology',
+  'studio',
+  'agents',
+  'services',
+  'cloud',
+  'academy',
+  'ventures',
+  'labs',
+];
+
+// All divisions in display order (excludes 'products' from the main grid — shown separately)
+export const divisionList = DIVISION_ORDER.map(slug => divisions[slug]);
 
 export function getDivision(slug: DivisionSlug | string): Division {
   return divisions[slug as DivisionSlug] ?? divisions.technology;
