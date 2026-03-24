@@ -7,7 +7,9 @@ import Container from '@/components/shared/Container';
 import SectionHeader from '@/components/shared/SectionHeader';
 import ScrollReveal, { StaggerChildren, StaggerItem } from '@/components/shared/ScrollReveal';
 import LogoMarquee from '@/components/sections/LogoMarquee';
-import AnimatedGrid from '@/components/visual/AnimatedGrid';
+import dynamic from 'next/dynamic';
+
+const AnimatedGrid = dynamic(() => import('@/components/visual/AnimatedGrid'), { ssr: false });
 
 // ── Content Interfaces ────────────────────────────────────────────────────────
 

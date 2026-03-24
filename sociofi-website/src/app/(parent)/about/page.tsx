@@ -1,5 +1,4 @@
-'use client';
-
+import type { Metadata } from 'next';
 import Container from '@/components/shared/Container';
 import SectionHeader from '@/components/shared/SectionHeader';
 import ScrollReveal, { StaggerChildren, StaggerItem } from '@/components/shared/ScrollReveal';
@@ -213,6 +212,15 @@ function AgentAvatar({ id, color, svgContent }: { id: string; color: string; svg
     </div>
   );
 }
+
+export const metadata: Metadata = {
+  title: 'About',
+  description: 'SocioFi Technology — an AI-agent-native software studio founded by two BUET engineers in Dhaka. We combine AI-driven development with expert human oversight to build, launch, and maintain real products.',
+  openGraph: {
+    title: 'About SocioFi Technology',
+    description: 'AI-agent-native software studio. AI builds. Humans architect. You scale.',
+  },
+};
 
 export default function AboutPage() {
   return (
