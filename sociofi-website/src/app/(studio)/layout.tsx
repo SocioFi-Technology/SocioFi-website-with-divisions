@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Nav from '@/components/shared/Nav';
 import Footer from '@/components/shared/Footer';
 import PILOTChat from '@/components/shared/PILOTChat';
+import { StudioJsonLd } from '@/components/shared/JsonLd';
 import { divisions } from '@/lib/divisions';
 
 const division = divisions.studio;
@@ -44,6 +45,7 @@ export const metadata: Metadata = {
 export default function StudioLayout({ children }: { children: React.ReactNode }) {
   return (
     <div style={{ '--division-accent': division.accent } as React.CSSProperties}>
+      <StudioJsonLd />
       <Nav division={division} />
       {children}
       <Footer division={division} />

@@ -32,7 +32,9 @@
       "Bash(grep -A 1 \"''use client''\" /d/work/SocioFi-Website-Update_16march/.claude/worktrees/funny-boyd/sociofi-website/src/app/\\\\\\(studio\\\\\\)/studio/page.tsx)",
       "Bash(grep -A 1 \"''use client''\" /d/work/SocioFi-Website-Update_16march/.claude/worktrees/funny-boyd/sociofi-website/src/app/\\\\\\(agents\\\\\\)/agents/page.tsx)",
       "Bash(grep -A 1 \"''use client''\" /d/work/SocioFi-Website-Update_16march/.claude/worktrees/funny-boyd/sociofi-website/src/app/\\\\\\(cloud\\\\\\)/cloud/page.tsx)",
-      "Bash(head -3 \"D:\\\\work\\\\SocioFi-Website-Update_16march\\\\.claude\\\\worktrees\\\\funny-boyd\\\\sociofi-website\\\\src\\\\app\\\\\\(studio\\)\\\\studio\\\\page.tsx\")"
+      "Bash(head -3 \"D:\\\\work\\\\SocioFi-Website-Update_16march\\\\.claude\\\\worktrees\\\\funny-boyd\\\\sociofi-website\\\\src\\\\app\\\\\\(studio\\)\\\\studio\\\\page.tsx\")",
+      "Bash(for div:*)",
+      "Bash(do grep:*)"
     ]
   }
 }
