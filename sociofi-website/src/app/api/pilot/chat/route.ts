@@ -179,7 +179,7 @@ Return responses as JSON:
 function buildClaudeParams(message: string, history: HistoryMessage[], division: string, pageContext: string) {
   const contextNote = `\n\n[Context: Visitor is on the ${division} division. Current page: ${pageContext}]`;
   return {
-    model: 'claude-haiku-4-5-20251001' as const,
+    model: 'claude-3-5-haiku-20241022' as const,
     max_tokens: 768,
     system: SYSTEM_PROMPT + contextNote,
     messages: [
@@ -263,7 +263,8 @@ function streamClaudeResponse(
 
         controller.close();
       } catch (error) {
-        console.error('[PILOT] Stream error:', error);
+        const errMsg = error instanceof Error ? error.message : String(error);
+        console.error('[PILOT] Stream error:', errMsg, error);
         controller.enqueue(encoder.encode(sseEvent({
           type: 'error',
           message: "I'm having trouble connecting right now. Email hello@sociofitechnology.com for immediate help.",
@@ -360,7 +361,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(result);
 
   } catch (error) {
-    console.error('[PILOT] API error:', error);
+    const errMsg = error instanceof Error ? error.message : String(error);
+    console.error('[PILOT] API error:', errMsg, error);
     return NextResponse.json(
       { message: "I'm having trouble connecting right now. Email hello@sociofitechnology.com for immediate help." },
       { status: 500 },
