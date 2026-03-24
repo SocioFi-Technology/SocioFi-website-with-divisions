@@ -8,23 +8,42 @@ const division = divisions.labs;
 
 export const metadata: Metadata = {
   title: {
-    default: 'SocioFi Labs',
+    default: 'SocioFi Labs — AI Research & Open Source',
     template: '%s — SocioFi Labs',
   },
-  description: 'Where we experiment, publish, and release. Open research into AI-native development — tools, techniques, and hard-won lessons from building in production.',
+  description: 'Open research into AI-native development. Tools, techniques, and hard-won lessons from building real software with AI agents in production — published openly.',
+  keywords: [
+    'AI development research',
+    'AI engineering blog',
+    'open source AI tools',
+    'AI-native development',
+    'AI software research',
+    'machine learning engineering',
+    'AI development articles',
+    'SocioFi Labs',
+  ],
   openGraph: {
-    title: 'SocioFi Labs — Research & Open Source',
-    description: 'Where we experiment, publish, and release. Open research into AI-native development.',
+    title: 'SocioFi Labs — AI Research & Open Source',
+    description: 'Open research into AI-native development. Tools, techniques, and hard-won lessons from building real software with AI agents in production.',
     siteName: 'SocioFi Technology',
     type: 'website',
-    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'SocioFi Labs' }],
+    locale: 'en_US',
+    url: 'https://sociofitechnology.com/labs',
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'SocioFi Labs — AI Research & Open Source' }],
   },
-  twitter: { card: 'summary_large_image', site: '@sociofitech' },
+  twitter: {
+    card: 'summary_large_image',
+    site: '@sociofitech',
+    creator: '@sociofitech',
+    title: 'SocioFi Labs — AI Research & Open Source',
+    description: 'Hard-won lessons from building real software with AI agents in production.',
+  },
+  alternates: { canonical: 'https://sociofitechnology.com/labs' },
 };
 
 export default function LabsLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ '--division-accent': '#7B6FE8' } as React.CSSProperties}>
+    <div style={{ '--division-accent': division.accent } as React.CSSProperties}>
       <Nav division={division} />
       {children}
       <Footer division={division} />
