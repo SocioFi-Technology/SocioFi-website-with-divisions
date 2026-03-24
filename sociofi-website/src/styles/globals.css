@@ -49,10 +49,10 @@
   --division-accent-light: var(--teal-light);
 
   /* Font stacks (populated by next/font CSS vars in layout.tsx) */
-  --font-display:  var(--font-manrope, 'Manrope'), sans-serif;           /* logo + nav */
-  --font-headline: var(--font-manrope, 'Manrope'), sans-serif;           /* all headings */
-  --font-body:     var(--font-dm-sans, 'DM Sans'), sans-serif;           /* all body text */
-  --font-mono:     var(--font-jb-mono, 'JetBrains Mono'), monospace;
+  --font-display:  var(--font-syne,   'Syne'),      sans-serif;          /* logo + nav + headings */
+  --font-headline: var(--font-syne,   'Syne'),      sans-serif;          /* all headings */
+  --font-body:     var(--font-outfit, 'Outfit'),    sans-serif;          /* all body text */
+  --font-mono:     var(--font-fira,   'Fira Code'), monospace;           /* labels, code, badges */
 
   /* Motion curves */
   --ease:        cubic-bezier(0.16, 1, 0.3, 1);

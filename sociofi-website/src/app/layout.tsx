@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 // Only load fonts that are actually referenced by CSS variables.
 // Plus_Jakarta_Sans, Inter, and Space_Grotesk were loaded but never used —
 // removing them saves 3 network requests + parse time on every page load.
-import { Fira_Code, Manrope, DM_Sans, JetBrains_Mono, Syne, Outfit } from 'next/font/google';
+import { Fira_Code, Syne, Outfit } from 'next/font/google';
 import { ThemeProvider } from 'next-themes';
 import { OrganizationJsonLd, WebsiteJsonLd } from '@/components/shared/JsonLd';
 import LoadingScreen from '@/components/shared/LoadingScreen';
@@ -18,28 +18,6 @@ const firaCode = Fira_Code({
   variable: '--font-fira',
   display: 'swap',
   preload: false, // mono font — not on critical path; load after main fonts
-});
-
-const manrope = Manrope({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800'],
-  variable: '--font-manrope',
-  display: 'swap',
-});
-
-const dmSans = DM_Sans({
-  subsets: ['latin'],
-  weight: ['400', '500', '600'],
-  variable: '--font-dm-sans',
-  display: 'swap',
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin'],
-  weight: ['400', '500', '600'],
-  variable: '--font-jb-mono',
-  display: 'swap',
-  preload: false, // mono font — not on critical path
 });
 
 const syne = Syne({
@@ -127,7 +105,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${firaCode.variable} ${manrope.variable} ${dmSans.variable} ${jetbrainsMono.variable} ${syne.variable} ${outfit.variable}`}>
+      <body className={`${firaCode.variable} ${syne.variable} ${outfit.variable}`}>
         <OrganizationJsonLd />
         <WebsiteJsonLd />
         <ThemeProvider
