@@ -179,7 +179,7 @@ Return responses as JSON:
 function buildClaudeParams(message: string, history: HistoryMessage[], division: string, pageContext: string) {
   const contextNote = `\n\n[Context: Visitor is on the ${division} division. Current page: ${pageContext}]`;
   return {
-    model: 'claude-3-5-haiku-20241022' as const,
+    model: 'claude-haiku-4-5' as const,
     max_tokens: 768,
     system: SYSTEM_PROMPT + contextNote,
     messages: [
