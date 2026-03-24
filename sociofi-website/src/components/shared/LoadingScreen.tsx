@@ -9,11 +9,17 @@ import { usePathname } from 'next/navigation';
 // NOTE: DO NOT read window.innerWidth at module level — that runs during SSR
 // where `window` is undefined, and also captures the width only once (stale).
 // Mobile detection is done inside useEffect where window is always available.
-const FIRST_LOAD_DESKTOP_MS = 3200;
-const FIRST_LOAD_MOBILE_MS  = 1500;  // 1.5s on mobile — skip character stagger
-const TRANSITION_DESKTOP_MS = 1400;
-const TRANSITION_MOBILE_MS  =  600;  // 0.6s transition on mobile — feels snappy
-const EXIT_MS = 500;
+//
+// FIRST LOAD strategy: tie dismissal to window 'load' event (all resources
+// ready), not a fixed timer. Minimum display time prevents a jarring flash.
+// A hard cap guards against very slow connections stalling forever.
+const MIN_DISPLAY_DESKTOP_MS  =  600;  // shortest the screen ever shows on desktop
+const MIN_DISPLAY_MOBILE_MS   =  400;  // shorter minimum on mobile
+const MAX_DISPLAY_DESKTOP_MS  = 2000;  // absolute cap — never block more than 2s
+const MAX_DISPLAY_MOBILE_MS   = 1200;  // absolute cap on mobile
+const TRANSITION_DESKTOP_MS = 1000;
+const TRANSITION_MOBILE_MS  =  500;
+const EXIT_MS = 400;
 
 // ── Division helpers ──────────────────────────────────────────────────────────
 const TOP_DIVISIONS = ['studio', 'services', 'labs', 'products', 'academy', 'ventures', 'cloud'];
@@ -54,7 +60,9 @@ export default function LoadingScreen() {
     const mobile = window.innerWidth < 768;
     setIsMobile(mobile);
 
-    const done = () => {
+    const mountTime = Date.now();
+
+    const dismiss = () => {
       (window as any).__sfLoadingDone = true;
       window.dispatchEvent(new CustomEvent('loading-done'));
       setVisible(false);
@@ -63,13 +71,41 @@ export default function LoadingScreen() {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
     if (mq.matches) {
       setReducedMotion(true);
-      timerRef.current = setTimeout(done, 400);
-    } else {
-      const holdMs = mobile ? FIRST_LOAD_MOBILE_MS : FIRST_LOAD_DESKTOP_MS;
-      timerRef.current = setTimeout(done, holdMs);
+      timerRef.current = setTimeout(dismiss, 300);
+      return () => { if (timerRef.current) clearTimeout(timerRef.current); };
     }
 
-    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+    const minMs = mobile ? MIN_DISPLAY_MOBILE_MS  : MIN_DISPLAY_DESKTOP_MS;
+    const maxMs = mobile ? MAX_DISPLAY_MOBILE_MS  : MAX_DISPLAY_DESKTOP_MS;
+
+    // Hard-cap safety timer — fires if window 'load' never arrives
+    const capTimer = setTimeout(dismiss, maxMs);
+
+    const onLoad = () => {
+      // How long since we mounted?
+      const elapsed = Date.now() - mountTime;
+      const remaining = Math.max(0, minMs - elapsed);
+      // Wait out the minimum display time, then dismiss
+      timerRef.current = setTimeout(() => {
+        clearTimeout(capTimer);
+        dismiss();
+      }, remaining);
+    };
+
+    if (document.readyState === 'complete') {
+      // Page already loaded before this component mounted (e.g. cached visit)
+      onLoad();
+    } else {
+      window.addEventListener('load', onLoad, { once: true });
+    }
+
+    timerRef.current = capTimer;
+
+    return () => {
+      clearTimeout(capTimer);
+      if (timerRef.current) clearTimeout(timerRef.current);
+      window.removeEventListener('load', onLoad);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -121,9 +157,12 @@ export default function LoadingScreen() {
     return () => document.removeEventListener('click', handleClick, true);
   }, []); // stable — reads pathname via ref
 
+  // Progress bar fills over the maximum possible display time (worst case).
+  // In practice the screen dismisses sooner (on window 'load'), but the bar
+  // should reach ~100% right as the screen exits — so use the cap duration.
   const holdMs = mode === 'full'
-    ? (isMobile ? FIRST_LOAD_MOBILE_MS  : FIRST_LOAD_DESKTOP_MS)
-    : (isMobile ? TRANSITION_MOBILE_MS  : TRANSITION_DESKTOP_MS);
+    ? (isMobile ? MAX_DISPLAY_MOBILE_MS  : MAX_DISPLAY_DESKTOP_MS)
+    : (isMobile ? TRANSITION_MOBILE_MS   : TRANSITION_DESKTOP_MS);
 
   return (
     <AnimatePresence>
