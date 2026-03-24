@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: 'SocioFi Labs — AI Development Research & Open Source Projects',
     description: 'Open research and tools from building AI-native software in production. Published openly for the community.',
     url: 'https://sociofitechnology.com/labs',
-    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'SocioFi Labs' }],
+    images: [{ url: '/labs/opengraph-image', width: 1200, height: 630, alt: 'SocioFi Labs' }],
   },
 };
 

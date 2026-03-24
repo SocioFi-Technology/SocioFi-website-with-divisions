@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: 'https://sociofitechnology.com/studio',
-    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'SocioFi Studio — Custom Software Development' }],
+    images: [{ url: '/studio/opengraph-image', width: 1200, height: 630, alt: 'SocioFi Studio — Custom Software Development' }],
   },
   twitter: {
     card: 'summary_large_image',

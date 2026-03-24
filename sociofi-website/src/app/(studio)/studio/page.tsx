@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: 'SocioFi Studio — Custom Software Development',
     description: 'AI-accelerated custom software. From prototype to production in weeks, with engineers who own your outcome.',
     url: 'https://sociofitechnology.com/studio',
-    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'SocioFi Studio' }],
+    images: [{ url: '/studio/opengraph-image', width: 1200, height: 630, alt: 'SocioFi Studio' }],
   },
 };
 

@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: 'SocioFi Services — Software Maintenance & Support Plans',
     description: 'Ongoing maintenance, monitoring, bug fixes, and security patches. Your product stays healthy with guaranteed uptime.',
     url: 'https://sociofitechnology.com/services',
-    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'SocioFi Services' }],
+    images: [{ url: '/services/opengraph-image', width: 1200, height: 630, alt: 'SocioFi Services' }],
   },
 };
 

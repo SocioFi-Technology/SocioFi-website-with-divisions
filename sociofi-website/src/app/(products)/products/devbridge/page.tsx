@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     description:
       "The internal development platform powering SocioFi's delivery pipeline. AI-assisted code review, deployment automation, and quality gates — being packaged as a standalone product.",
     type: 'website',
-    images: ['/og-image.png'],
+    images: ['/products/opengraph-image'],
   },
   twitter: { card: 'summary_large_image' },
 };

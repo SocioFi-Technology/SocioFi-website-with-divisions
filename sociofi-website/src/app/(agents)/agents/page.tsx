@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: 'SocioFi Agents — Subscribe to AI Agents for Business',
     description: 'Browse 16 AI agents, each built for one task. Subscribe monthly, deploy in days.',
     url: 'https://sociofitechnology.com/agents',
-    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'SocioFi Agents' }],
+    images: [{ url: '/agents/opengraph-image', width: 1200, height: 630, alt: 'SocioFi Agents' }],
   },
 };
 

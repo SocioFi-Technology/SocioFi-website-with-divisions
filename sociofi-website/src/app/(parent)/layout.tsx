@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     siteName: 'SocioFi Technology',
     type: 'website',
     locale: 'en_US',
-    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'SocioFi Technology' }],
+    images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: 'SocioFi Technology' }],
   },
   twitter: { card: 'summary_large_image', site: '@sociofitech', creator: '@sociofitech' },
 };

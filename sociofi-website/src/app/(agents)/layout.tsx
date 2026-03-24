@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: 'https://sociofitechnology.com/agents',
-    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'SocioFi Agents — AI Agent Systems' }],
+    images: [{ url: '/agents/opengraph-image', width: 1200, height: 630, alt: 'SocioFi Agents — AI Agent Systems' }],
   },
   twitter: {
     card: 'summary_large_image',
