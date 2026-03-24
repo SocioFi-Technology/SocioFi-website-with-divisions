@@ -98,15 +98,8 @@ export const metadata: Metadata = {
     title: 'SocioFi Technology — AI-Agent-Native Software Development',
     description: 'From prototype to product in weeks. AI agents build. Human engineers architect. You scale.',
   },
-  icons: {
-    icon: [
-      { url: '/favicon.svg', type: 'image/svg+xml' },
-      { url: '/favicon.svg', sizes: '32x32', type: 'image/svg+xml' },
-      { url: '/favicon.svg', sizes: '16x16', type: 'image/svg+xml' },
-    ],
-    shortcut: '/favicon.svg',
-    apple: { url: '/favicon.svg', sizes: '180x180', type: 'image/svg+xml' },
-  },
+  // favicon handled by src/app/icon.svg (Next.js App Router file convention)
+  // apple-touch icon handled by src/app/apple-icon.svg if added later
   robots: {
     index: true,
     follow: true,
