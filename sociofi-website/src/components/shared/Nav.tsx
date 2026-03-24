@@ -105,7 +105,7 @@ export default function Nav({ division }: NavProps) {
               <div className="show-desktop-block" style={{ display: 'none' }}>
                 <Button
                   href={ctx.cta.href}
-                  variant="primary"
+                  variant="accent"
                   size="sm"
                   accentColor={ctx.accent}
                 >

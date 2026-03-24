@@ -99,7 +99,7 @@ const STYLES = `
     font-family: var(--font-display, 'Syne', sans-serif);
     font-size: 0.95rem; font-weight: 700;
     color: white; text-decoration: none;
-    background: linear-gradient(135deg, var(--navy, #3A589E), var(--division-accent, var(--teal, #59A392)));
+    background: var(--division-accent, var(--teal, #59A392));
     letter-spacing: -0.01em;
     transition: opacity 0.2s;
   }
