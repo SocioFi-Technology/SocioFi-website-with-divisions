@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /d/work/SocioFi-Website-Update_16march/.claude/worktrees/funny-boyd/sociofi-website/src/app \\\\\\( -path \"*/app/page.tsx\" -o -path \"*/\\(technology\\)/page.tsx\" \\\\\\))",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(npm install:*)",
+      "Bash(gh pr:*)",
+      "Bash(npx tsc:*)",
+      "Bash(grep -l \"export.*metadata\" /d/work/SocioFi-Website-Update_16march/.claude/worktrees/funny-boyd/sociofi-website/src/app/*/layout.tsx)",
+      "Bash(find /d/work/SocioFi-Website-Update_16march/.claude/worktrees/funny-boyd/sociofi-website/src/app -name \"page.tsx\" -exec grep -l \"export.*metadata\\\\|export async function generateMetadata\" {})",
+      "Bash(xargs grep:*)",
+      "Bash(grep -l \"^''''use client''''\" /d/work/SocioFi-Website-Update_16march/.claude/worktrees/funny-boyd/sociofi-website/src/app/*/page.tsx)",
+      "Bash(while read:*)",
+      "Bash(do if:*)",
+      "Bash(then echo:*)",
+      "Bash(fi)",
+      "Bash(done)",
+      "Bash(grep -l \"GradientOrbs\\\\|ParticleField\" /d/work/SocioFi-Website-Update_16march/.claude/worktrees/funny-boyd/sociofi-website/src/app/*/page.tsx /d/work/SocioFi-Website-Update_16march/.claude/worktrees/funny-boyd/sociofi-website/src/app/*/*/page.tsx)",
+      "Bash(grep -c \"''use client''\" /d/work/SocioFi-Website-Update_16march/.claude/worktrees/funny-boyd/sociofi-website/src/app/\\\\\\(parent\\\\\\)/HomePageClient.tsx)",
+      "Bash(head -40 \"D:\\\\work\\\\SocioFi-Website-Update_16march\\\\.claude\\\\worktrees\\\\funny-boyd\\\\sociofi-website\\\\src\\\\app\\\\\\(parent\\)\\\\about\\\\page.tsx\")",
+      "Bash(head -40 \"D:\\\\work\\\\SocioFi-Website-Update_16march\\\\.claude\\\\worktrees\\\\funny-boyd\\\\sociofi-website\\\\src\\\\app\\\\\\(ventures\\)\\\\ventures\\\\page.tsx\")",
+      "Bash(find /d/work/SocioFi-Website-Update_16march/.claude/worktrees/funny-boyd/sociofi-website/src/app -maxdepth 2 -type d -name \"\\(parent\\)\" -o -type d -name \"\\(studio\\)\" -o -type d -name \"\\(services\\)\")",
+      "Bash(grep -r \"subdomain\\\\|studio\\\\.\\\\|agents\\\\.\\\\|academy\\\\.\" /d/work/SocioFi-Website-Update_16march/.claude/worktrees/funny-boyd/sociofi-website/src --include=*.ts --include=*.tsx --include=*.js --include=*.json)",
+      "Bash(head -50 /d/work/SocioFi-Website-Update_16march/.claude/worktrees/funny-boyd/sociofi-website/src/app/\\\\\\(studio\\\\\\)/studio/page.tsx)",
+      "Bash(head -50 /d/work/SocioFi-Website-Update_16march/.claude/worktrees/funny-boyd/sociofi-website/src/app/\\\\\\(agents\\\\\\)/agents/page.tsx)",
+      "Bash(head -50 /d/work/SocioFi-Website-Update_16march/.claude/worktrees/funny-boyd/sociofi-website/src/app/\\\\\\(academy\\\\\\)/academy/page.tsx)",
+      "Bash(head -50 /d/work/SocioFi-Website-Update_16march/.claude/worktrees/funny-boyd/sociofi-website/src/app/\\\\\\(cloud\\\\\\)/cloud/page.tsx)",
+      "Bash(head -100 /d/work/SocioFi-Website-Update_16march/.claude/worktrees/funny-boyd/sociofi-website/src/app/\\\\\\(ventures\\\\\\)/ventures/page.tsx)",
+      "Bash(head -100 /d/work/SocioFi-Website-Update_16march/.claude/worktrees/funny-boyd/sociofi-website/src/app/\\\\\\(labs\\\\\\)/labs/page.tsx)",
+      "Bash(head -100 /d/work/SocioFi-Website-Update_16march/.claude/worktrees/funny-boyd/sociofi-website/src/app/\\\\\\(services\\\\\\)/services/page.tsx)",
+      "Bash(wc -l /d/work/SocioFi-Website-Update_16march/.claude/worktrees/funny-boyd/sociofi-website/src/app/\\\\\\(studio\\\\\\)/studio/page.tsx /d/work/SocioFi-Website-Update_16march/.claude/worktrees/funny-boyd/sociofi-website/src/app/\\\\\\(agents\\\\\\)/agents/page.tsx /d/work/SocioFi-Website-Update_16march/.claude/worktrees/funny-boyd/sociofi-website/src/app/\\\\\\(academy\\\\\\)/academy/page.tsx /d/work/SocioFi-Website-Update_16march/.claude/worktrees/funny-boyd/sociofi-website/src/app/\\\\\\(cloud\\\\\\)/cloud/page.tsx)",
+      "Bash(grep -A 1 \"''use client''\" /d/work/SocioFi-Website-Update_16march/.claude/worktrees/funny-boyd/sociofi-website/src/app/\\\\\\(studio\\\\\\)/studio/page.tsx)",
+      "Bash(grep -A 1 \"''use client''\" /d/work/SocioFi-Website-Update_16march/.claude/worktrees/funny-boyd/sociofi-website/src/app/\\\\\\(agents\\\\\\)/agents/page.tsx)",
+      "Bash(grep -A 1 \"''use client''\" /d/work/SocioFi-Website-Update_16march/.claude/worktrees/funny-boyd/sociofi-website/src/app/\\\\\\(cloud\\\\\\)/cloud/page.tsx)",
+      "Bash(head -3 \"D:\\\\work\\\\SocioFi-Website-Update_16march\\\\.claude\\\\worktrees\\\\funny-boyd\\\\sociofi-website\\\\src\\\\app\\\\\\(studio\\)\\\\studio\\\\page.tsx\")"
+    ]
+  }
+}
