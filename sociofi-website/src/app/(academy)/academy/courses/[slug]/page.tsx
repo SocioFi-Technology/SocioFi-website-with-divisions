@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { notFound } from 'next/navigation';
 
@@ -1058,7 +1059,7 @@ export default function CourseDetailPage() {
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.15 }}>
               <div className="acd-thumb-card">
                 <div className="acd-thumb-visual" style={{ background: course.gradient, position: 'relative', overflow: 'hidden' }}>
-                  <img src={`/images/courses/${course.category}.jpg`} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <Image src={`/images/courses/${course.category}.jpg`} alt="" fill style={{ objectFit: 'cover' }} />
                   <div className="acd-thumb-glow" style={{ position: 'relative', zIndex: 1 }} />
                 </div>
                 <div className="acd-course-stats">
@@ -1194,7 +1195,7 @@ export default function CourseDetailPage() {
                   {related.map(r => (
                     <Link key={r.slug} href={`/academy/courses/${r.slug}`} className="acd-related-card">
                       <div className="acd-related-thumb" style={{ background: r.gradient, position: 'relative', overflow: 'hidden' }}>
-                        <img src={`/images/courses/${r.category}.jpg`} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <Image src={`/images/courses/${r.category}.jpg`} alt="" fill style={{ objectFit: 'cover' }} />
                       </div>
                       <div className="acd-related-body">
                         <div className="acd-related-tag">{AUDIENCE_LABEL[r.audience]}</div>

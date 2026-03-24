@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useParams } from 'next/navigation';
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -414,7 +415,7 @@ export default function CategoryPage() {
                 initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }} transition={{ duration: 0.35, delay: i * 0.07 }}>
                 <div className="acc-thumb" style={{ background: c.gradient, position: 'relative', overflow: 'hidden' }}>
-                  <img src={`/images/courses/${c.category}.jpg`} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <Image src={`/images/courses/${c.category}.jpg`} alt="" fill style={{ objectFit: 'cover' }} />
                   <span className="acc-price-badge" style={{ position: 'relative', zIndex: 1 }}>${c.price}</span>
                   <span className="acc-dur-badge" style={{ position: 'relative', zIndex: 1 }}>{c.duration}</span>
                   <span className="acc-dot" style={{ position: 'relative', zIndex: 1 }} />

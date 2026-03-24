@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import ScrollReveal from '@/components/shared/ScrollReveal';
 import { courses, workshops, getCourseImage } from '@/lib/academy';
 import LearningPathQuiz from './_components/LearningPathQuiz';
@@ -246,8 +247,7 @@ export default function AcademyPage() {
               <ScrollReveal key={c.slug} delay={i * 0.1}>
                 <Link href={`/academy/courses/${c.slug}`} className="course-tile">
                   <div className="course-thumb" style={{ background: c.thumbnailGradient, position: 'relative', overflow: 'hidden' }}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={getCourseImage(c.category)} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <Image src={getCourseImage(c.category)} alt="" fill style={{ objectFit: 'cover' }} />
                     <span className="course-thumb-price" style={{ position: 'relative', zIndex: 1 }}>${c.price}</span>
                     <span className="course-thumb-badge" style={{ position: 'relative', zIndex: 1 }}>{c.duration}</span>
                   </div>

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { BlogPost, CATEGORY_CONFIG, CATEGORY_IMAGES, formatPostDate } from '@/lib/blog';
 import { ScribeIcon } from '@/components/blog/ScribeIcon';
 
@@ -82,10 +83,11 @@ export default function BlogCard({ post, accentColor, compact = false }: BlogCar
             overflow: 'hidden',
           }}
         >
-          <img
+          <Image
             src={CATEGORY_IMAGES[post.category]}
             alt=""
-            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+            fill
+            style={{ objectFit: 'cover' }}
           />
         </span>
       )}

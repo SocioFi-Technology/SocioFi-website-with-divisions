@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 
 // ── Constants ────────────────────────────────────────────────────────────────
 const A = '#E8B84D';
@@ -522,7 +523,7 @@ function CourseCard({ course }: { course: typeof COURSES[0] }) {
   return (
     <motion.div layout className="ac-course-card" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96 }} transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}>
       <div className="ac-course-thumb" style={{ background: course.gradient, position: 'relative', overflow: 'hidden' }}>
-        <img src={`/images/courses/${course.category}.jpg`} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+        <Image src={`/images/courses/${course.category}.jpg`} alt="" fill style={{ objectFit: 'cover' }} />
         <span className="ac-price-badge" style={{ position: 'relative', zIndex: 1 }}>${course.price}</span>
         <span className="ac-duration-badge" style={{ zIndex: 1 }}>{course.duration}</span>
         <span className="ac-available-dot" style={{ zIndex: 1 }} />

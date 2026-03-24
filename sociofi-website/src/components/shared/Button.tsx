@@ -19,6 +19,7 @@ export interface ButtonProps {
   onClick?: () => void;
   type?: 'button' | 'submit' | 'reset';
   disabled?: boolean;
+  loading?: boolean;
   external?: boolean;
   'aria-label'?: string;
 }
@@ -28,6 +29,24 @@ const SIZE: Record<Size, { padding: string; fontSize: string; gap: string; iconS
   md: { padding: '12px 26px', fontSize: '0.9rem',  gap: '8px',  iconSize: 16 },
   lg: { padding: '15px 34px', fontSize: '1rem',    gap: '10px', iconSize: 18 },
 };
+
+function Spinner({ size }: { size: number }) {
+  return (
+    <svg
+      width={size} height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      aria-hidden="true"
+      style={{ animation: 'spin 0.7s linear infinite', flexShrink: 0 }}
+    >
+      <path d="M12 2a10 10 0 0 1 10 10" />
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </svg>
+  );
+}
 
 export default function Button({
   children,
@@ -41,11 +60,13 @@ export default function Button({
   onClick,
   type = 'button',
   disabled = false,
+  loading = false,
   external = false,
   'aria-label': ariaLabel,
 }: ButtonProps) {
   const { padding, fontSize, gap, iconSize } = SIZE[size];
   const accent = accentColor ?? 'var(--division-accent)';
+  const isDisabled = disabled || loading;
 
   // ── Base style ────────────────────────────────────────────────────────────
   const base: React.CSSProperties = {
@@ -61,8 +82,8 @@ export default function Button({
     lineHeight: 1,
     borderRadius: variant === 'text' ? 0 : 'var(--radius-full)',
     border: variant === 'ghost' ? '1.5px solid var(--border)' : 'none',
-    cursor: disabled ? 'not-allowed' : 'pointer',
-    opacity: disabled ? 0.5 : 1,
+    cursor: isDisabled ? (loading ? 'wait' : 'not-allowed') : 'pointer',
+    opacity: isDisabled ? 0.65 : 1,
     textDecoration: 'none',
     position: 'relative',
     overflow: variant === 'text' ? 'visible' : 'hidden',
@@ -95,7 +116,7 @@ export default function Button({
 
   // ── Hover handlers ────────────────────────────────────────────────────────
   const onEnter = (e: React.MouseEvent<HTMLElement>) => {
-    if (disabled) return;
+    if (isDisabled) return;
     const el = e.currentTarget as HTMLElement;
     if (variant === 'primary') {
       el.style.transform = 'translateY(-3px) scale(1.03)';
@@ -126,11 +147,13 @@ export default function Button({
     ? <ArrowRight size={iconSize} />
     : null;
 
-  const leftIcon = iconPosition === 'left' && icon
-    ? <span style={{ display: 'inline-flex', flexShrink: 0 }}>{icon}</span>
-    : null;
+  const leftIcon = loading
+    ? <Spinner size={iconSize} />
+    : iconPosition === 'left' && icon
+      ? <span style={{ display: 'inline-flex', flexShrink: 0 }}>{icon}</span>
+      : null;
 
-  const rightIcon = iconPosition === 'right'
+  const rightIcon = !loading && iconPosition === 'right'
     ? icon
       ? <span style={{ display: 'inline-flex', flexShrink: 0 }}>{icon}</span>
       : defaultTrailing
@@ -150,7 +173,8 @@ export default function Button({
     onMouseEnter: onEnter,
     onMouseLeave: onLeave,
     'aria-label': ariaLabel,
-    'aria-disabled': disabled || undefined,
+    'aria-disabled': isDisabled || undefined,
+    'aria-busy': loading || undefined,
   };
 
   if (href) {
@@ -166,7 +190,7 @@ export default function Button({
   }
 
   return (
-    <button type={type} onClick={disabled ? undefined : onClick} disabled={disabled} {...shared}>
+    <button type={type} onClick={isDisabled ? undefined : onClick} disabled={isDisabled} {...shared}>
       {inner}
     </button>
   );

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ExternalLink } from '@/lib/icons';
 
 interface PortfolioCardProps {
@@ -69,16 +70,11 @@ export default function PortfolioCard({
         >
           {/* Image or grid overlay */}
           {image ? (
-            <img
+            <Image
               src={image}
               alt=""
-              style={{
-                position: 'absolute',
-                inset: 0,
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-              }}
+              fill
+              style={{ objectFit: 'cover' }}
             />
           ) : (
             <div

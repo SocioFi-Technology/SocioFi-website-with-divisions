@@ -6,6 +6,8 @@ import { Fira_Code, Manrope, DM_Sans, JetBrains_Mono, Syne, Outfit } from 'next/
 import { ThemeProvider } from 'next-themes';
 import { OrganizationJsonLd, WebsiteJsonLd } from '@/components/shared/JsonLd';
 import LoadingScreen from '@/components/shared/LoadingScreen';
+import { ToastProvider } from '@/components/shared/Toast';
+import ScrollToTop from '@/components/shared/ScrollToTop';
 import '../styles/globals.css';
 import '../styles/animations.css';
 import '../styles/responsive.css';
@@ -134,10 +136,13 @@ export default function RootLayout({
           disableTransitionOnChange={false}
         >
           <LoadingScreen />
-          <a href="#main-content" className="skip-to-content">Skip to content</a>
-          <main id="main-content">
-            {children}
-          </main>
+          <ToastProvider>
+            <a href="#main-content" className="skip-to-content">Skip to content</a>
+            <main id="main-content">
+              {children}
+            </main>
+            <ScrollToTop />
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>
