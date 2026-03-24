@@ -99,9 +99,13 @@ export const metadata: Metadata = {
     description: 'From prototype to product in weeks. AI agents build. Human engineers architect. You scale.',
   },
   icons: {
-    icon: '/favicon.svg',
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.svg', sizes: '32x32', type: 'image/svg+xml' },
+      { url: '/favicon.svg', sizes: '16x16', type: 'image/svg+xml' },
+    ],
     shortcut: '/favicon.svg',
-    apple: '/favicon.svg',
+    apple: { url: '/favicon.svg', sizes: '180x180', type: 'image/svg+xml' },
   },
   robots: {
     index: true,
