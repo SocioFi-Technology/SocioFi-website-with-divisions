@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 // Only load fonts that are actually referenced by CSS variables.
 // Plus_Jakarta_Sans, Inter, and Space_Grotesk were loaded but never used —
 // removing them saves 3 network requests + parse time on every page load.
@@ -33,6 +33,19 @@ const outfit = Outfit({
   variable: '--font-outfit',
   display: 'swap',
 });
+
+// Viewport export enables viewportFit:'cover' so env(safe-area-inset-*)
+// values are non-zero on notched/Dynamic-Island devices.
+// themeColor drives iOS Safari address bar + Android Chrome toolbar.
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+  themeColor: [
+    { media: '(prefers-color-scheme: dark)',  color: '#0C0C1D' },
+    { media: '(prefers-color-scheme: light)', color: '#FAFBFE' },
+  ],
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://sociofitechnology.com'),
@@ -92,10 +105,8 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://sociofitechnology.com',
   },
-  other: {
-    // iOS Safari address bar tint + Android Chrome toolbar color
-    'theme-color': '#0C0C1D',
-  },
+  // theme-color + viewport config lives in the `viewport` export above
+  // (Next.js 14+ splits these into a dedicated Viewport type)
 };
 
 export default function RootLayout({

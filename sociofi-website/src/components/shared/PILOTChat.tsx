@@ -490,8 +490,8 @@ export default function PILOTChat({
               left: 0,
               right: 0,
               width: '100%',
-              height: '75vh',
-              maxHeight: 'calc(100vh - 40px)',
+              height: '75dvh',
+              maxHeight: 'calc(100dvh - 40px)',
               zIndex: 9999,
               display: 'flex',
               flexDirection: 'column',
@@ -503,12 +503,12 @@ export default function PILOTChat({
             } : {
               // ── Desktop: positioned panel ───────────────────────────
               position: 'fixed',
-              bottom: 96,
-              right: 24,
+              bottom: 'calc(96px + env(safe-area-inset-bottom, 0px))',
+              right: 'calc(24px + env(safe-area-inset-right, 0px))',
               width: 380,
               maxWidth: 'calc(100vw - 48px)',
               height: 520,
-              maxHeight: 'calc(100vh - 120px)',
+              maxHeight: 'calc(100dvh - 120px)',
               zIndex: 9999,
               display: 'flex',
               flexDirection: 'column',
@@ -554,8 +554,13 @@ export default function PILOTChat({
         aria-haspopup="dialog"
         style={{
           position: 'fixed',
-          bottom: isMobile ? 16 : 24,
-          right: isMobile ? 16 : 24,
+          // calc stacks: base offset + home-indicator safe area + BottomActionBar height (0 when absent)
+          bottom: isMobile
+            ? 'calc(16px + env(safe-area-inset-bottom, 0px) + var(--bab-height, 0px))'
+            : 'calc(24px + env(safe-area-inset-bottom, 0px))',
+          right: isMobile
+            ? 'calc(16px + env(safe-area-inset-right, 0px))'
+            : 'calc(24px + env(safe-area-inset-right, 0px))',
           width: isMobile ? 48 : 56,
           height: isMobile ? 48 : 56,
           borderRadius: '50%',
@@ -866,6 +871,8 @@ function ChatPanel({
         onSubmit={handleSubmit}
         style={{
           padding: '12px 14px 14px',
+          // On mobile push input above the home indicator
+          paddingBottom: isMobile ? 'calc(14px + env(safe-area-inset-bottom, 0px))' : '14px',
           borderTop: `1px solid ${accent}15`,
           display: 'flex',
           gap: 8,
@@ -887,7 +894,8 @@ function ChatPanel({
             border: '1px solid var(--border)',
             borderRadius: 'var(--radius-full)',
             fontFamily: 'var(--font-body)',
-            fontSize: '0.88rem',
+            // ≥16px on mobile prevents iOS Safari auto-zoom on focus
+            fontSize: isMobile ? '16px' : '0.88rem',
             color: 'var(--text-primary)',
             outline: 'none',
             transition: 'border-color 0.2s, box-shadow 0.2s',

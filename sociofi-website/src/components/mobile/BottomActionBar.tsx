@@ -73,6 +73,13 @@ export default function BottomActionBar({ label, href, accentColor }: BottomActi
     return () => observer.disconnect();
   }, []);
 
+  // Publish bar height as a CSS variable so PILOTChat can offset its button
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty('--bab-height', hidden ? '0px' : '76px');
+    return () => { root.style.removeProperty('--bab-height'); };
+  }, [hidden]);
+
   return (
     <>
       <style>{STYLES}</style>

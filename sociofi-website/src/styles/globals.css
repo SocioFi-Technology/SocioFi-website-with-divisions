@@ -700,6 +700,8 @@ ul, ol {
   right: 0;
   z-index: 1000;
   padding: 20px 0;
+  /* Shift down by safe-area-inset-top so content clears notch / Dynamic Island */
+  padding-top: max(20px, env(safe-area-inset-top, 20px));
   transition:
     padding 0.5s var(--ease),
     background 0.5s var(--ease),
@@ -709,6 +711,8 @@ ul, ol {
 
 .nav.scrolled {
   padding: 10px 0;
+  /* Keep safe-area clearance even when compacted */
+  padding-top: max(10px, env(safe-area-inset-top, 10px));
   background: var(--nav-bg);
   backdrop-filter: blur(24px) saturate(1.6);
   -webkit-backdrop-filter: blur(24px) saturate(1.6);
