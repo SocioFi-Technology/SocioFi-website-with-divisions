@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface FilterOption {
@@ -40,7 +40,8 @@ const STYLES = `
     border-top: 1px solid var(--border);
     padding: 0 20px;
     padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
-    max-height: 70vh; overflow-y: auto;
+    /* 70dvh avoids the iOS Safari URL-bar resize jump (100vh is unreliable) */
+    max-height: 70dvh; overflow-y: auto;
   }
   .mfd-handle {
     width: 36px; height: 4px; border-radius: 2px;
@@ -75,7 +76,7 @@ const STYLES = `
     min-height: 52px; border-radius: 12px; border: none; cursor: pointer;
     font-family: var(--font-display, 'Syne', sans-serif);
     font-size: 0.95rem; font-weight: 700; color: white;
-    background: linear-gradient(135deg, var(--navy, #3A589E), var(--division-accent, var(--teal, #59A392)));
+    background: var(--division-accent, var(--teal, #59A392));
     transition: opacity 0.2s;
   }
   .mfd-apply:active { opacity: 0.85; }
@@ -106,9 +107,22 @@ export default function MobileFilterDrawer({
 }: MobileFilterDrawerProps) {
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(active);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   const allOptions = [{ label: allLabel, value: 'all' }, ...options];
   const activeLabel = allOptions.find((o) => o.value === active)?.label ?? allLabel;
+
+  // Lock body scroll while drawer is open; restore + return focus on close
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+      // Return focus to the trigger button so keyboard/AT users stay in place
+      triggerRef.current?.focus();
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [open]);
 
   const apply = () => {
     onChange(pending);
@@ -119,10 +133,13 @@ export default function MobileFilterDrawer({
     <>
       <style>{STYLES}</style>
       <button
+        ref={triggerRef}
         className="mfd-trigger"
         onClick={() => { setPending(active); setOpen(true); }}
         style={accentColor ? { '--division-accent': accentColor } as React.CSSProperties : undefined}
         aria-label="Open filter"
+        aria-expanded={open}
+        aria-haspopup="dialog"
       >
         <FilterIcon />
         {activeLabel}
@@ -141,6 +158,9 @@ export default function MobileFilterDrawer({
             />
             <motion.div
               className="mfd-drawer"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Filter options"
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
               exit={{ y: '100%' }}

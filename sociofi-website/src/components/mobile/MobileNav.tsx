@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { LogoMark } from '@/components/shared/Logo';
@@ -46,6 +46,8 @@ const STYLES = `
   .mnav-header {
     display: flex; align-items: center; justify-content: space-between;
     padding: 16px 20px;
+    /* Clear notch / Dynamic Island when overlay covers full screen */
+    padding-top: max(16px, env(safe-area-inset-top, 16px));
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
   }
@@ -127,6 +129,8 @@ const STYLES = `
   .mnav-pill:active { border-color: var(--border-hover); }
   .mnav-footer {
     padding: 20px; border-top: 1px solid var(--border);
+    /* Clear home indicator bar at the bottom of the screen */
+    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
     margin-top: 24px; flex-shrink: 0;
   }
   .mnav-contact-link {
@@ -190,12 +194,20 @@ function ArrowLeftIcon() {
 }
 
 export default function MobileNav({ open, onClose, division, currentPath = '' }: MobileNavProps) {
-  // Lock body scroll when menu is open
+  // Save the element that opened the menu so we can return focus on close
+  const savedFocusRef = useRef<HTMLElement | null>(null);
+
+  // Lock body scroll when open; restore + return focus when closed
   useEffect(() => {
     if (open) {
+      savedFocusRef.current = document.activeElement as HTMLElement;
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
+      // Return focus to the trigger (hamburger button) so keyboard/AT users
+      // aren't left stranded at the top of the document after closing
+      savedFocusRef.current?.focus();
+      savedFocusRef.current = null;
     }
     return () => {
       document.body.style.overflow = '';

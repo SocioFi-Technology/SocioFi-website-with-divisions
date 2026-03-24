@@ -1379,6 +1379,25 @@ pre code {
 }
 
 /* ═══════════════════════════════════════
+   iOS INPUT ZOOM PREVENTION
+   font-size < 16px triggers auto-zoom on focus in iOS Safari.
+   Scoped to ≤768px so desktop typography is unaffected.
+   ═══════════════════════════════════════ */
+@media (max-width: 768px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="number"],
+  input[type="search"],
+  input[type="url"],
+  input[type="password"],
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
+/* ═══════════════════════════════════════
    HORIZONTAL SCROLL CONTAINERS
    ═══════════════════════════════════════ */
 
