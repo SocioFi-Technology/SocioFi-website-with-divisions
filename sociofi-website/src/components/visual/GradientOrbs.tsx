@@ -1,6 +1,7 @@
 'use client';
 
 import { useScroll, useTransform, motion, useReducedMotion } from 'framer-motion';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface GradientOrbsProps {
   accentColor?: string;
@@ -23,8 +24,9 @@ export default function GradientOrbs({
   accentColor,
   variant = 'default',
 }: GradientOrbsProps) {
-  const accent = accentColor ?? 'var(--division-accent)';
+  const accent  = accentColor ?? 'var(--division-accent)';
   const reduced = useReducedMotion();
+  const isMobile = useIsMobile();
   const { scrollY } = useScroll();
 
   const sets: Record<string, OrbDef[]> = {
@@ -47,11 +49,16 @@ export default function GradientOrbs({
     ],
   };
 
-  const orbs = sets[variant] ?? sets.default;
+  const fullOrbs = sets[variant] ?? sets.default;
+
+  // On mobile: use only the first orb, shrunk to 60% size — less GPU load
+  const orbs = isMobile ? [{ ...fullOrbs[0], size: Math.round(fullOrbs[0].size * 0.6) }] : fullOrbs;
 
   return (
     <div
       className="absolute inset-0 overflow-hidden pointer-events-none"
+      // CSS containment prevents orb repaints from triggering ancestor layout
+      style={{ contain: 'layout style paint' }}
       aria-hidden="true"
     >
       {orbs.map((orb, i) => (
@@ -61,6 +68,7 @@ export default function GradientOrbs({
           isCtaCenter={variant === 'cta' && i === 0}
           scrollY={scrollY}
           reduced={reduced ?? false}
+          isMobile={isMobile}
         />
       ))}
     </div>
@@ -72,36 +80,39 @@ function OrbElement({
   isCtaCenter,
   scrollY,
   reduced,
+  isMobile,
 }: {
   orb: OrbDef;
   isCtaCenter: boolean;
   scrollY: ReturnType<typeof useScroll>['scrollY'];
   reduced: boolean;
+  isMobile: boolean;
 }) {
   const rate = orb.parallaxRate ?? 0.3;
-  const y = useTransform(scrollY, [0, 1000], [0, reduced ? 0 : 1000 * rate]);
+  // Disable parallax entirely on mobile — saves useTransform recalc every scroll tick
+  const y = useTransform(scrollY, [0, 1000], [0, (reduced || isMobile) ? 0 : 1000 * rate]);
 
-  // For the cta centre orb, use a wrapper div for translate(-50%,-50%) to
-  // avoid conflicting with framer-motion's y MotionValue on the same element.
+  // Smaller blur radius on mobile to reduce GPU compositing cost
+  const blurPx = isMobile ? 60 : 100;
+
+  const baseStyle = {
+    width:   orb.size,
+    height:  orb.size,
+    background: `radial-gradient(circle, ${orb.color} 0%, transparent 70%)`,
+    filter:  `blur(${blurPx}px)`,
+    opacity: 0.45,
+  };
+
   if (isCtaCenter) {
     return (
       <div style={{
         position: 'absolute',
-        top: orb.top,
-        left: orb.left,
-        right: orb.right,
-        bottom: orb.bottom,
+        top: orb.top, left: orb.left, right: orb.right, bottom: orb.bottom,
         transform: 'translate(-50%, -50%)',
       }}>
         <motion.div
           className={`orb ${orb.cls}`}
-          style={{
-            position: 'relative',
-            width: orb.size,
-            height: orb.size,
-            background: `radial-gradient(circle, ${orb.color} 0%, transparent 70%)`,
-            y,
-          }}
+          style={{ position: 'relative', ...baseStyle, y }}
         />
       </div>
     );
@@ -111,13 +122,8 @@ function OrbElement({
     <motion.div
       className={`orb ${orb.cls}`}
       style={{
-        width: orb.size,
-        height: orb.size,
-        background: `radial-gradient(circle, ${orb.color} 0%, transparent 70%)`,
-        top: orb.top,
-        left: orb.left,
-        right: orb.right,
-        bottom: orb.bottom,
+        ...baseStyle,
+        top: orb.top, left: orb.left, right: orb.right, bottom: orb.bottom,
         y,
       }}
     />

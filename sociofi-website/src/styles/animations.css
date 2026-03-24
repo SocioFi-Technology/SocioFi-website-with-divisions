@@ -144,9 +144,11 @@
 /* Base — fade only */
 .reveal {
   opacity: 0;
-  will-change: opacity, transform;
+  /* will-change applied only when animating (on .is-visible), not always-on.
+     Permanent will-change wastes a GPU layer even when the element is static. */
 }
 .reveal.is-visible {
+  will-change: opacity;
   animation: fade-in 0.65s var(--ease) forwards;
 }
 
@@ -154,9 +156,9 @@
 .reveal-up {
   opacity: 0;
   transform: translateY(28px);
-  will-change: opacity, transform;
 }
 .reveal-up.is-visible {
+  will-change: opacity, transform;
   animation: fade-up 0.7s var(--ease) forwards;
 }
 
@@ -164,9 +166,9 @@
 .reveal-down {
   opacity: 0;
   transform: translateY(-28px);
-  will-change: opacity, transform;
 }
 .reveal-down.is-visible {
+  will-change: opacity, transform;
   animation: fade-down 0.7s var(--ease) forwards;
 }
 
@@ -174,9 +176,9 @@
 .reveal-left {
   opacity: 0;
   transform: translateX(36px);
-  will-change: opacity, transform;
 }
 .reveal-left.is-visible {
+  will-change: opacity, transform;
   animation: fade-left 0.7s var(--ease) forwards;
 }
 
@@ -184,9 +186,9 @@
 .reveal-right {
   opacity: 0;
   transform: translateX(-36px);
-  will-change: opacity, transform;
 }
 .reveal-right.is-visible {
+  will-change: opacity, transform;
   animation: fade-right 0.7s var(--ease) forwards;
 }
 
@@ -194,9 +196,9 @@
 .reveal-scale {
   opacity: 0;
   transform: scale(0.94);
-  will-change: opacity, transform;
 }
 .reveal-scale.is-visible {
+  will-change: opacity, transform;
   animation: fade-scale 0.7s var(--ease) forwards;
 }
 
@@ -524,10 +526,10 @@
    catch CSS-only animation simplification.
    ────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  /* Slower, simpler orb float — less distracting on small screens */
+  /* Orb float animations consume GPU cycles on mobile for content that is mostly
+     clipped anyway. Turn them off completely — static position looks just as good. */
   .orb-1, .orb-2, .orb-3, .orb-4 {
-    animation-duration: 14s !important;
-    animation-timing-function: ease-in-out !important;
+    animation: none !important;
   }
 
   /* Reduce stagger speed on mobile — tighter timing feels better */
@@ -537,22 +539,51 @@
   .stagger-children.is-visible > *:nth-child(4)  { animation-delay: 0.15s !important; }
   .stagger-children.is-visible > *:nth-child(n+5) { animation-delay: 0.20s !important; }
 
-  /* Smaller translateY distance on mobile — less travel = less jank */
-  .reveal-up  { transform: translateY(16px) !important; }
+  /* Smaller translateY distance on mobile — less travel = smoother reveal */
+  .reveal-up   { transform: translateY(16px) !important; }
   .reveal-down { transform: translateY(-16px) !important; }
 
   /* Minimum 44px touch targets for interactive elements */
   .btn {
     min-height: 44px;
   }
+}
 
-  /* Disable card hover lift on touch (no persistent hover state) */
-  @media (hover: none) {
-    .card:hover {
-      transform: none !important;
-    }
-    .btn:hover {
-      transform: none !important;
-    }
+/* ──────────────────────────────────────────────────────────────
+   12. TOUCH DEVICE ACTIVE STATES
+   On devices with no hover (phones/tablets), disable hover transforms
+   and add :active tap feedback so buttons/cards feel responsive.
+   ────────────────────────────────────────────────────────────── */
+@media (hover: none) and (pointer: coarse) {
+  /* Remove hover lifts — touch has no persistent hover state */
+  .card:hover {
+    transform: none !important;
+    box-shadow: var(--card-shadow) !important;
+  }
+  .btn:hover,
+  .btn-primary:hover,
+  .btn-accent:hover {
+    transform: none !important;
+  }
+
+  /* Tactile tap feedback via :active */
+  .card:active {
+    transform: scale(0.98) !important;
+    transition: transform 0.08s ease !important;
+  }
+  .btn:active,
+  .btn-primary:active,
+  .btn-accent:active,
+  .btn-ghost:active {
+    transform: scale(0.96) !important;
+    transition: transform 0.08s ease !important;
+  }
+
+  /* Arrow nudge — disable on touch (no hover to trigger it) */
+  .hover-arrow:hover {
+    gap: 6px;
+  }
+  .hover-arrow:hover .arrow-icon {
+    transform: none;
   }
 }

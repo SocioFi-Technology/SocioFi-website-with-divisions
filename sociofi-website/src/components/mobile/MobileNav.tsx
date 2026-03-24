@@ -139,13 +139,13 @@ const STYLES = `
 `;
 
 const overlayVariants = {
-  hidden: { opacity: 0, y: -20 },
+  hidden: { opacity: 0, y: -12 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] },
+    transition: { duration: 0.22, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] },
   },
-  exit: { opacity: 0, y: -10, transition: { duration: 0.2 } },
+  exit: { opacity: 0, y: -8, transition: { duration: 0.15 } },
 };
 
 const linkVariants = {
@@ -154,12 +154,14 @@ const linkVariants = {
     opacity: 1,
     x: 0,
     transition: {
-      duration: 0.35,
-      delay: 0.05 + i * 0.05,
+      duration: 0.3,
+      // Cap at 0.28s so the last item never waits more than ~300ms total.
+      // Previously uncapped: item at index 14 would delay 0.75s — felt sluggish.
+      delay: Math.min(0.05 + i * 0.04, 0.28),
       ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
     },
   }),
-  exit: { opacity: 0, transition: { duration: 0.15 } },
+  exit: { opacity: 0, transition: { duration: 0.12 } },
 };
 
 function ChevronMark({ color = '#59A392', size = 28 }: { color?: string; size?: number }) {
@@ -298,25 +300,22 @@ export default function MobileNav({ open, onClose, division, currentPath = '' }:
                 </Link>
               </motion.div>
 
-              {/* Division pills */}
+              {/* Division pills — fade as a group so we don't wait for 8 staggered items */}
               <div className="mnav-section-label">Divisions</div>
-              <div className="mnav-pills">
-                {DIVISION_PILLS.map((pill, i) => (
-                  <motion.div
-                    key={pill.href}
-                    variants={linkVariants}
-                    custom={primaryLinks.length + (division ? 1 : 0) + 3 + i}
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                  >
-                    <Link href={pill.href} className="mnav-pill" onClick={onClose}>
-                      <LogoMark division={pill.slug} size="xs" />
-                      {pill.name}
-                    </Link>
-                  </motion.div>
+              <motion.div
+                className="mnav-pills"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.28, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}
+              >
+                {DIVISION_PILLS.map((pill) => (
+                  <Link key={pill.href} href={pill.href} className="mnav-pill" onClick={onClose}>
+                    <LogoMark division={pill.slug} size="xs" />
+                    {pill.name}
+                  </Link>
                 ))}
-              </div>
+              </motion.div>
             </div>
 
             {/* Footer */}

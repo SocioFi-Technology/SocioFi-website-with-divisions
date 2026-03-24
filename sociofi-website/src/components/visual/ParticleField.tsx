@@ -40,9 +40,14 @@ export default function ParticleField({
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduced) return;
 
+    // On mobile: halve particle count and reduce connect distance to ease GPU load
+    const isMobile = window.innerWidth < 768;
+    const effectiveCount  = isMobile ? Math.ceil(count / 2) : count;
+    const effectiveDist   = isMobile ? Math.ceil(connectDist * 0.75) : connectDist;
+
     // Resize handling
     const resize = () => {
-      canvas.width = canvas.offsetWidth * window.devicePixelRatio;
+      canvas.width  = canvas.offsetWidth  * window.devicePixelRatio;
       canvas.height = canvas.offsetHeight * window.devicePixelRatio;
       ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
     };
@@ -59,17 +64,30 @@ export default function ParticleField({
     // Create particles
     const w = () => canvas.offsetWidth;
     const h = () => canvas.offsetHeight;
-    const particles: Particle[] = Array.from({ length: count }, () => ({
-      x: Math.random() * w(),
-      y: Math.random() * h(),
+    const particles: Particle[] = Array.from({ length: effectiveCount }, () => ({
+      x:  Math.random() * w(),
+      y:  Math.random() * h(),
       vx: (Math.random() - 0.5) * speed,
       vy: (Math.random() - 0.5) * speed,
-      r: Math.random() * 1.5 + 0.8,
+      r:  Math.random() * 1.5 + 0.8,
     }));
 
     let rafId: number;
+    // Pause the loop when the canvas is scrolled off-screen
+    let isVisible = true;
+
+    const io = new IntersectionObserver(
+      ([entry]) => { isVisible = entry.isIntersecting; },
+      { threshold: 0 },
+    );
+    io.observe(canvas);
 
     const draw = () => {
+      rafId = requestAnimationFrame(draw);
+
+      // Skip expensive draw when canvas is not visible
+      if (!isVisible) return;
+
       const W = w();
       const H = h();
       ctx.clearRect(0, 0, W, H);
@@ -85,11 +103,11 @@ export default function ParticleField({
       // Draw connections
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x;
-          const dy = particles[i].y - particles[j].y;
+          const dx   = particles[i].x - particles[j].x;
+          const dy   = particles[i].y - particles[j].y;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < connectDist) {
-            const alpha = (1 - dist / connectDist) * 0.3;
+          if (dist < effectiveDist) {
+            const alpha = (1 - dist / effectiveDist) * 0.3;
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
@@ -107,8 +125,6 @@ export default function ParticleField({
         ctx.fillStyle = `rgba(${r},${g},${b},0.7)`;
         ctx.fill();
       }
-
-      rafId = requestAnimationFrame(draw);
     };
 
     draw();
@@ -116,6 +132,7 @@ export default function ParticleField({
     return () => {
       cancelAnimationFrame(rafId);
       ro.disconnect();
+      io.disconnect();
     };
   }, [color, count, speed, connectDist]);
 
