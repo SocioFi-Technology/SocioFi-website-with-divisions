@@ -180,7 +180,7 @@ export default function Hero({
                   {buttons.map((btn, i) => (
                     <Button
                       key={i}
-                      variant={btn.variant ?? (i === 0 ? 'primary' : 'ghost')}
+                      variant={btn.variant ?? (i === 0 ? 'accent' : 'ghost')}
                       size="lg"
                       href={btn.href}
                       accentColor={accent}

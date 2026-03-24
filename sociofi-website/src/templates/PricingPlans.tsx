@@ -245,7 +245,7 @@ export default function PricingPlans({ content }: { content: PricingPlansContent
                       </div>
                     )}
                     {bundle.ctaHref && bundle.cta && (
-                      <Button href={bundle.ctaHref} variant="primary">
+                      <Button href={bundle.ctaHref} variant="accent">
                         {bundle.cta}
                       </Button>
                     )}

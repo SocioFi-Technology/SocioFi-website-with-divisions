@@ -151,7 +151,7 @@ export default function CTASection({
                 }}
               >
                 {primaryCTA && (
-                  <Button variant="primary" size="lg" href={primaryCTA.href}>
+                  <Button variant="accent" size="lg" href={primaryCTA.href} accentColor={accent}>
                     {primaryCTA.label}
                   </Button>
                 )}
