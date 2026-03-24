@@ -114,6 +114,10 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://sociofitechnology.com',
   },
+  other: {
+    // iOS Safari address bar tint + Android Chrome toolbar color
+    'theme-color': '#0C0C1D',
+  },
 };
 
 export default function RootLayout({
