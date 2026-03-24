@@ -222,38 +222,5 @@ export async function processSubmission(
       .catch((err: unknown) => console.warn('[RESEND] Email failed (non-blocking):', err));
   }
 
-  // ── 4. Slack Notification (fire-and-forget) ──────────────────────────────
-  const SLACK_WEBHOOK = process.env.SLACK_WEBHOOK_URL;
-  if (SLACK_WEBHOOK) {
-    const emailName = String(data.name ?? 'Unknown');
-    const emailAddr = String(data.email ?? '');
-    fetch(SLACK_WEBHOOK, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        text: `New ${division} submission — ${type}`,
-        blocks: [
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: `*New ${type} — ${division.toUpperCase()}*\n*From:* ${emailName} \`${emailAddr}\`\n*Priority:* ${priority}`,
-            },
-          },
-          {
-            type: 'actions',
-            elements: [
-              {
-                type: 'button',
-                text: { type: 'plain_text', text: 'View in Admin' },
-                url: `${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/admin/submissions/${submission_id}`,
-              },
-            ],
-          },
-        ],
-      }),
-    }).catch((err: unknown) => console.warn('[SLACK] Webhook failed (non-blocking):', err));
-  }
-
   return { submission_id, contact_id };
 }
