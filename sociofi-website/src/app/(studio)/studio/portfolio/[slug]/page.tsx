@@ -3,6 +3,7 @@
 import { useParams, notFound } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
 const A = '#72C4B2';
@@ -834,8 +835,8 @@ export default function PortfolioSlugPage() {
               <div className="cs-related-grid">
                 {project.related.map((r) => (
                   <Link key={r.slug} href={`/studio/portfolio/${r.slug}`} className="cs-related-card">
-                    <div className="cs-related-thumb" aria-hidden="true">
-                      <img src={`/images/portfolio/${r.slug}.jpg`} alt="" />
+                    <div className="cs-related-thumb" aria-hidden="true" style={{ position: 'relative' }}>
+                      <Image src={`/images/portfolio/${r.slug}.jpg`} alt="" fill style={{ objectFit: 'cover' }} />
                     </div>
                     <div className="cs-related-body">
                       <h3 className="cs-related-name">{r.name}</h3>

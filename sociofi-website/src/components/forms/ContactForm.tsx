@@ -2,6 +2,7 @@
 
 import { useState, useId } from 'react';
 import Button from '@/components/shared/Button';
+import { useToast } from '@/components/shared/Toast';
 import { divisionList } from '@/lib/divisions';
 
 interface FormValues {
@@ -111,6 +112,7 @@ export default function ContactForm({
 }: ContactFormProps) {
   const accent = accentColor ?? 'var(--division-accent, #59A392)';
   const uid = useId();
+  const { toast } = useToast();
 
   const [values, setValues] = useState<FormValues>({
     name: '',
@@ -160,6 +162,7 @@ export default function ContactForm({
       setStatus('success');
     } catch {
       setStatus('error');
+      toast('Something went wrong. Please try again or email us directly.', 'error');
     }
   };
 
@@ -315,7 +318,7 @@ export default function ContactForm({
           type="submit"
           variant="primary"
           size="lg"
-          disabled={status === 'submitting'}
+          loading={status === 'submitting'}
           className="w-full justify-center"
         >
           {status === 'submitting' ? 'Sending...' : 'Send message'}

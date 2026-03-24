@@ -81,6 +81,8 @@ export default function PILOTChat({
   const [conversationId] = useState(() => Math.random().toString(36).slice(2));
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const panelRef = useRef<HTMLDivElement | null>(null);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
   const reduced = useReducedMotion();
   const proactiveSentRef = useRef(0);
 
@@ -132,10 +134,26 @@ export default function PILOTChat({
     }
   }, [isOpen]);
 
-  // ── Keyboard: Escape to close ───────────────────────────────────────────────
+  // ── Keyboard: Escape to close + focus trap ───────────────────────────────────
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) setIsOpen(false);
+      if (e.key === 'Escape' && isOpen) {
+        setIsOpen(false);
+        triggerRef.current?.focus();
+        return;
+      }
+      if (e.key !== 'Tab' || !isOpen || !panelRef.current) return;
+      const focusable = panelRef.current.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), textarea, input:not([disabled]), select, [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
@@ -246,6 +264,7 @@ export default function PILOTChat({
         {isOpen && (
           <motion.div
             key="chat-panel"
+            ref={panelRef}
             initial={reduced ? { opacity: 0 } : { opacity: 0, y: 20, scale: 0.97 }}
             animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
             exit={reduced ? { opacity: 0 } : { opacity: 0, y: 16, scale: 0.97 }}
@@ -290,6 +309,7 @@ export default function PILOTChat({
 
       {/* Floating Button */}
       <motion.button
+        ref={triggerRef}
         initial={reduced ? { opacity: 0 } : { opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
@@ -481,6 +501,7 @@ function ChatPanel({
         role="log"
         aria-live="polite"
         aria-label="Chat messages"
+        aria-busy={isLoading}
         style={{
           flex: 1,
           overflowY: 'auto',

@@ -2,6 +2,7 @@
 
 import { useState, useId } from 'react';
 import Button from '@/components/shared/Button';
+import { useToast } from '@/components/shared/Toast';
 
 interface ProjectFormValues {
   name: string;
@@ -141,6 +142,7 @@ interface ProjectFormProps {
 export default function ProjectForm({ accentColor, className = '' }: ProjectFormProps) {
   const accent = accentColor ?? 'var(--division-accent, #59A392)';
   const uid = useId();
+  const { toast } = useToast();
 
   const [values, setValues] = useState<ProjectFormValues>({
     name: '',
@@ -190,6 +192,7 @@ export default function ProjectForm({ accentColor, className = '' }: ProjectForm
       setStatus('success');
     } catch {
       setStatus('error');
+      toast('Something went wrong. Please try again or email hello@sociofitechnology.com', 'error');
     }
   };
 
@@ -336,7 +339,7 @@ export default function ProjectForm({ accentColor, className = '' }: ProjectForm
           type="submit"
           variant="primary"
           size="lg"
-          disabled={status === 'submitting'}
+          loading={status === 'submitting'}
           className="w-full justify-center"
         >
           {status === 'submitting' ? 'Sending...' : 'Start a project'}

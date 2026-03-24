@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 
 const A = '#72C4B2';
 const F = {
@@ -628,8 +629,8 @@ function PortfolioCard({ project }: { project: Project }) {
         style={{ display: 'flex' }}
       >
         {project.image && (
-          <div className="port-card-thumb" aria-hidden="true">
-            <img src={project.image} alt="" />
+          <div className="port-card-thumb" aria-hidden="true" style={{ position: 'relative' }}>
+            <Image src={project.image} alt="" fill style={{ objectFit: 'cover' }} />
           </div>
         )}
         <div className="port-card-top">
