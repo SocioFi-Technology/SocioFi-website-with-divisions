@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import PILOTAvatar from './PILOTAvatar';
 import type { Division } from '@/lib/divisions';
+import { matchIntent } from '@/lib/pilot-knowledge';
 
 // ── Mobile detection hook ────────────────────────────────────────────────────
 
@@ -318,7 +319,7 @@ export default function PILOTChat({
 
       // Direct lead capture trigger phrases
       const lowerText = text.trim().toLowerCase();
-      if (lowerText === 'talk to a human' || lowerText === 'connect me with someone' || lowerText === 'talk to someone') {
+      if (lowerText === 'talk to a human' || lowerText === 'connect me with someone' || lowerText === 'talk to someone' || lowerText === 'leave my details') {
         setMessages(prev => [
           ...prev,
           { id: Date.now().toString(), role: 'user', content: text.trim(), timestamp: new Date() },
@@ -353,119 +354,35 @@ export default function PILOTChat({
       ]);
 
       try {
-        const response = await fetch('/api/pilot/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            message: text.trim(),
-            conversation_id: conversationId,
-            division: divisionKey,
-            page_url: pageUrl,
-            page_title: pageTitle,
-            stream: true,
-            history: messages
-              .filter(m => m.id !== 'welcome')
-              .map(m => ({
-                role: m.role === 'pilot' ? 'assistant' : 'user',
-                content: m.content,
-              })),
-          }),
-        });
+        // Short artificial delay so the typing indicator is visible
+        await new Promise(resolve => setTimeout(resolve, 320 + Math.random() * 180));
 
-        const contentType = response.headers.get('content-type') || '';
+        const result = matchIntent(text.trim(), divisionKey);
 
-        if (contentType.includes('text/event-stream') && response.body) {
-          // ── Streaming mode ────────────────────────────────────────────────
-          const reader = response.body.getReader();
-          const decoder = new TextDecoder();
-          let streamedText = '';
-          let buffer = '';
-          const streamMsgId = Date.now().toString();
+        const handoffSignals = ['connect you with', 'pass your details', 'reach out to you', 'connect you to', 'email hello@'];
+        const shouldShowForm = handoffSignals.some(s => result.message.toLowerCase().includes(s));
 
-          // Replace typing indicator with empty streaming message
-          setMessages(prev => [
-            ...prev.filter(m => m.id !== typingId),
-            { id: streamMsgId, role: 'pilot', content: '', timestamp: new Date() },
-          ]);
+        setMessages(prev => [
+          ...prev.filter(m => m.id !== typingId),
+          {
+            id: Date.now().toString(),
+            role: 'pilot',
+            content: result.message,
+            quickActions: shouldShowForm
+              ? [{ label: 'Leave my details', action: 'message' as const }, ...result.quickActions]
+              : result.quickActions,
+            timestamp: new Date(),
+          },
+        ]);
 
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-
-            buffer += decoder.decode(value, { stream: true });
-            const lines = buffer.split('\n');
-            buffer = lines.pop() || '';
-
-            for (const line of lines) {
-              if (!line.startsWith('data: ')) continue;
-              try {
-                const event = JSON.parse(line.slice(6)) as {
-                  type: string;
-                  text?: string;
-                  message?: string;
-                  quickActions?: (string | QuickAction)[];
-                };
-
-                if (event.type === 'delta' && event.text) {
-                  streamedText += event.text;
-                  setMessages(prev =>
-                    prev.map(m => m.id === streamMsgId ? { ...m, content: streamedText } : m)
-                  );
-                } else if (event.type === 'done') {
-                  const finalText = event.message || streamedText;
-                  const handoffSignals = ['connect you with', 'pass your details', 'reach out to you', 'connect you to', 'talk to arifur', 'talk to kamrul', 'email hello@'];
-                  const shouldShowForm = handoffSignals.some(s => finalText.toLowerCase().includes(s));
-
-                  setMessages(prev =>
-                    prev.map(m => m.id === streamMsgId ? {
-                      ...m,
-                      content: finalText,
-                      quickActions: shouldShowForm
-                        ? [{ label: 'Talk to a human', action: 'message' as const }, ...(event.quickActions || [])]
-                        : event.quickActions,
-                    } : m)
-                  );
-
-                  if (shouldShowForm) setShowLeadForm(true);
-                } else if (event.type === 'error') {
-                  setMessages(prev =>
-                    prev.map(m => m.id === streamMsgId ? { ...m, content: event.message || 'Something went wrong.' } : m)
-                  );
-                }
-              } catch { /* skip malformed SSE lines */ }
-            }
-          }
-        } else {
-          // ── Non-streaming fallback (NEXUS or JSON response) ────────────────
-          const data = (await response.json()) as { message?: string; quickActions?: (string | QuickAction)[] };
-          const responseText = data.message || "I'm not sure how to help with that. Want me to connect you with a real person?";
-
-          const handoffSignals = ['connect you with', 'pass your details', 'reach out to you', 'connect you to', 'talk to arifur', 'talk to kamrul', 'email hello@'];
-          const shouldShowForm = handoffSignals.some(s => responseText.toLowerCase().includes(s));
-
-          setMessages(prev => [
-            ...prev.filter(m => m.id !== typingId),
-            {
-              id: Date.now().toString(),
-              role: 'pilot',
-              content: responseText,
-              quickActions: shouldShowForm
-                ? [{ label: 'Talk to a human', action: 'message' as const }, ...(data.quickActions || [])]
-                : data.quickActions,
-              timestamp: new Date(),
-            },
-          ]);
-
-          if (shouldShowForm) setShowLeadForm(true);
-        }
+        if (shouldShowForm) setShowLeadForm(true);
       } catch {
         setMessages(prev => [
           ...prev.filter(m => m.id !== typingId),
           {
             id: Date.now().toString(),
             role: 'pilot',
-            content:
-              'Something went wrong on my end. For immediate help, email hello@sociofitechnology.com or use the contact form.',
+            content: 'Something went wrong. Email hello@sociofitechnology.com for immediate help.',
             timestamp: new Date(),
           },
         ]);
@@ -473,7 +390,7 @@ export default function PILOTChat({
         setIsLoading(false);
       }
     },
-    [isLoading, conversationId, divisionKey, pageUrl, pageTitle, messages],
+    [isLoading, divisionKey],
   );
 
   const handleSubmit = (e: React.FormEvent) => {
