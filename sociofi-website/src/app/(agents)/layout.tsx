@@ -8,18 +8,38 @@ const division = divisions.agents;
 
 export const metadata: Metadata = {
   title: {
-    default: 'SocioFi Agents',
+    default: 'SocioFi Agents — AI Agent Systems',
     template: '%s — SocioFi Agents',
   },
-  description: 'Subscribe to individual AI agents — each built for one specific task. Deploy into your operations in days, not months. 16 agents across sales, support, operations, data, and documents.',
+  description: 'Subscribe to individual AI agents — each built for one specific task. 16 agents across sales, support, operations, data, and documents. Deploy in days, not months.',
+  keywords: [
+    'AI agents subscription',
+    'AI automation tools',
+    'business AI agents',
+    'AI workflows',
+    'AI agent for sales',
+    'AI agent for customer support',
+    'AI agent for operations',
+    'subscribe to AI agents',
+    'SocioFi Agents',
+  ],
   openGraph: {
     title: 'SocioFi Agents — AI Agent Systems',
-    description: 'Individual AI agents built for one specific task. Subscribe monthly, deploy into your operations in days.',
+    description: 'Subscribe to individual AI agents — each built for one specific task. 16 agents across sales, support, operations, data, and documents. Deploy in days.',
     siteName: 'SocioFi Technology',
     type: 'website',
-    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'SocioFi Agents' }],
+    locale: 'en_US',
+    url: 'https://sociofitechnology.com/agents',
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'SocioFi Agents — AI Agent Systems' }],
   },
-  twitter: { card: 'summary_large_image', site: '@sociofitech' },
+  twitter: {
+    card: 'summary_large_image',
+    site: '@sociofitech',
+    creator: '@sociofitech',
+    title: 'SocioFi Agents — AI Agent Systems',
+    description: '16 AI agents. One specific task each. Subscribe monthly, deploy in days.',
+  },
+  alternates: { canonical: 'https://sociofitechnology.com/agents' },
 };
 
 export default function AgentsLayout({ children }: { children: React.ReactNode }) {

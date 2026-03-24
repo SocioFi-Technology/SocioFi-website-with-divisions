@@ -8,18 +8,37 @@ const division = divisions.products;
 
 export const metadata: Metadata = {
   title: {
-    default: 'SocioFi Products',
+    default: 'SocioFi Products — AI-Powered Software Platforms',
     template: '%s — SocioFi Products',
   },
-  description: 'Software we build, own, and run. Three AI-powered platforms — FabricxAI, NEXUS ARIA, and DevBridge — solving hard problems in manufacturing intelligence, enterprise data analysis, and software delivery.',
+  description: 'Three ready-to-deploy AI platforms: FabricxAI for manufacturing intelligence, NEXUS ARIA for enterprise data analysis, and DevBridge for software delivery.',
+  keywords: [
+    'AI software products',
+    'FabricxAI',
+    'NEXUS ARIA',
+    'DevBridge',
+    'manufacturing AI software',
+    'enterprise data analysis AI',
+    'AI-powered platforms',
+    'SocioFi Products',
+  ],
   openGraph: {
     title: 'SocioFi Products — AI-Powered Software Platforms',
-    description: 'Three AI-powered platforms: FabricxAI, NEXUS ARIA, and DevBridge. Ready-to-deploy solutions for real workflows.',
+    description: 'Three ready-to-deploy AI platforms: FabricxAI for manufacturing intelligence, NEXUS ARIA for enterprise data, DevBridge for software delivery.',
     siteName: 'SocioFi Technology',
     type: 'website',
-    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'SocioFi Products' }],
+    locale: 'en_US',
+    url: 'https://sociofitechnology.com/products',
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'SocioFi Products — AI-Powered Software Platforms' }],
   },
-  twitter: { card: 'summary_large_image', site: '@sociofitech' },
+  twitter: {
+    card: 'summary_large_image',
+    site: '@sociofitech',
+    creator: '@sociofitech',
+    title: 'SocioFi Products — AI-Powered Software Platforms',
+    description: 'FabricxAI, NEXUS ARIA, DevBridge — real AI tools for real workflows.',
+  },
+  alternates: { canonical: 'https://sociofitechnology.com/products' },
 };
 
 export default function ProductsLayout({ children }: { children: React.ReactNode }) {

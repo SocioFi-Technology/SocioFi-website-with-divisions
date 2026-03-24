@@ -8,18 +8,37 @@ const division = divisions.ventures;
 
 export const metadata: Metadata = {
   title: {
-    default: 'SocioFi Ventures',
+    default: 'SocioFi Ventures — Startup Co-Building',
     template: '%s — SocioFi Ventures',
   },
-  description: 'We co-build with technical founders. Equity-based and revenue-share partnerships for serious startups — we bring the engineering, you bring the vision.',
+  description: 'We co-build with technical founders using equity and revenue-share partnerships. You bring the vision, we bring the full engineering team. Serious startups only.',
+  keywords: [
+    'startup co-building',
+    'equity partnership startup',
+    'tech co-founder for hire',
+    'startup engineering partner',
+    'equity-based software development',
+    'startup CTO for hire',
+    'co-founder Bangladesh',
+    'SocioFi Ventures',
+  ],
   openGraph: {
     title: 'SocioFi Ventures — Startup Co-Building',
-    description: 'We co-build with technical founders. Equity-based partnerships for serious startups.',
+    description: 'We co-build with technical founders using equity and revenue-share partnerships. You bring the vision, we bring the full engineering team.',
     siteName: 'SocioFi Technology',
     type: 'website',
-    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'SocioFi Ventures' }],
+    locale: 'en_US',
+    url: 'https://sociofitechnology.com/ventures',
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'SocioFi Ventures — Startup Co-Building' }],
   },
-  twitter: { card: 'summary_large_image', site: '@sociofitech' },
+  twitter: {
+    card: 'summary_large_image',
+    site: '@sociofitech',
+    creator: '@sociofitech',
+    title: 'SocioFi Ventures — Startup Co-Building',
+    description: 'Equity and revenue-share partnerships for serious startups. We bring the engineering team.',
+  },
+  alternates: { canonical: 'https://sociofitechnology.com/ventures' },
 };
 
 export default function VenturesLayout({ children }: { children: React.ReactNode }) {
