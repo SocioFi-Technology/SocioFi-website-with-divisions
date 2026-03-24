@@ -1,9 +1,12 @@
 import { ReactNode } from 'react';
+import dynamic from 'next/dynamic';
 import Container from '@/components/shared/Container';
 import Button from '@/components/shared/Button';
-import AnimatedGrid from '@/components/visual/AnimatedGrid';
-import GradientOrbs from '@/components/visual/GradientOrbs';
 import ScrollReveal, { StaggerChildren, StaggerItem } from '@/components/shared/ScrollReveal';
+
+// Decorative backgrounds — deferred so they don't block initial paint
+const AnimatedGrid = dynamic(() => import('@/components/visual/AnimatedGrid'), { ssr: false });
+const GradientOrbs = dynamic(() => import('@/components/visual/GradientOrbs'), { ssr: false });
 
 type Layout = 'split' | 'centered' | 'minimal';
 

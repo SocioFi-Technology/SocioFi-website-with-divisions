@@ -4,8 +4,10 @@ import ScrollReveal from '@/components/shared/ScrollReveal';
 import TrustBar from '@/components/sections/TrustBar';
 import ContactForm from '@/components/forms/ContactForm';
 import ProjectForm from '@/components/forms/ProjectForm';
-import AnimatedGrid from '@/components/visual/AnimatedGrid';
-import GradientOrbs from '@/components/visual/GradientOrbs';
+import dynamic from 'next/dynamic';
+
+const AnimatedGrid = dynamic(() => import('@/components/visual/AnimatedGrid'), { ssr: false });
+const GradientOrbs = dynamic(() => import('@/components/visual/GradientOrbs'), { ssr: false });
 
 // ── Content Interfaces ────────────────────────────────────────────────────────
 
