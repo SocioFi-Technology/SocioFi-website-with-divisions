@@ -581,7 +581,7 @@ export default function PILOTChat({
               background: 'var(--bg-card)',
               border: `1px solid ${accent}26`,
               borderRadius: '24px 24px 0 0',
-              boxShadow: '0 -8px 40px rgba(0,0,0,0.3)',
+              boxShadow: `0 -8px 40px rgba(0,0,0,0.35), 0 0 0 1px ${accent}15`,
               overflow: 'hidden',
             } : {
               // ── Desktop: positioned panel ───────────────────────────
@@ -598,7 +598,7 @@ export default function PILOTChat({
               background: 'var(--bg-card)',
               border: `1px solid ${accent}26`,
               borderRadius: 'var(--radius-lg)',
-              boxShadow: '0 24px 80px rgba(0,0,0,0.3)',
+              boxShadow: `0 24px 80px rgba(0,0,0,0.35), 0 0 0 1px ${accent}15`,
               overflow: 'hidden',
             }}
           >
@@ -769,7 +769,7 @@ function ChatPanel({
             paddingTop: 10,
             paddingBottom: 2,
             flexShrink: 0,
-            background: `linear-gradient(135deg, ${accent}12 0%, transparent 100%)`,
+            background: `linear-gradient(135deg, ${accent}18 0%, transparent 100%)`,
           }}
         >
           <div
@@ -787,9 +787,9 @@ function ChatPanel({
       {/* Header */}
       <div
         style={{
-          padding: isMobile ? '8px 16px 12px' : '14px 16px 12px',
-          borderBottom: '1px solid var(--border)',
-          background: isMobile ? 'transparent' : `linear-gradient(135deg, ${accent}12 0%, transparent 100%)`,
+          padding: isMobile ? '10px 18px 14px' : '16px 18px 14px',
+          borderBottom: `1px solid ${accent}15`,
+          background: `linear-gradient(135deg, ${accent}20 0%, ${accent}08 50%, transparent 100%)`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -802,10 +802,10 @@ function ChatPanel({
             <div
               style={{
                 fontFamily: 'var(--font-mono)',
-                fontSize: '0.82rem',
+                fontSize: '0.85rem',
                 fontWeight: 600,
                 color: 'var(--text-primary)',
-                letterSpacing: '0.05em',
+                letterSpacing: '0.08em',
               }}
             >
               PILOT
@@ -813,12 +813,23 @@ function ChatPanel({
             <div
               style={{
                 fontFamily: 'var(--font-body)',
-                fontSize: '0.65rem',
-                color: accent,
-                letterSpacing: '0.08em',
-                textTransform: 'uppercase',
+                fontSize: '0.7rem',
+                color: 'var(--text-secondary)',
+                letterSpacing: '0.02em',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                marginTop: 1,
               }}
             >
+              <span style={{
+                width: 6,
+                height: 6,
+                borderRadius: '50%',
+                background: '#22C55E',
+                display: 'inline-block',
+                boxShadow: '0 0 0 2px rgba(34,197,94,0.2)',
+              }} />
               {division.name} · AI Assistant
             </div>
           </div>
@@ -899,10 +910,10 @@ function ChatPanel({
         style={{
           flex: 1,
           overflowY: 'auto',
-          padding: '16px 14px',
+          padding: '18px 16px',
           display: 'flex',
           flexDirection: 'column',
-          gap: 12,
+          gap: 14,
         }}
       >
         {messages.map(msg => (
@@ -937,12 +948,12 @@ function ChatPanel({
       <form
         onSubmit={handleSubmit}
         style={{
-          padding: '12px 14px',
-          borderTop: '1px solid var(--border)',
+          padding: '12px 14px 14px',
+          borderTop: `1px solid ${accent}15`,
           display: 'flex',
           gap: 8,
           flexShrink: 0,
-          background: 'var(--bg-card)',
+          background: `linear-gradient(180deg, transparent 0%, ${accent}06 100%)`,
         }}
       >
         <input
@@ -954,21 +965,23 @@ function ChatPanel({
           aria-label="Message PILOT"
           style={{
             flex: 1,
-            padding: '9px 12px',
+            padding: '10px 16px',
             background: 'var(--bg-2)',
             border: '1px solid var(--border)',
-            borderRadius: 'var(--radius-sm)',
+            borderRadius: 'var(--radius-full)',
             fontFamily: 'var(--font-body)',
             fontSize: '0.88rem',
             color: 'var(--text-primary)',
             outline: 'none',
-            transition: 'border-color 0.2s',
+            transition: 'border-color 0.2s, box-shadow 0.2s',
           }}
           onFocus={e => {
             e.target.style.borderColor = accent;
+            e.target.style.boxShadow = `0 0 0 3px ${accent}18`;
           }}
           onBlur={e => {
             e.target.style.borderColor = 'var(--border)';
+            e.target.style.boxShadow = 'none';
           }}
         />
         <button
@@ -976,17 +989,18 @@ function ChatPanel({
           disabled={!input.trim() || isLoading}
           aria-label="Send message"
           style={{
-            padding: '9px 14px',
-            background: accent,
+            padding: '10px 16px',
+            background: `linear-gradient(135deg, var(--navy) 0%, ${accent} 100%)`,
             color: 'white',
             border: 'none',
-            borderRadius: 'var(--radius-sm)',
+            borderRadius: 'var(--radius-full)',
             cursor: input.trim() && !isLoading ? 'pointer' : 'not-allowed',
-            opacity: input.trim() && !isLoading ? 1 : 0.5,
-            transition: 'opacity 0.2s, transform 0.15s',
+            opacity: input.trim() && !isLoading ? 1 : 0.45,
+            transition: 'opacity 0.2s, transform 0.15s, box-shadow 0.2s',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            boxShadow: input.trim() && !isLoading ? `0 4px 12px ${accent}40` : 'none',
           }}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -1000,6 +1014,12 @@ function ChatPanel({
           </svg>
         </button>
       </form>
+      <style>{`
+        .pilot-msg-meta {
+          opacity: 0.55;
+          transition: opacity 0.2s;
+        }
+      `}</style>
     </>
   );
 }
@@ -1071,14 +1091,17 @@ function MessageBubble({
       <div
         style={{
           maxWidth: '85%',
-          padding: isTyping ? '10px 16px' : '10px 14px',
-          borderRadius: isPilot ? '4px 16px 16px 16px' : '16px 4px 16px 16px',
-          background: isPilot ? `${accent}14` : 'var(--bg-3)',
-          border: isPilot ? `1px solid ${accent}20` : '1px solid var(--border)',
+          padding: isTyping ? '10px 16px' : '12px 16px',
+          borderRadius: isPilot ? '2px 18px 18px 18px' : '18px 2px 18px 18px',
+          background: isPilot
+            ? `linear-gradient(135deg, ${accent}18 0%, ${accent}08 100%)`
+            : `linear-gradient(135deg, var(--navy-deep) 0%, var(--navy) 100%)`,
+          border: isPilot ? `1px solid ${accent}30` : 'none',
+          borderLeft: isPilot ? `2.5px solid ${accent}` : undefined,
           fontFamily: 'var(--font-body)',
-          fontSize: '0.875rem',
-          lineHeight: 1.6,
-          color: 'var(--text-primary)',
+          fontSize: '0.9rem',
+          lineHeight: 1.65,
+          color: isPilot ? 'var(--text-primary)' : '#FFFFFF',
         }}
       >
         {isTyping ? (
@@ -1094,7 +1117,7 @@ function MessageBubble({
 
       {/* Quick Actions */}
       {isPilot && msg.quickActions && msg.quickActions.length > 0 && !isTyping && (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, maxWidth: '85%' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, maxWidth: '85%', marginTop: 2 }}>
           {msg.quickActions.map((raw, idx) => {
             const qa: QuickAction = typeof raw === 'string' ? { label: raw } : raw;
             const isNav = qa.action === 'navigate' && qa.url;
@@ -1105,26 +1128,29 @@ function MessageBubble({
                   key={`${qa.label}-${idx}`}
                   href={qa.url}
                   style={{
-                    padding: '4px 12px',
+                    padding: '6px 14px',
                     borderRadius: 'var(--radius-full)',
-                    background: `${accent}12`,
-                    border: `1px solid ${accent}30`,
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '0.68rem',
+                    background: `${accent}10`,
+                    border: `1px solid ${accent}35`,
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '0.75rem',
+                    fontWeight: 500,
                     color: accent,
                     cursor: 'pointer',
-                    letterSpacing: '0.04em',
-                    transition: 'background 0.2s',
+                    letterSpacing: '0.01em',
+                    transition: 'background 0.2s, border-color 0.2s, transform 0.15s',
                     textDecoration: 'none',
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: 4,
+                    gap: 5,
                   }}
                   onMouseEnter={e => {
-                    (e.currentTarget as HTMLElement).style.background = `${accent}22`;
+                    (e.currentTarget as HTMLElement).style.background = `${accent}20`;
+                    (e.currentTarget as HTMLElement).style.borderColor = `${accent}60`;
                   }}
                   onMouseLeave={e => {
-                    (e.currentTarget as HTMLElement).style.background = `${accent}12`;
+                    (e.currentTarget as HTMLElement).style.background = `${accent}10`;
+                    (e.currentTarget as HTMLElement).style.borderColor = `${accent}35`;
                   }}
                 >
                   {qa.label}
@@ -1140,22 +1166,29 @@ function MessageBubble({
                 key={`${qa.label}-${idx}`}
                 onClick={() => onQuickAction(qa.label)}
                 style={{
-                  padding: '4px 12px',
+                  padding: '6px 14px',
                   borderRadius: 'var(--radius-full)',
-                  background: `${accent}12`,
-                  border: `1px solid ${accent}30`,
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '0.68rem',
+                  background: `${accent}10`,
+                  border: `1px solid ${accent}35`,
+                  fontFamily: 'var(--font-body)',
+                  fontSize: '0.75rem',
+                  fontWeight: 500,
                   color: accent,
                   cursor: 'pointer',
-                  letterSpacing: '0.04em',
-                  transition: 'background 0.2s',
+                  letterSpacing: '0.01em',
+                  transition: 'background 0.2s, border-color 0.2s, transform 0.15s',
+                  textDecoration: 'none',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 5,
                 }}
                 onMouseEnter={e => {
-                  (e.target as HTMLElement).style.background = `${accent}22`;
+                  (e.currentTarget as HTMLElement).style.background = `${accent}20`;
+                  (e.currentTarget as HTMLElement).style.borderColor = `${accent}60`;
                 }}
                 onMouseLeave={e => {
-                  (e.target as HTMLElement).style.background = `${accent}12`;
+                  (e.currentTarget as HTMLElement).style.background = `${accent}10`;
+                  (e.currentTarget as HTMLElement).style.borderColor = `${accent}35`;
                 }}
               >
                 {qa.label}
@@ -1166,7 +1199,7 @@ function MessageBubble({
       )}
 
       {/* Feedback + Timestamp */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingInline: 4 }}>
+      <div className="pilot-msg-meta" style={{ display: 'flex', alignItems: 'center', gap: 8, paddingInline: 4, marginTop: 2, opacity: 0.55, transition: 'opacity 0.2s' }}>
         {isPilot && !isTyping && msg.id !== 'welcome' && msg.content.length > 0 && (
           <div style={{ display: 'flex', gap: 2 }}>
             <button
@@ -1218,8 +1251,9 @@ function MessageBubble({
         <span
           style={{
             fontFamily: 'var(--font-mono)',
-            fontSize: '0.58rem',
+            fontSize: '0.6rem',
             color: 'var(--text-muted)',
+            opacity: 0.7,
           }}
         >
           {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
