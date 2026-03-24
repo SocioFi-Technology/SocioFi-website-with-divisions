@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: 'SocioFi Cloud — Managed Cloud Hosting, No DevOps Required',
     description: 'Fully managed cloud hosting. We handle infrastructure, uptime, and security so your team focuses on building.',
     url: 'https://sociofitechnology.com/cloud',
-    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'SocioFi Cloud' }],
+    images: [{ url: '/cloud/opengraph-image', width: 1200, height: 630, alt: 'SocioFi Cloud' }],
   },
 };
 

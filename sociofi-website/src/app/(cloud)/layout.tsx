@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: 'https://sociofitechnology.com/cloud',
-    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'SocioFi Cloud — Managed Cloud Hosting' }],
+    images: [{ url: '/cloud/opengraph-image', width: 1200, height: 630, alt: 'SocioFi Cloud — Managed Cloud Hosting' }],
   },
   twitter: {
     card: 'summary_large_image',

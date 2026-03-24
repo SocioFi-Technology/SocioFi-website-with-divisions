@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: 'https://sociofitechnology.com/academy',
-    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'SocioFi Academy — Learn to Build with AI' }],
+    images: [{ url: '/academy/opengraph-image', width: 1200, height: 630, alt: 'SocioFi Academy — Learn to Build with AI' }],
   },
   twitter: {
     card: 'summary_large_image',

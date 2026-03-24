@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     description:
       'Software we build, own, and run. Three platforms solving hard problems in manufacturing intelligence, enterprise data analysis, and software delivery.',
     type: 'website',
-    images: ['/og-image.png'],
+    images: ['/products/opengraph-image'],
   },
   twitter: { card: 'summary_large_image' },
 };

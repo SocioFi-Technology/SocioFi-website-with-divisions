@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     description:
       'Enterprise AI data analyst with 12 specialist agents. Ask business questions in plain English and get answers backed by your actual data.',
     type: 'website',
-    images: ['/og-image.png'],
+    images: ['/products/opengraph-image'],
   },
   twitter: { card: 'summary_large_image' },
 };

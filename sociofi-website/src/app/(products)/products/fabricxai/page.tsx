@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     description:
       '22-agent manufacturing intelligence platform for the garment industry. Demand forecasting, production scheduling, quality control, and supplier management in one coordinated system.',
     type: 'website',
-    images: ['/og-image.png'],
+    images: ['/products/opengraph-image'],
   },
   twitter: { card: 'summary_large_image' },
 };

@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     description:
       'Real outcomes from SocioFi Academy students. Developers, founders, and teams who built and shipped AI-native software.',
     type: 'website',
-    images: [{ url: '/og-image.png' }],
+    images: [{ url: '/academy/opengraph-image' }],
   },
   twitter: { card: 'summary_large_image' },
 };

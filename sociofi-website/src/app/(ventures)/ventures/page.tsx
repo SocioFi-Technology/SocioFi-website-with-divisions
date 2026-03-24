@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: 'SocioFi Ventures — Co-Build Your Startup with a Full Engineering Team',
     description: 'Equity and revenue-share partnerships. We become your engineering team while you keep control.',
     url: 'https://sociofitechnology.com/ventures',
-    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'SocioFi Ventures' }],
+    images: [{ url: '/ventures/opengraph-image', width: 1200, height: 630, alt: 'SocioFi Ventures' }],
   },
 };
 

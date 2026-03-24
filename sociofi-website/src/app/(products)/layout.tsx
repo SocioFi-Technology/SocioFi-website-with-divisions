@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: 'https://sociofitechnology.com/products',
-    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'SocioFi Products — AI-Powered Software Platforms' }],
+    images: [{ url: '/products/opengraph-image', width: 1200, height: 630, alt: 'SocioFi Products — AI-Powered Software Platforms' }],
   },
   twitter: {
     card: 'summary_large_image',

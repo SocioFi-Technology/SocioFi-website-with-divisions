@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     description:
       'Common questions about the SCARL certification programme: eligibility, cost, timeline, technical review, and what the credential means for your career.',
     type: 'website',
-    images: [{ url: '/og-image.png' }],
+    images: [{ url: '/academy/opengraph-image' }],
   },
   twitter: { card: 'summary_large_image' },
 };
