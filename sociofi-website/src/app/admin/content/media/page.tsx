@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useRef, useCallback, useMemo } from 'react'
-import { MOCK_MEDIA } from '@/lib/admin/mock-data'
+import { useState, useRef, useCallback, useMemo, useEffect } from 'react'
+import { fetchMediaItems } from '@/lib/admin/queries'
 import { formatSize, uploadMedia } from '@/lib/admin/media-upload'
 import type { MediaItem, MediaFolder } from '@/lib/admin/types'
 
@@ -220,8 +220,22 @@ interface UploadingFile {
 }
 
 export default function MediaLibraryPage() {
-  const [items, setItems] = useState<MediaItem[]>(MOCK_MEDIA)
+  const [items, setItems] = useState<MediaItem[]>([])
+  const [loadingMedia, setLoadingMedia] = useState(true)
   const [activeFolder, setActiveFolder] = useState<MediaFolder>('all')
+
+  const reloadMedia = useCallback(async () => {
+    try {
+      const data = await fetchMediaItems({ folder: activeFolder !== 'all' ? activeFolder : undefined })
+      setItems(data)
+    } catch {
+      // keep existing items on refresh error
+    } finally {
+      setLoadingMedia(false)
+    }
+  }, [activeFolder])
+
+  useEffect(() => { setLoadingMedia(true); reloadMedia() }, [reloadMedia])
   const [filterType, setFilterType] = useState<'all' | 'image' | 'document'>('all')
   const [search, setSearch] = useState('')
   const [selectedId, setSelectedId] = useState<string | null>(null)

@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useMemo, Suspense } from 'react'
+import { useState, useMemo, useEffect, useCallback, Suspense } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { MOCK_SUBMISSIONS } from '@/lib/admin/mock-data'
+import { fetchSubmissions } from '@/lib/admin/queries'
 import {
   DIVISION_COLORS, STATUS_COLORS, PRIORITY_COLORS,
   type Submission, type SubmissionStatus, type SubmissionPriority, type Division,
@@ -255,7 +255,9 @@ function SubmissionsPageInner() {
   const searchParams = useSearchParams()
   const pathname = usePathname()
 
-  const [submissions, setSubmissions] = useState<Submission[]>(MOCK_SUBMISSIONS)
+  const [submissions, setSubmissions] = useState<Submission[]>([])
+  const [loadingSubs, setLoadingSubs] = useState(true)
+  const [subsError, setSubsError] = useState<string | null>(null)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [detailId, setDetailId] = useState<string | null>(null)
   const [sortCol, setSortCol] = useState<keyof Submission>('created_at')
@@ -266,6 +268,28 @@ function SubmissionsPageInner() {
   const filterStatus = searchParams.get('status') ?? 'all'
   const filterPriority = searchParams.get('priority') ?? 'all'
   const filterType = searchParams.get('type') ?? 'all'
+
+  const loadSubmissions = useCallback(async () => {
+    setLoadingSubs(true)
+    setSubsError(null)
+    try {
+      const data = await fetchSubmissions({
+        division: filterDivision !== 'all' ? filterDivision : undefined,
+        status: filterStatus !== 'all' ? filterStatus : undefined,
+        priority: filterPriority !== 'all' ? filterPriority : undefined,
+        type: filterType !== 'all' ? filterType : undefined,
+        search: search || undefined,
+        limit: 100,
+      })
+      setSubmissions(data)
+    } catch (e) {
+      setSubsError(e instanceof Error ? e.message : 'Failed to load submissions')
+    } finally {
+      setLoadingSubs(false)
+    }
+  }, [filterDivision, filterStatus, filterPriority, filterType, search])
+
+  useEffect(() => { loadSubmissions() }, [loadSubmissions])
 
   const setFilter = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -341,6 +365,10 @@ function SubmissionsPageInner() {
 
   const detailSubmission = submissions.find(s => s.id === detailId)
 
+  if (subsError) {
+    return <div style={{ padding: '40px', color: '#EF4444', fontFamily: "'Fira Code', monospace", fontSize: '0.84rem' }}>Error: {subsError}</div>
+  }
+
   return (
     <div style={{ position: 'relative' }}>
       {/* Page header */}
@@ -349,7 +377,7 @@ function SubmissionsPageInner() {
           <div style={{ color: '#59A392', fontSize: '0.65rem', fontFamily: "'Fira Code', monospace", textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '4px' }}>— INBOX</div>
           <h1 style={{ color: '#E2E8F0', fontSize: '1.4rem', fontWeight: 700, fontFamily: "'Syne', sans-serif", margin: 0, letterSpacing: '-0.02em' }}>Submissions</h1>
         </div>
-        <div style={{ color: '#64748B', fontSize: '0.82rem' }}>{filtered.length} of {submissions.length} total</div>
+        <div style={{ color: '#64748B', fontSize: '0.82rem' }}>{loadingSubs ? 'Loading…' : `${filtered.length} of ${submissions.length} total`}</div>
       </div>
 
       {/* Filter bar */}
@@ -507,7 +535,10 @@ function SubmissionsPageInner() {
             ))}
           </tbody>
         </table>
-        {filtered.length === 0 && (
+        {loadingSubs && (
+          <div style={{ padding: '48px', textAlign: 'center', color: '#64748B' }}>Loading submissions…</div>
+        )}
+        {!loadingSubs && filtered.length === 0 && (
           <div style={{ padding: '48px', textAlign: 'center', color: '#64748B' }}>
             <div style={{ fontSize: '1rem', marginBottom: '8px' }}>No submissions match these filters</div>
             <div style={{ fontSize: '0.82rem' }}>Try clearing some filters or adjusting your search</div>

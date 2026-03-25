@@ -1,0 +1,126 @@
+version: '3.9'
+
+# SocioFi Technology — Production Docker Compose
+# Supabase and PostgreSQL are hosted on Supabase Cloud.
+# Resend, Anthropic, and Stripe are external APIs.
+# Run: docker compose up -d
+
+services:
+
+  # ── Next.js Admin Panel ──────────────────────────────────────────────────────
+  admin:
+    build:
+      context: ./sociofi-website
+      dockerfile: Dockerfile
+    container_name: sociofi-admin
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./sociofi-website/.env.production
+    environment:
+      NODE_ENV: production
+      NEXUS_API_URL: http://nexus:8001
+    depends_on:
+      - nexus
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - sociofi
+
+  # ── NEXUS FastAPI Agent Server ───────────────────────────────────────────────
+  nexus:
+    build:
+      context: ./sociofi-nexus
+      dockerfile: Dockerfile
+    container_name: sociofi-nexus
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    env_file:
+      - ./sociofi-nexus/.env
+    environment:
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8001/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    networks:
+      - sociofi
+
+  # ── Celery Workers (3 concurrent workers) ───────────────────────────────────
+  celery:
+    build:
+      context: ./sociofi-nexus
+      dockerfile: Dockerfile
+    container_name: sociofi-celery
+    restart: unless-stopped
+    command: celery -A celery_app worker --loglevel=info --concurrency=3 -Q default,high_priority,email
+    env_file:
+      - ./sociofi-nexus/.env
+    environment:
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      redis:
+        condition: service_healthy
+      nexus:
+        condition: service_healthy
+    networks:
+      - sociofi
+
+  # ── Celery Beat Scheduler ────────────────────────────────────────────────────
+  celery-beat:
+    build:
+      context: ./sociofi-nexus
+      dockerfile: Dockerfile
+    container_name: sociofi-celery-beat
+    restart: unless-stopped
+    command: celery -A celery_app beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    env_file:
+      - ./sociofi-nexus/.env
+    environment:
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - sociofi
+
+  # ── Redis (Queue + Cache) ────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: sociofi-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru --save 60 1
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - sociofi
+
+# ── Volumes ──────────────────────────────────────────────────────────────────
+
+volumes:
+  redis_data:
+    driver: local
+
+# ── Networks ─────────────────────────────────────────────────────────────────
+
+networks:
+  sociofi:
+    driver: bridge

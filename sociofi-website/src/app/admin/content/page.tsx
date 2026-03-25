@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { MOCK_CONTENT } from '@/lib/admin/mock-data'
+import { fetchContentItems } from '@/lib/admin/queries'
 import { CONTENT_STATUS_COLORS, CONTENT_TYPE_LABELS, DIVISION_COLORS, type ContentItem, type ContentStatus, type ContentType } from '@/lib/admin/types'
 
 function relativeTime(iso: string): string {
@@ -27,11 +27,32 @@ const TYPE_COLORS: Record<ContentType, string> = {
 
 export default function ContentHubPage() {
   const router = useRouter()
-  const [items] = useState<ContentItem[]>(MOCK_CONTENT)
+  const [items, setItems] = useState<ContentItem[]>([])
+  const [loadingContent, setLoadingContent] = useState(true)
+  const [contentError, setContentError] = useState<string | null>(null)
   const [activeType, setActiveType] = useState<ContentType | 'all'>('all')
   const [filterStatus, setFilterStatus] = useState<ContentStatus | 'all'>('all')
   const [search, setSearch] = useState('')
   const [showNewMenu, setShowNewMenu] = useState(false)
+
+  const loadContent = useCallback(async () => {
+    setLoadingContent(true)
+    setContentError(null)
+    try {
+      const data = await fetchContentItems({
+        type: activeType !== 'all' ? activeType : undefined,
+        status: filterStatus !== 'all' ? filterStatus : undefined,
+        search: search || undefined,
+      })
+      setItems(data)
+    } catch (e) {
+      setContentError(e instanceof Error ? e.message : 'Failed to load content')
+    } finally {
+      setLoadingContent(false)
+    }
+  }, [activeType, filterStatus, search])
+
+  useEffect(() => { loadContent() }, [loadContent])
 
   const countFor = (type: ContentType | 'all') => {
     if (type === 'all') return items.length
@@ -196,7 +217,13 @@ export default function ContentHubPage() {
               })}
             </tbody>
           </table>
-          {filtered.length === 0 && (
+          {contentError && (
+            <div style={{ padding: '48px', textAlign: 'center', color: '#EF4444', fontSize: '0.84rem', fontFamily: "'Fira Code', monospace" }}>Error: {contentError}</div>
+          )}
+          {loadingContent && !contentError && (
+            <div style={{ padding: '48px', textAlign: 'center', color: '#64748B', fontSize: '0.85rem' }}>Loading content…</div>
+          )}
+          {!loadingContent && filtered.length === 0 && (
             <div style={{ padding: '48px', textAlign: 'center', color: '#64748B', fontSize: '0.85rem' }}>No content found</div>
           )}
         </div>

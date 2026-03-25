@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect, useCallback, use, Suspense } from 'react'
+import { useState, useEffect, useCallback, useRef, use, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import dynamic from 'next/dynamic'
-import { MOCK_CONTENT, MOCK_VERSIONS } from '@/lib/admin/mock-data'
+import { createClient } from '@/lib/supabase/client'
 import { CONTENT_STATUS_COLORS, CONTENT_TYPE_LABELS, DIVISION_COLORS, type ContentStatus, type ContentType } from '@/lib/admin/types'
 
 const TiptapEditor = dynamic(() => import('@/components/admin/TiptapEditor'), { ssr: false, loading: () => (
@@ -49,42 +49,109 @@ function EditorInner({ id }: { id: string }) {
   const searchParams = useSearchParams()
   const isNew = id === 'new'
   const typeParam = (searchParams.get('type') ?? 'blog_post') as ContentType
+  const supabase = createClient()
 
-  const existing = isNew ? null : MOCK_CONTENT.find(c => c.id === id) ?? null
-  const versions = isNew ? [] : MOCK_VERSIONS.filter(v => v.content_id === id)
+  // Post ID once created/loaded
+  const [postId, setPostId] = useState<string | null>(isNew ? null : id)
 
-  const [title, setTitle] = useState(existing?.title ?? '')
-  const [slug, setSlug] = useState(existing?.slug ?? '')
+  const [title, setTitle] = useState('')
+  const [slug, setSlug] = useState('')
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false)
-  const [contentType, setContentType] = useState<ContentType>(existing?.type ?? typeParam)
-  const [status, setStatus] = useState<ContentStatus>(existing?.status ?? 'draft')
-  const [division, setDivision] = useState(existing?.division ?? '')
-  const [author, setAuthor] = useState(existing?.author ?? 'Arifur Rahman')
-  const [authorType, setAuthorType] = useState<'human' | 'agent'>(existing?.author_type ?? 'human')
-  const [editedBy, setEditedBy] = useState(existing?.edited_by ?? '')
-  const [tags, setTags] = useState<string[]>(existing?.tags ?? [])
+  const [contentType, setContentType] = useState<ContentType>(typeParam)
+  const [status, setStatus] = useState<ContentStatus>('draft')
+  const [division, setDivision] = useState('')
+  const [author, setAuthor] = useState('Arifur Rahman')
+  const [authorType, setAuthorType] = useState<'human' | 'agent'>('human')
+  const [editedBy, setEditedBy] = useState('')
+  const [tags, setTags] = useState<string[]>([])
   const [newTag, setNewTag] = useState('')
-  const [seoTitle, setSeoTitle] = useState(existing?.seo_title ?? '')
-  const [seoDescription, setSeoDescription] = useState(existing?.seo_description ?? '')
-  const [wordCount, setWordCount] = useState(existing?.word_count ?? 0)
+  const [seoTitle, setSeoTitle] = useState('')
+  const [seoDescription, setSeoDescription] = useState('')
+  const [wordCount, setWordCount] = useState(0)
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved')
   const [seoOpen, setSeoOpen] = useState(true)
   const [versionsOpen, setVersionsOpen] = useState(false)
+  const [loading, setLoading] = useState(!isNew)
 
-  // Auto-generate slug from title
+  // Track TipTap HTML + JSON for saving
+  const contentHtmlRef = useRef<string>('')
+  const contentJsonRef = useRef<Record<string, unknown> | null>(null)
+  // Seed content for TipTap (only on initial load)
+  const [initialContent, setInitialContent] = useState<string>('')
+
+  // Load existing post from Supabase
+  useEffect(() => {
+    if (isNew) return
+    ;(async () => {
+      const { data } = await supabase.from('cms_posts').select('*').eq('id', id).single()
+      if (data) {
+        setTitle(data.title ?? '')
+        setSlug(data.slug ?? '')
+        setSlugManuallyEdited(true)
+        setContentType((data.type ?? typeParam) as ContentType)
+        setStatus((data.status ?? 'draft') as ContentStatus)
+        setDivision(data.division ?? '')
+        setAuthor(data.author ?? 'Arifur Rahman')
+        setAuthorType((data.author_type ?? 'human') as 'human' | 'agent')
+        setEditedBy(data.edited_by ?? '')
+        setTags(data.tags ?? [])
+        setSeoTitle(data.seo_title ?? '')
+        setSeoDescription(data.seo_description ?? '')
+        setWordCount(data.word_count ?? 0)
+        // Seed TipTap with JSON if available, else HTML body
+        if (data.content_json) {
+          setInitialContent(JSON.stringify(data.content_json))
+          contentJsonRef.current = data.content_json as Record<string, unknown>
+        } else if (data.body) {
+          setInitialContent(data.body)
+          contentHtmlRef.current = data.body
+        }
+      }
+      setLoading(false)
+    })()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, isNew])
+
+  // Auto-generate slug from title (only when not manually edited)
   useEffect(() => {
     if (!slugManuallyEdited) setSlug(slugify(title))
   }, [title, slugManuallyEdited])
 
   // Auto-save debounce
-  const triggerSave = useCallback(() => {
+  const triggerSave = useCallback(async (overrideStatus?: ContentStatus) => {
     setSaveStatus('saving')
-    setTimeout(() => setSaveStatus('saved'), 800)
-  }, [])
+    const currentStatus = overrideStatus ?? status
+    const payload = {
+      title,
+      slug,
+      type: contentType,
+      status: currentStatus,
+      division: division || null,
+      author,
+      author_type: authorType,
+      edited_by: editedBy || null,
+      tags,
+      seo_title: seoTitle || null,
+      seo_description: seoDescription || null,
+      word_count: wordCount,
+      body: contentHtmlRef.current || null,
+      content_json: contentJsonRef.current ?? null,
+      published_at: currentStatus === 'published' ? new Date().toISOString() : undefined,
+    }
+
+    if (postId) {
+      await supabase.from('cms_posts').update(payload).eq('id', postId)
+    } else {
+      const { data } = await supabase.from('cms_posts').insert(payload).select('id').single()
+      if (data?.id) setPostId(data.id)
+    }
+    setSaveStatus('saved')
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [title, slug, contentType, status, division, author, authorType, editedBy, tags, seoTitle, seoDescription, wordCount, postId])
 
   useEffect(() => {
     if (saveStatus === 'unsaved') {
-      const timer = setTimeout(triggerSave, 2000)
+      const timer = setTimeout(() => triggerSave(), 2500)
       return () => clearTimeout(timer)
     }
   }, [saveStatus, triggerSave])
@@ -92,7 +159,15 @@ function EditorInner({ id }: { id: string }) {
   const markDirty = () => setSaveStatus('unsaved')
 
   const handleTitleChange = (v: string) => { setTitle(v); markDirty() }
-  const handleContentChange = () => { markDirty() }
+  const handleContentChange = (html: string, json: Record<string, unknown>) => {
+    contentHtmlRef.current = html
+    contentJsonRef.current = json
+    markDirty()
+  }
+
+  if (loading) {
+    return <div style={{ color: '#64748B', padding: '40px', textAlign: 'center', fontFamily: "'Fira Code', monospace", fontSize: '0.8rem' }}>Loading post…</div>
+  }
 
   return (
     <div>
@@ -146,7 +221,7 @@ function EditorInner({ id }: { id: string }) {
 
           {/* Tiptap Editor */}
           <TiptapEditor
-            content={existing?.content_json ? JSON.stringify(existing.content_json) : ''}
+            content={initialContent}
             onChange={handleContentChange}
             onWordCountChange={setWordCount}
             placeholder="Start writing. Use the toolbar above for formatting…"
@@ -166,20 +241,20 @@ function EditorInner({ id }: { id: string }) {
             </select>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-              <button onClick={triggerSave} style={{ background: 'rgba(255,255,255,0.04)', color: '#94A3B8', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '7px', padding: '8px', fontSize: '0.8rem', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>
+              <button onClick={() => triggerSave()} style={{ background: 'rgba(255,255,255,0.04)', color: '#94A3B8', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '7px', padding: '8px', fontSize: '0.8rem', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>
                 Save Draft
               </button>
               {status !== 'review' && (
-                <button onClick={() => { setStatus('review'); markDirty() }} style={{ background: 'rgba(232,184,77,0.12)', color: '#E8B84D', border: '1px solid rgba(232,184,77,0.3)', borderRadius: '7px', padding: '8px', fontSize: '0.8rem', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>
+                <button onClick={() => { setStatus('review'); triggerSave('review') }} style={{ background: 'rgba(232,184,77,0.12)', color: '#E8B84D', border: '1px solid rgba(232,184,77,0.3)', borderRadius: '7px', padding: '8px', fontSize: '0.8rem', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>
                   Submit for Review
                 </button>
               )}
               {status !== 'published' ? (
-                <button onClick={() => { setStatus('published'); triggerSave() }} style={{ background: 'rgba(74,222,128,0.12)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.3)', borderRadius: '7px', padding: '8px', fontSize: '0.8rem', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>
+                <button onClick={() => { setStatus('published'); triggerSave('published') }} style={{ background: 'rgba(74,222,128,0.12)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.3)', borderRadius: '7px', padding: '8px', fontSize: '0.8rem', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>
                   Publish
                 </button>
               ) : (
-                <button onClick={() => { setStatus('draft'); markDirty() }} style={{ background: 'rgba(239,68,68,0.1)', color: '#EF4444', border: '1px solid rgba(239,68,68,0.25)', borderRadius: '7px', padding: '8px', fontSize: '0.8rem', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>
+                <button onClick={() => { setStatus('draft'); triggerSave('draft') }} style={{ background: 'rgba(239,68,68,0.1)', color: '#EF4444', border: '1px solid rgba(239,68,68,0.25)', borderRadius: '7px', padding: '8px', fontSize: '0.8rem', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>
                   Unpublish
                 </button>
               )}
@@ -282,35 +357,6 @@ function EditorInner({ id }: { id: string }) {
             )}
           </div>
 
-          {/* Version History (collapsible) */}
-          {versions.length > 0 && (
-            <div style={{ background: '#12162A', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', overflow: 'hidden' }}>
-              <button onClick={() => setVersionsOpen(p => !p)}
-                style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 16px', background: 'none', border: 'none', cursor: 'pointer', color: '#64748B', fontSize: '0.62rem', fontFamily: "'Fira Code', monospace", textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                Version History ({versions.length})
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" style={{ transform: versionsOpen ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.2s' }}><polyline points="6 9 12 15 18 9"/></svg>
-              </button>
-              {versionsOpen && (
-                <div style={{ padding: '0 14px 14px' }}>
-                  {versions.map(v => {
-                    const diff = (Date.now() - new Date(v.created_at).getTime()) / 1000
-                    const timeStr = diff < 86400 ? `${Math.floor(diff / 3600)}h ago` : `${Math.floor(diff / 86400)}d ago`
-                    return (
-                      <div key={v.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                        <div>
-                          <div style={{ color: '#E2E8F0', fontSize: '0.75rem' }}>v{v.version} — {v.author}</div>
-                          <div style={{ color: '#64748B', fontSize: '0.68rem', marginTop: '2px' }}>{v.note} · {timeStr}</div>
-                        </div>
-                        <button style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '5px', color: '#64748B', fontSize: '0.68rem', padding: '3px 8px', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>
-                          Restore
-                        </button>
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
-          )}
 
           {/* Word count info */}
           <div style={{ padding: '10px 14px', background: '#12162A', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', display: 'flex', justifyContent: 'space-between' }}>

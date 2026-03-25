@@ -1,5 +1,5 @@
 'use client'
-
+// updated
 import { useCallback, useState } from 'react'
 import { MOCK_MEDIA } from '@/lib/admin/mock-data'
 import { useEditor, EditorContent } from '@tiptap/react'
@@ -95,6 +95,7 @@ export default function TiptapEditor({ content = '', onChange, placeholder = 'St
       TableCell,
       TableHeader,
     ],
+    immediatelyRender: false,
     content,
     editorProps: {
       attributes: {

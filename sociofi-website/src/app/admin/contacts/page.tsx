@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { MOCK_CONTACTS } from '@/lib/admin/mock-data'
+import { fetchContacts } from '@/lib/admin/queries'
 import { DIVISION_COLORS, STAGE_COLORS, type Contact, type LifecycleStage } from '@/lib/admin/types'
 
 function relativeTime(iso: string): string {
@@ -38,9 +38,26 @@ const STAGES: LifecycleStage[] = ['lead', 'qualified', 'opportunity', 'client', 
 
 export default function ContactsPage() {
   const router = useRouter()
-  const [contacts] = useState<Contact[]>(MOCK_CONTACTS)
+  const [contacts, setContacts] = useState<Contact[]>([])
+  const [loadingContacts, setLoadingContacts] = useState(true)
+  const [contactsError, setContactsError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
   const [filterStage, setFilterStage] = useState<string>('all')
+
+  const loadContacts = useCallback(async () => {
+    setLoadingContacts(true)
+    setContactsError(null)
+    try {
+      const data = await fetchContacts({ stage: filterStage, search: search || undefined, limit: 200 })
+      setContacts(data)
+    } catch (e) {
+      setContactsError(e instanceof Error ? e.message : 'Failed to load contacts')
+    } finally {
+      setLoadingContacts(false)
+    }
+  }, [filterStage, search])
+
+  useEffect(() => { loadContacts() }, [loadContacts])
   const [sortCol, setSortCol] = useState<keyof Contact>('last_activity_at')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
 
@@ -79,6 +96,10 @@ export default function ContactsPage() {
 
   const stageCounts = STAGES.map(s => ({ stage: s, count: contacts.filter(c => c.stage === s).length }))
 
+  if (contactsError) {
+    return <div style={{ padding: '40px', color: '#EF4444', fontFamily: "'Fira Code', monospace", fontSize: '0.84rem' }}>Error: {contactsError}</div>
+  }
+
   return (
     <div>
       <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
@@ -86,7 +107,7 @@ export default function ContactsPage() {
           <div style={{ color: '#59A392', fontSize: '0.65rem', fontFamily: "'Fira Code', monospace", textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '4px' }}>— CRM</div>
           <h1 style={{ color: '#E2E8F0', fontSize: '1.4rem', fontWeight: 700, fontFamily: "'Syne', sans-serif", margin: 0, letterSpacing: '-0.02em' }}>Contacts</h1>
         </div>
-        <div style={{ color: '#64748B', fontSize: '0.82rem' }}>{filtered.length} of {contacts.length} contacts</div>
+        <div style={{ color: '#64748B', fontSize: '0.82rem' }}>{loadingContacts ? 'Loading…' : `${filtered.length} of ${contacts.length} contacts`}</div>
       </div>
 
       {/* Stage summary pills */}
@@ -160,7 +181,12 @@ export default function ContactsPage() {
             ))}
           </tbody>
         </table>
-        {filtered.length === 0 && (
+        {loadingContacts && (
+          <div style={{ padding: '48px', textAlign: 'center', color: '#64748B', fontSize: '0.85rem' }}>
+            Loading contacts…
+          </div>
+        )}
+        {!loadingContacts && filtered.length === 0 && (
           <div style={{ padding: '48px', textAlign: 'center', color: '#64748B', fontSize: '0.85rem' }}>
             No contacts match your search
           </div>

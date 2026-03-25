@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { fetchPipelineSnapshot, fetchAgentLastRuns, fetchAttentionItems } from './queries'
 
 export interface KPIData {
   newLeads: number
@@ -210,24 +211,58 @@ export function useDashboardData() {
         supabase.from('activity_log').select('*').order('created_at', { ascending: false }).limit(15),
       ])
 
+      // Fetch pipeline, agents, and attention items in parallel
+      const [pipelineSnapshot, agentLastRuns, attentionItems] = await Promise.all([
+        fetchPipelineSnapshot().catch(() => ({} as Record<string, Record<string, number>>)),
+        fetchAgentLastRuns().catch(() => ({} as Record<string, { lastRun: string; tasks: number; hasError: boolean }>)),
+        fetchAttentionItems().catch(() => [] as Awaited<ReturnType<typeof fetchAttentionItems>>),
+      ])
+
       const mock = getMockData()
+
+      // Build pipeline bars from real data (fall back to mock if empty)
+      const DIVISION_ACCENT: Record<string, string> = {
+        studio: '#72C4B2', services: '#4DBFA8', labs: '#A78BFA',
+        products: '#E8916F', academy: '#E8B84D', ventures: '#6BA3E8', cloud: '#5BB5E0',
+      }
+      const pipelineBars: PipelineBar[] = Object.entries(pipelineSnapshot).map(([div, stages]) => {
+        const color = DIVISION_ACCENT[div] ?? '#59A392'
+        const stageEntries = Object.entries(stages).map(([label, count]) => ({ label, count, color }))
+        return { division: div.charAt(0).toUpperCase() + div.slice(1), color, stages: stageEntries, total: stageEntries.reduce((s, e) => s + e.count, 0) }
+      })
+
+      // Build agent statuses from real agent_runs data
+      const agentStatuses: AgentStatus[] = mock.agents.map(a => {
+        const run = agentLastRuns[a.id.toUpperCase()] ?? agentLastRuns[a.name]
+        if (!run) return a
+        const minutesSince = Math.floor((Date.now() - new Date(run.lastRun).getTime()) / 60000)
+        return {
+          ...a,
+          lastRunMinutes: minutesSince,
+          tasksToday: run.tasks,
+          status: run.hasError ? 'error' : minutesSince > 30 ? 'delayed' : 'active',
+        }
+      })
 
       setData(prev => ({
         ...prev,
         kpi: {
-          newLeads: newLeads ?? mock.kpi.newLeads,
-          newLeadsDelta: newLeads != null && newLeadsPrev != null ? newLeads - newLeadsPrev : mock.kpi.newLeadsDelta,
-          pendingReview: pendingReview ?? mock.kpi.pendingReview,
-          activeProjects: activeProjects ?? mock.kpi.activeProjects,
-          activeProjectsDelta: activeProjects != null && activeProjectsPrev != null ? activeProjects - activeProjectsPrev : mock.kpi.activeProjectsDelta,
-          activeAgents: activeAgents ?? mock.kpi.activeAgents,
-          openTickets: openTickets ?? mock.kpi.openTickets,
-          openTicketsDelta: openTickets != null && openTicketsPrev != null ? openTickets - openTicketsPrev : mock.kpi.openTicketsDelta,
-          servicesClients: servicesClients ?? mock.kpi.servicesClients,
-          venturesApps: venturesApps ?? mock.kpi.venturesApps,
+          newLeads: newLeads ?? 0,
+          newLeadsDelta: newLeads != null && newLeadsPrev != null ? newLeads - newLeadsPrev : 0,
+          pendingReview: pendingReview ?? 0,
+          activeProjects: activeProjects ?? 0,
+          activeProjectsDelta: activeProjects != null && activeProjectsPrev != null ? activeProjects - activeProjectsPrev : 0,
+          activeAgents: activeAgents ?? agentStatuses.filter(a => a.status === 'active').length,
+          openTickets: openTickets ?? 0,
+          openTicketsDelta: openTickets != null && openTicketsPrev != null ? openTickets - openTicketsPrev : 0,
+          servicesClients: servicesClients ?? 0,
+          venturesApps: venturesApps ?? 0,
         },
-        approvals: approvals?.length ? approvals as ApprovalItem[] : mock.approvals,
-        activity: activity?.length ? activity as ActivityItem[] : mock.activity,
+        approvals: (approvals ?? []) as ApprovalItem[],
+        activity: (activity ?? []) as ActivityItem[],
+        pipeline: pipelineBars.length ? pipelineBars : mock.pipeline,
+        agents: agentStatuses,
+        attention: attentionItems.length ? attentionItems : [],
         loading: false,
         error: null,
       }))

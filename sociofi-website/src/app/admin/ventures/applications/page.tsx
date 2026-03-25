@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { MOCK_VENTURES_APPLICATIONS } from '@/lib/admin/mock-data';
+import { fetchVenturesApplications } from '@/lib/admin/queries';
 import {
   APPLICATION_STATUS_COLORS,
   VALIDATION_COLORS,
@@ -443,8 +443,24 @@ export default function VenturesApplicationsPage() {
   const [compareOpen, setCompareOpen] = useState(false);
   const [sortKey, setSortKey] = useState<SortKey>('weighted');
   const [sortAsc, setSortAsc] = useState(false);
+  const [apps, setApps] = useState<Awaited<ReturnType<typeof fetchVenturesApplications>>>([]);
+  const [loadingApps, setLoadingApps] = useState(true);
+  const [appsError, setAppsError] = useState<string | null>(null);
 
-  const apps = MOCK_VENTURES_APPLICATIONS;
+  const loadApps = useCallback(async () => {
+    setLoadingApps(true);
+    setAppsError(null);
+    try {
+      const data = await fetchVenturesApplications({ status: statusFilter !== 'all' ? statusFilter : undefined });
+      setApps(data);
+    } catch (e) {
+      setAppsError(e instanceof Error ? e.message : 'Failed to load applications');
+    } finally {
+      setLoadingApps(false);
+    }
+  }, [statusFilter]);
+
+  useEffect(() => { loadApps(); }, [loadApps]);
 
   // KPI calculations
   const totalCount = apps.length;
@@ -517,6 +533,10 @@ export default function VenturesApplicationsPage() {
     else { setSortKey(key); setSortAsc(false); }
   };
 
+  if (appsError) {
+    return <div style={{ padding: '40px', color: '#EF4444', fontFamily: "'Fira Code', monospace", fontSize: '0.84rem' }}>Error: {appsError}</div>;
+  }
+
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: STYLES }} />
@@ -526,7 +546,7 @@ export default function VenturesApplicationsPage() {
         <div className="va-header">
           <div>
             <h1 className="va-title">Ventures Applications</h1>
-            <p className="va-subtitle">{totalCount} applications — review, score, and decide</p>
+            <p className="va-subtitle">{loadingApps ? 'Loading…' : `${totalCount} applications — review, score, and decide`}</p>
           </div>
           <button className="va-btn-ghost">New Application</button>
         </div>
@@ -598,7 +618,10 @@ export default function VenturesApplicationsPage() {
             <div className="va-th" role="columnheader"></div>
           </div>
 
-          {filtered.length === 0 && (
+          {loadingApps && (
+            <div className="va-empty-row">Loading applications…</div>
+          )}
+          {!loadingApps && filtered.length === 0 && (
             <div className="va-empty-row">No applications match this filter.</div>
           )}
 

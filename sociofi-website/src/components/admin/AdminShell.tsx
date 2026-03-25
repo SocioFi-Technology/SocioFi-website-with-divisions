@@ -10,6 +10,8 @@ import {
   Bell, Search, LogOut, Menu, X,
 } from 'lucide-react'
 import { AuthProvider, useAuth } from '@/lib/admin/auth-context'
+import { ToastProvider } from '@/components/admin/Toast'
+import { useNexusStatus } from '@/lib/admin/use-nexus-status'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -201,7 +203,8 @@ function NavLink({
 function Shell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
-  const { user, signOut } = useAuth()
+  const { user, loading, signOut } = useAuth()
+  const nexus = useNexusStatus()
 
   const [collapsed, setCollapsed] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
@@ -270,6 +273,20 @@ function Shell({ children }: { children: React.ReactNode }) {
 
   // Login page — render children only, no chrome
   if (pathname === '/admin/login') return <>{children}</>
+
+  // Auth guard — redirect to login if not authenticated
+  if (!loading && !user) {
+    router.replace('/admin/login')
+    return null
+  }
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#0C0C1D' }}>
+        <div style={{ width: '32px', height: '32px', border: '2px solid rgba(89,163,146,0.2)', borderTopColor: '#59A392', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    )
+  }
 
   return (
     <>
@@ -841,6 +858,24 @@ function Shell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
+        {/* NEXUS offline banner */}
+        {!nexus.checking && !nexus.online && (
+          <div style={{
+            background: 'rgba(239,68,68,0.08)', borderBottom: '1px solid rgba(239,68,68,0.2)',
+            padding: '8px 32px', display: 'flex', alignItems: 'center', gap: '10px',
+            color: '#EF4444', fontSize: '0.8rem', fontFamily: "'Fira Code', monospace",
+          }}>
+            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#EF4444', flexShrink: 0, animation: 'pulse 2s infinite' }} />
+            Agent system offline — NEXUS unreachable. Automated actions paused.
+            <button
+              onClick={nexus.recheck}
+              style={{ marginLeft: 'auto', background: 'none', border: '1px solid rgba(239,68,68,0.4)', color: '#EF4444', borderRadius: '6px', padding: '3px 10px', cursor: 'pointer', fontSize: '0.75rem' }}
+            >
+              Retry
+            </button>
+          </div>
+        )}
+
         {/* Page content */}
         <main style={{ flex: 1, padding: '32px', overflowY: 'auto' }}>
           {children}
@@ -1001,7 +1036,9 @@ function Shell({ children }: { children: React.ReactNode }) {
 export default function AdminShell({ children }: { children: React.ReactNode }) {
   return (
     <AuthProvider>
-      <Shell>{children}</Shell>
+      <ToastProvider>
+        <Shell>{children}</Shell>
+      </ToastProvider>
     </AuthProvider>
   )
 }

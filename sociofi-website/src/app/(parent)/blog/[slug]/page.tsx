@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import {
-  getAllPosts,
-  getPostBySlug,
-  getRelatedPosts,
+  getAllPostsAsync,
+  getPostBySlugAsync,
+  getRelatedPostsAsync,
   CATEGORY_CONFIG,
   formatPostDate,
-} from '@/lib/blog';
+} from '@/lib/blog-server';
 import BlogProgress from '@/components/blog/BlogProgress';
 import { ScribeIcon } from '@/components/blog/ScribeIcon';
 import BlogAuthorCard from '@/components/blog/BlogAuthorCard';
@@ -17,7 +17,8 @@ import BlogNewsletter from '@/components/blog/BlogNewsletter';
 // ── Static params ─────────────────────────────────────────────────────────────
 
 export async function generateStaticParams() {
-  return getAllPosts().map((p) => ({ slug: p.slug }));
+  const posts = await getAllPostsAsync()
+  return posts.map((p) => ({ slug: p.slug }))
 }
 
 // ── Metadata ──────────────────────────────────────────────────────────────────
@@ -28,7 +29,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const post = getPostBySlug(slug);
+  const post = await getPostBySlugAsync(slug);
   if (!post) return { title: 'Not Found — SocioFi Technology' };
 
   return {
@@ -58,12 +59,12 @@ export default async function BlogPostPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const post = getPostBySlug(slug);
+  const post = await getPostBySlugAsync(slug);
   if (!post) notFound();
 
   const catCfg = CATEGORY_CONFIG[post.category];
   const accent = catCfg.color;
-  const related = getRelatedPosts(post, 3);
+  const related = await getRelatedPostsAsync(post, 3);
   const canonicalUrl = `https://sociofitechnology.com${post.canonicalUrl}`;
 
   return (
