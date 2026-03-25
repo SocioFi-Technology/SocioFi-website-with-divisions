@@ -7,7 +7,9 @@
       "Bash(powershell.exe -Command \"Get-Process | Where-Object {$_Name -like ''*git*''} | Select-Object Id, Name, CPU | Format-Table\")",
       "Bash(powershell.exe -Command \"Get-Process git -ErrorAction SilentlyContinue | Select-Object Id, Name, MainWindowTitle | Format-List\")",
       "Bash(echo \"exit:$?\")",
-      "Bash(powershell.exe -Command \":*)"
+      "Bash(powershell.exe -Command \":*)",
+      "Bash(curl -s http://localhost:3000/ -o /dev/null -w \"%{http_code}\")",
+      "Bash(timeout 15 node \"C:/Program Files/nodejs/node_modules/npm/bin/npm-cli.js\" run dev)"
     ]
   }
 }
