@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     redis_url: str = 'redis://localhost:6379/0'
     nexus_api_key: str = 'dev-key'
     site_url: str = 'https://sociofitechnology.com'
-    admin_url: str = 'https://sociofitechnology.com/admin'
+    admin_url: str = 'https://superadmin.sociofitechnology.com'
     port: int = 8001
     debug: bool = False
 

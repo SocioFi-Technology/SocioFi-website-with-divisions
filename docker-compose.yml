@@ -3,23 +3,67 @@ version: '3.9'
 # SocioFi Technology — Production Docker Compose
 # Supabase and PostgreSQL are hosted on Supabase Cloud.
 # Resend, Anthropic, and Stripe are external APIs.
+#
+# Public domains:
+#   sociofitechnology.com            → Next.js public website
+#   superadmin.sociofitechnology.com → Next.js admin panel
+#
 # Run: docker compose up -d
 
 services:
 
-  # ── Next.js Admin Panel ──────────────────────────────────────────────────────
+  # ── nginx Reverse Proxy ───────────────────────────────────────────────────
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: sociofi-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certbot/conf:/etc/letsencrypt:ro
+      - ./nginx/certbot/www:/var/www/certbot:ro
+    depends_on:
+      admin:
+        condition: service_healthy
+    networks:
+      - sociofi
+
+  # ── Certbot (SSL certificate renewal) ───────────────────────────────────
+  # Run once to issue certs:
+  #   docker compose run --rm certbot certonly --webroot -w /var/www/certbot \
+  #     -d sociofitechnology.com -d www.sociofitechnology.com \
+  #     -d superadmin.sociofitechnology.com
+  # Auto-renews on container start (add to crontab for periodic renewal).
+  certbot:
+    image: certbot/certbot:latest
+    container_name: sociofi-certbot
+    volumes:
+      - ./nginx/certbot/conf:/etc/letsencrypt
+      - ./nginx/certbot/www:/var/www/certbot
+    entrypoint: /bin/sh -c "trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done"
+    networks:
+      - sociofi
+
+  # ── Next.js (public website + admin panel) ───────────────────────────────
+  # Not exposed directly — traffic comes through nginx only.
+  # Serves:
+  #   sociofitechnology.com/*            → public site
+  #   superadmin.sociofitechnology.com/* → /admin/* (via middleware rewrite)
   admin:
     build:
       context: ./sociofi-website
       dockerfile: Dockerfile
     container_name: sociofi-admin
     restart: unless-stopped
-    ports:
-      - "3000:3000"
+    expose:
+      - "3000"
     env_file:
       - ./sociofi-website/.env.production
     environment:
       NODE_ENV: production
+      DOCKER_BUILD: "true"
       NEXUS_API_URL: http://nexus:8001
     depends_on:
       - nexus
@@ -32,15 +76,17 @@ services:
     networks:
       - sociofi
 
-  # ── NEXUS FastAPI Agent Server ───────────────────────────────────────────────
+  # ── NEXUS FastAPI Agent Server ───────────────────────────────────────────
+  # Internal only — not exposed to the internet.
+  # Next.js calls it via http://nexus:8001 on the Docker network.
   nexus:
     build:
       context: ./sociofi-nexus
       dockerfile: Dockerfile
     container_name: sociofi-nexus
     restart: unless-stopped
-    ports:
-      - "8001:8001"
+    expose:
+      - "8001"
     env_file:
       - ./sociofi-nexus/.env
     environment:
@@ -57,7 +103,7 @@ services:
     networks:
       - sociofi
 
-  # ── Celery Workers (3 concurrent workers) ───────────────────────────────────
+  # ── Celery Workers (3 concurrent workers) ───────────────────────────────
   celery:
     build:
       context: ./sociofi-nexus
@@ -77,7 +123,7 @@ services:
     networks:
       - sociofi
 
-  # ── Celery Beat Scheduler ────────────────────────────────────────────────────
+  # ── Celery Beat Scheduler ────────────────────────────────────────────────
   celery-beat:
     build:
       context: ./sociofi-nexus
@@ -95,13 +141,14 @@ services:
     networks:
       - sociofi
 
-  # ── Redis (Queue + Cache) ────────────────────────────────────────────────────
+  # ── Redis (Queue + Cache) ────────────────────────────────────────────────
+  # Internal only — not exposed outside Docker network.
   redis:
     image: redis:7-alpine
     container_name: sociofi-redis
     restart: unless-stopped
-    ports:
-      - "6379:6379"
+    expose:
+      - "6379"
     command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru --save 60 1
     volumes:
       - redis_data:/data
