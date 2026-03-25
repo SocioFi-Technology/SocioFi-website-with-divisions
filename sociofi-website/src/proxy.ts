@@ -4,10 +4,11 @@ import { NextRequest, NextResponse } from 'next/server';
 /**
  * Subdomain routing for SocioFi division sites.
  *
- * labs.sociofitechnology.com      → /labs/...
- * academy.sociofitechnology.com   → /academy/...
- * cloud.sociofitechnology.com     → /cloud/...
- * ventures.sociofitechnology.com  → /ventures/...
+ * superadmin.sociofitechnology.com → /admin/...
+ * labs.sociofitechnology.com       → /labs/...
+ * academy.sociofitechnology.com    → /academy/...
+ * cloud.sociofitechnology.com      → /cloud/...
+ * ventures.sociofitechnology.com   → /ventures/...
  *
  * The main site (sociofitechnology.com / www.) is unaffected.
  *
@@ -15,10 +16,11 @@ import { NextRequest, NextResponse } from 'next/server';
  */
 
 const SUBDOMAIN_ROUTES: Record<string, string> = {
-  labs:     '/labs',
-  academy:  '/academy',
-  cloud:    '/cloud',
-  ventures: '/ventures',
+  superadmin: '/admin',
+  labs:       '/labs',
+  academy:    '/academy',
+  cloud:      '/cloud',
+  ventures:   '/ventures',
 };
 
 async function handleAdminAuth(request: NextRequest): Promise<NextResponse | null> {
