@@ -17,13 +17,7 @@ const nextConfig: NextConfig = {
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
-  // Silence noisy build warnings from tiptap + recharts
-  webpack: (config) => {
-    config.resolve.alias = {
-      ...config.resolve.alias,
-    }
-    return config
-  },
+  turbopack: {},
 };
 
 export default nextConfig;
