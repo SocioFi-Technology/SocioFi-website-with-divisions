@@ -51,13 +51,13 @@ export async function uploadMedia(
   try {
     const supabase = createClient()
     const { error: uploadError } = await supabase.storage
-      .from('media')
+      .from('cms')
       .upload(`${folder}/${filename}`, file, { contentType: file.type, upsert: false })
 
     if (uploadError) throw uploadError
 
     const { data: { publicUrl } } = supabase.storage
-      .from('media')
+      .from('cms')
       .getPublicUrl(`${folder}/${filename}`)
 
     // Get image dimensions if it's an image
@@ -86,9 +86,9 @@ export async function uploadMedia(
       created_at: new Date().toISOString(),
     }
 
-    // Insert into media table
+    // Insert into cms_media table
     const { data: dbData, error: dbError } = await supabase
-      .from('media')
+      .from('cms_media')
       .insert(mediaItem)
       .select()
       .single()
