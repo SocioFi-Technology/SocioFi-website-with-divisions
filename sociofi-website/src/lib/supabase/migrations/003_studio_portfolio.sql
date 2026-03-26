@@ -27,7 +27,7 @@ CREATE INDEX IF NOT EXISTS idx_cms_studio_order  ON cms_studio_content(order_ind
 -- auto-update updated_at
 CREATE OR REPLACE TRIGGER cms_studio_content_updated_at
   BEFORE UPDATE ON cms_studio_content
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 -- Row-Level Security
 ALTER TABLE cms_studio_content ENABLE ROW LEVEL SECURITY;
@@ -70,7 +70,7 @@ CREATE INDEX IF NOT EXISTS idx_cms_portfolio_slug     ON cms_portfolio(slug);
 -- auto-update updated_at
 CREATE OR REPLACE TRIGGER cms_portfolio_updated_at
   BEFORE UPDATE ON cms_portfolio
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 -- Row-Level Security
 ALTER TABLE cms_portfolio ENABLE ROW LEVEL SECURITY;
