@@ -126,6 +126,25 @@ def create_approval_request(
         return None
 
 
+def record_agent_run(run_result: dict[str, Any]) -> None:
+    """Persist an AgentRunResult dict to nexus_agent_runs table."""
+    try:
+        get_client().table('nexus_agent_runs').upsert({
+            'run_id': run_result.get('run_id'),
+            'agent': run_result.get('agent', ''),
+            'status': run_result.get('status', 'success'),
+            'input_summary': run_result.get('input_summary', ''),
+            'output_summary': run_result.get('output_summary'),
+            'approvals_created': run_result.get('approvals_created', 0),
+            'tokens_used': run_result.get('tokens_used', 0),
+            'duration_ms': run_result.get('duration_ms', 0),
+            'error': run_result.get('error'),
+            'completed_at': run_result.get('completed_at'),
+        }, on_conflict='run_id').execute()
+    except Exception as e:
+        print(f'[tools] record_agent_run failed: {e}')
+
+
 def log_activity(action: str, entity_type: str, entity_id: str, details: dict[str, Any] | None = None) -> None:
     """Insert an activity log entry for an agent action."""
     try:
@@ -223,15 +242,45 @@ def update_approval_status(
 
 # ── SCRIBE tools ──────────────────────────────────────────────────────────────
 
+def _body_json_to_html(body_json: dict) -> str:
+    """Convert SCRIBE's structured body_json to HTML for cms_posts.body."""
+    import html as html_lib
+    parts = []
+
+    intro = body_json.get('introduction', '')
+    if intro:
+        for para in intro.split('\n\n'):
+            para = para.strip()
+            if para:
+                parts.append(f'<p>{html_lib.escape(para)}</p>')
+
+    for section in body_json.get('sections', []):
+        heading = section.get('heading', '').strip()
+        content = section.get('content', '').strip()
+        if heading:
+            parts.append(f'<h2>{html_lib.escape(heading)}</h2>')
+        if content:
+            for para in content.split('\n\n'):
+                para = para.strip()
+                if para:
+                    parts.append(f'<p>{html_lib.escape(para)}</p>')
+
+    conclusion = body_json.get('conclusion', '')
+    if conclusion:
+        for para in conclusion.split('\n\n'):
+            para = para.strip()
+            if para:
+                parts.append(f'<p>{html_lib.escape(para)}</p>')
+
+    return '\n'.join(parts)
+
+
 def query_existing_content(keywords: list[str], division: str | None = None) -> list[dict]:
-    """Search content table by title matching any of the given keywords."""
+    """Search cms_posts by title matching any of the given keywords."""
     try:
-        query = get_client().table('content').select('id,title,type,division,status,created_at')
+        query = get_client().table('cms_posts').select('id,title,type,division,status,created_at')
         if division:
             query = query.eq('division', division)
-        # Filter by any keyword appearing in title using ilike on first keyword
-        # (Supabase doesn't natively support OR ilike in a single call without RPC,
-        # so we fetch recent items and filter client-side for simplicity)
         result = query.order('created_at', desc=True).limit(40).execute()
         items = result.data or []
         if keywords:
@@ -255,20 +304,37 @@ def create_content_draft(
     tags: list[str],
     author_name: str,
 ) -> str | None:
-    """Insert a content draft into the content table. Returns the new draft ID."""
+    """
+    Insert a SCRIBE-authored draft into cms_posts.
+    body_json is SCRIBE's structured format — converted to HTML for body,
+    stored as-is in content_json for the TipTap editor.
+    Returns the new post ID.
+    """
     try:
-        result = get_client().table('content').insert({
+        body_html = _body_json_to_html(body_json)
+        word_count = body_json.get('word_count') or len(body_html.split())
+
+        # Build a minimal excerpt from the introduction
+        intro = body_json.get('introduction', '')
+        excerpt = intro[:280].rstrip() + ('…' if len(intro) > 280 else '') if intro else ''
+
+        result = get_client().table('cms_posts').insert({
             'type': type_,
             'title': title,
             'slug': slug,
             'division': division,
-            'body': body_json,
-            'status': 'draft',
-            'metadata': {
-                'author': author_name,
-                'tags': tags,
-                'source': 'scribe',
+            'body': body_html,
+            'content_json': {
+                'type': 'doc',
+                'scribe_source': body_json,  # preserve structured source
             },
+            'excerpt': excerpt,
+            'author': author_name,
+            'author_type': 'agent',
+            'tags': tags,
+            'word_count': word_count,
+            'status': 'review',
+            'featured': False,
         }).select('id').single().execute()
         return result.data.get('id') if result.data else None
     except Exception as e:
@@ -282,18 +348,23 @@ def update_content_seo_metadata(
     seo_description: str,
     seo_keywords: list[str],
 ) -> bool:
-    """Merge SEO fields into content.metadata JSONB."""
+    """Merge SEO fields into cms_posts.content_json and update excerpt."""
     try:
         client = get_client()
-        current = client.table('content').select('metadata').eq('id', content_id).maybe_single().execute()
-        existing_meta = current.data.get('metadata', {}) if current.data else {}
-        updated_meta = {
-            **existing_meta,
-            'seo_title': seo_title,
-            'seo_description': seo_description,
-            'seo_keywords': seo_keywords,
+        current = client.table('cms_posts').select('content_json').eq('id', content_id).maybe_single().execute()
+        existing_json = current.data.get('content_json') or {} if current.data else {}
+        updated_json = {
+            **existing_json,
+            'seo': {
+                'title': seo_title,
+                'description': seo_description,
+                'keywords': seo_keywords,
+            },
         }
-        result = client.table('content').update({'metadata': updated_meta}).eq('id', content_id).execute()
+        result = client.table('cms_posts').update({
+            'content_json': updated_json,
+            'excerpt': seo_description,  # use SEO description as the visible excerpt
+        }).eq('id', content_id).execute()
         return bool(result.data)
     except Exception as e:
         print(f'[tools] update_content_seo_metadata failed: {e}')
@@ -504,14 +575,14 @@ def query_tickets_summary(since_iso: str | None = None) -> list[dict]:
 # ── CURATOR tools ─────────────────────────────────────────────────────────────
 
 def query_published_content_this_month(limit: int = 20) -> list[dict]:
-    """Fetch content with status='published' from the start of the current month."""
+    """Fetch posts with status='published' from the start of the current month."""
     try:
         now = datetime.utcnow()
         start_of_month = datetime(now.year, now.month, 1).isoformat()
         result = (
             get_client()
-            .table('content')
-            .select('id, title, type, division, slug, metadata, published_at, created_at')
+            .table('cms_posts')
+            .select('id, title, type, division, slug, excerpt, tags, published_at, created_at')
             .eq('status', 'published')
             .gte('published_at', start_of_month)
             .order('created_at', desc=True)

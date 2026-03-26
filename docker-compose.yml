@@ -7,6 +7,7 @@ version: '3.9'
 # Public domains:
 #   sociofitechnology.com            → Next.js public website
 #   superadmin.sociofitechnology.com → Next.js admin panel
+#   cms.sociofitechnology.com        → Next.js CMS (apps/cms)
 #
 # Run: docker compose up -d
 
@@ -27,6 +28,8 @@ services:
     depends_on:
       admin:
         condition: service_healthy
+      cms:
+        condition: service_healthy
     networks:
       - sociofi
 
@@ -34,7 +37,8 @@ services:
   # Run once to issue certs:
   #   docker compose run --rm certbot certonly --webroot -w /var/www/certbot \
   #     -d sociofitechnology.com -d www.sociofitechnology.com \
-  #     -d superadmin.sociofitechnology.com
+  #     -d superadmin.sociofitechnology.com \
+  #     -d cms.sociofitechnology.com
   # Auto-renews on container start (add to crontab for periodic renewal).
   certbot:
     image: certbot/certbot:latest
@@ -69,6 +73,31 @@ services:
       - nexus
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - sociofi
+
+  # ── CMS (cms.sociofitechnology.com) ─────────────────────────────────────
+  # Standalone Next.js app for content editors.
+  # Not exposed directly — traffic comes through nginx only.
+  cms:
+    build:
+      context: ./apps/cms
+      dockerfile: Dockerfile
+    container_name: sociofi-cms
+    restart: unless-stopped
+    expose:
+      - "3001"
+    env_file:
+      - ./apps/cms/.env.production
+    environment:
+      NODE_ENV: production
+      PORT: "3001"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3001/cms/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -130,7 +159,7 @@ services:
       dockerfile: Dockerfile
     container_name: sociofi-celery-beat
     restart: unless-stopped
-    command: celery -A celery_app beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    command: celery -A celery_app beat --loglevel=info --schedule=/tmp/celerybeat-schedule
     env_file:
       - ./sociofi-nexus/.env
     environment:

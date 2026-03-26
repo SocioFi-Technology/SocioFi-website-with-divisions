@@ -1,39 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Welcome to SocioFi</title>
-</head>
-<body style="margin:0;padding:0;background:#f4f6f9;font-family:Arial,sans-serif;">
-  <div style="max-width:600px;margin:40px auto;background:white;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
-    <!-- Header -->
-    <div style="background:linear-gradient(135deg,#3A589E,#59A392);padding:32px 40px;">
-      <div style="color:white;font-size:24px;font-weight:700;letter-spacing:-0.5px;">
-        &gt;&gt; SocioFi <span style="font-size:13px;font-weight:400;opacity:0.8;">TECHNOLOGY</span>
-      </div>
-    </div>
-    <!-- Body -->
-    <div style="padding:40px;">
-      <h1 style="color:#0F172A;font-size:22px;font-weight:700;margin:0 0 16px;">
-        {{ subject_line | default("Thanks for reaching out") }}
-      </h1>
-      <p style="color:#475569;font-size:15px;line-height:1.7;margin:0 0 16px;">
-        Hi {{ name | default("there") }},
-      </p>
-      <p style="color:#475569;font-size:15px;line-height:1.7;margin:0 0 24px;">
-        {{ body_paragraph }}
-      </p>
-      {% if cta_url %}
-      <a href="{{ cta_url }}" style="display:inline-block;background:linear-gradient(135deg,#3A589E,#59A392);color:white;text-decoration:none;padding:14px 28px;border-radius:8px;font-weight:600;font-size:15px;">
-        {{ cta_label | default("Book a Free Call") }}
-      </a>
-      {% endif %}
-      <p style="color:#94A3B8;font-size:13px;margin-top:40px;padding-top:24px;border-top:1px solid #E2E8F0;">
-        SocioFi Technology &middot; Dhaka, Bangladesh &middot;
-        <a href="{{ unsubscribe_url | default('#') }}" style="color:#94A3B8;">Unsubscribe</a>
-      </p>
-    </div>
-  </div>
-</body>
-</html>
+{% extends "base.html" %}
+{% block body %}
+<p>Hi {{ name }},</p>
+<p>Thanks for reaching out to SocioFi Technology. We received your enquiry about <strong>{{ division_label | default("our services") }}</strong> and we'll be in touch within 1 business day.</p>
+{% if cta_url %}
+<p><a class="cta" href="{{ cta_url }}">{{ cta_text | default("Learn more") }}</a></p>
+{% endif %}
+<p>In the meantime, if you have any questions you can reply directly to this email.</p>
+<p>Talk soon,<br><strong>{{ sender_name | default("The SocioFi Team") }}</strong></p>
+{% endblock %}

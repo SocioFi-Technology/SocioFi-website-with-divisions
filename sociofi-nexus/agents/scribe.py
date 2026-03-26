@@ -3,12 +3,13 @@ SCRIBE Agent — Generates content: blog posts, case studies, FAQs, social posts
 Runs on a Celery schedule (daily at 9am UTC) or triggered manually from admin.
 
 Workflow:
-1. Research the topic (simulated web search + internal content query)
-2. Draft the content following SocioFi voice guidelines
-3. Self-review quality gate (6 checks)
-4. Rewrite if quality gate fails
-5. Generate SEO metadata
-6. Submit for human approval
+1. Research the topic via live web search (web_search_20260209 server tool)
+2. Check existing content to avoid duplication
+3. Draft the content following SocioFi voice guidelines
+4. Self-review quality gate (6 checks)
+5. Rewrite if quality gate fails
+6. Generate SEO metadata
+7. Submit for human approval
 """
 
 from agents.base import BaseAgent
@@ -81,21 +82,19 @@ Naturally reference other SocioFi offerings where relevant:
 - Startup → mention Ventures
 - Custom builds → mention Studio
 
-Always run query_existing_content first to avoid duplicating recent topics."""
+Always run query_existing_content first to avoid duplicating recent topics.
+
+## Web Search
+You have access to live web search. Use it to:
+- Find recent statistics and data points (e.g. "AI development outsourcing market 2025")
+- Research specific technologies your reader uses (e.g. "Next.js deployment issues common problems")
+- Find current trends to reference in the piece
+- Verify facts before claiming them as true
+
+Keep searches focused — 1-3 searches per piece is usually enough."""
 
 
 SCRIBE_TOOLS = [
-    {
-        "name": "search_web",
-        "description": "Research a topic before writing. Returns simulated search results — use your internal knowledge to supplement.",
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "query": {"type": "string", "description": "Search query string"},
-            },
-            "required": ["query"],
-        },
-    },
     {
         "name": "query_existing_content",
         "description": "Check what content is already published to avoid repetition on similar topics.",
@@ -215,6 +214,7 @@ SCRIBE_TOOLS = [
 
 class ScribeAgent(BaseAgent):
     name = 'SCRIBE'
+    max_tokens = 16000  # blog posts + thinking tokens need more room
 
     @property
     def system_prompt(self) -> str:
@@ -224,20 +224,13 @@ class ScribeAgent(BaseAgent):
     def tools(self) -> list[dict]:
         return SCRIBE_TOOLS
 
-    def execute_tool(self, tool_name: str, tool_input: dict[str, Any]) -> Any:
-        if tool_name == 'search_web':
-            # Simulated search — agent uses internal knowledge to supplement
-            return {
-                'results': [
-                    {
-                        'title': 'Simulated search result for: ' + tool_input['query'],
-                        'snippet': 'Research placeholder — use your internal knowledge about SocioFi services and the AI development landscape to inform the content.',
-                        'url': '#',
-                    }
-                ]
-            }
+    @property
+    def server_tools(self) -> list[dict]:
+        # Live web search — Anthropic executes this server-side, no client handling needed
+        return [{"type": "web_search_20260209", "name": "web_search"}]
 
-        elif tool_name == 'query_existing_content':
+    def execute_tool(self, tool_name: str, tool_input: dict[str, Any]) -> Any:
+        if tool_name == 'query_existing_content':
             results = query_existing_content(
                 tool_input['keywords'],
                 tool_input.get('division'),
@@ -319,7 +312,7 @@ Content type: {content_type}
 Additional context: {ctx}
 
 Steps:
-1. Search the web for context on this topic
+1. Search the web (1-2 targeted queries) for current stats, trends, or data on this topic
 2. Query existing content to avoid duplication
 3. Write the full {content_type} following voice guidelines (target word count for type)
 4. Run your 6-point quality gate — rewrite any failing sections before proceeding

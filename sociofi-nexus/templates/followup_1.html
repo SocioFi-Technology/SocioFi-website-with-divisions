@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block body %}
+<p>Hi {{ name }},</p>
+<p>{{ body | safe }}</p>
+{% if cta_url %}
+<p><a class="cta" href="{{ cta_url }}">{{ cta_text | default("Let's talk") }}</a></p>
+{% endif %}
+<p>{{ sign_off | default("Best,") }}<br><strong>{{ sender_name | default("The SocioFi Team") }}</strong></p>
+{% endblock %}

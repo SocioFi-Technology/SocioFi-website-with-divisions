@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
 const SubscribeSchema = z.object({
   email: z.string().email(),
@@ -10,6 +11,16 @@ const SubscribeSchema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
+    // Rate limiting: 3 subscriptions per IP per day (24 hours)
+    const ip = getClientIp(req)
+    const rl = checkRateLimit(`newsletter:${ip}`, 3, 24 * 60 * 60 * 1000)
+    if (!rl.success) {
+      return NextResponse.json(
+        { error: 'Too many submissions. Please wait before trying again.' },
+        { status: 429 }
+      )
+    }
+
     let body: unknown;
     try {
       body = await req.json();

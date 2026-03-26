@@ -13,7 +13,27 @@
       "Bash(gh pr:*)",
       "Bash(npx vercel:*)",
       "Bash(npx tsc:*)",
-      "Bash(curl -s http://localhost:3000/admin/content/editor/new -o /dev/null -w \"%{http_code}\")"
+      "Bash(curl -s http://localhost:3000/admin/content/editor/new -o /dev/null -w \"%{http_code}\")",
+      "Bash(for dir:*)",
+      "Bash(do echo:*)",
+      "Read(//d/work/SocioFi-Website-Update_16march/.claude/worktrees/naughty-snyder/**)",
+      "Bash(done)",
+      "Bash(ls -la \"D:\\\\work\\\\SocioFi-Website-Update_16march\\\\.claude\\\\worktrees\\\\naughty-snyder\\\\sociofi-website\\\\.env\"*)",
+      "Bash(grep -l \"from\" *.py)",
+      "Bash(while read:*)",
+      "Skill(claude-api)",
+      "Skill(claude-api:*)",
+      "Bash(wc -l agents/*.py)",
+      "Bash(node -e \"require\\(''fs''\\).readFileSync\\(''src/app/studio/page.tsx'', ''utf8''\\); console.log\\(''studio/page.tsx OK''\\)\")",
+      "Bash(node -e \"require\\(''fs''\\).readFileSync\\(''src/app/studio/portfolio/page.tsx'', ''utf8''\\); console.log\\(''studio/portfolio/page.tsx OK''\\)\")",
+      "Bash(ls \"D:\\\\work\\\\SocioFi-Website-Update_16march\\\\.claude\\\\worktrees\\\\naughty-snyder\\\\apps\\\\cms\"\" | head -20 && ls \"D:workSocioFi-Website-Update_16march.claudeworktreesnaughty-snydersociofi-nexus\"\")",
+      "Bash(pnpm build:*)",
+      "Bash(xargs grep:*)",
+      "Bash(npm run:*)",
+      "Bash(pnpm --filter @sociofitechnology/cms build)",
+      "Bash(pnpm install:*)",
+      "Bash(pnpm approve-builds:*)",
+      "Bash(pnpm add:*)"
     ]
   }
 }

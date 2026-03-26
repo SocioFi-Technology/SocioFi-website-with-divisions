@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     supabase_url: str
     supabase_service_key: str
     anthropic_api_key: str
-    anthropic_model: str = 'claude-sonnet-4-5'
+    anthropic_model: str = 'claude-opus-4-6'
     resend_api_key: str = ''
     resend_from_email: str = 'admin@sociofitechnology.com'
     redis_url: str = 'redis://localhost:6379/0'
@@ -17,6 +17,12 @@ class Settings(BaseSettings):
     admin_url: str = 'https://superadmin.sociofitechnology.com'
     port: int = 8001
     debug: bool = False
+    # CHRONICLE report recipients — comma-separated email list
+    chronicle_recipients: str = 'arifur@sociofitechnology.com,kamrul@sociofitechnology.com'
+
+    @property
+    def chronicle_recipient_list(self) -> list[str]:
+        return [e.strip() for e in self.chronicle_recipients.split(',') if e.strip()]
 
 
 settings = Settings()

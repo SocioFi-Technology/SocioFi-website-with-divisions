@@ -177,9 +177,11 @@ CHRONICLE_TOOLS = [
 
 class ChronicleAgent(BaseAgent):
     name = 'CHRONICLE'
+    max_tokens = 16000  # HTML reports with stats tables need generous token budget
 
-    # In a real deployment these would come from settings
-    REPORT_RECIPIENTS = ['arifur@sociofitechnology.com', 'kamrul@sociofitechnology.com']
+    @property
+    def REPORT_RECIPIENTS(self) -> list[str]:
+        return settings.chronicle_recipient_list
 
     @property
     def system_prompt(self) -> str:
@@ -203,15 +205,35 @@ class ChronicleAgent(BaseAgent):
             return {'tickets_summary': data, 'count': len(data)}
 
         elif tool_name == 'query_agent_runs':
-            # Agent run history is in-memory in main.py — return a static summary
-            # In production this would be persisted to DB
-            return {
-                'agent_runs_summary': {
-                    'note': 'Run history is in-memory. Integrate with persistent storage for full history.',
-                    'agents': ['INTAKE', 'HERALD', 'SCRIBE', 'COMPASS', 'WARDEN', 'CHRONICLE', 'CURATOR'],
-                    'since': tool_input.get('since_iso', 'N/A'),
-                }
-            }
+            from tools.supabase_tools import get_client
+            since_iso = tool_input.get('since_iso')
+            try:
+                query = (
+                    get_client()
+                    .table('nexus_agent_runs')
+                    .select('agent, status, approvals_created, tokens_used, duration_ms, completed_at')
+                    .order('completed_at', desc=True)
+                    .limit(200)
+                )
+                if since_iso:
+                    query = query.gte('completed_at', since_iso)
+                rows = query.execute().data or []
+                # Summarise by agent
+                summary: dict[str, dict] = {}
+                for row in rows:
+                    agent = row.get('agent', 'unknown')
+                    if agent not in summary:
+                        summary[agent] = {'total': 0, 'success': 0, 'failed': 0, 'approvals': 0, 'tokens': 0}
+                    summary[agent]['total'] += 1
+                    if row.get('status') == 'success':
+                        summary[agent]['success'] += 1
+                    elif row.get('status') == 'failed':
+                        summary[agent]['failed'] += 1
+                    summary[agent]['approvals'] += row.get('approvals_created', 0) or 0
+                    summary[agent]['tokens'] += row.get('tokens_used', 0) or 0
+                return {'agent_runs_summary': summary, 'total_runs': len(rows), 'since': since_iso}
+            except Exception as e:
+                return {'agent_runs_summary': {}, 'error': str(e), 'since': since_iso}
 
         elif tool_name == 'send_report_email':
             to_emails = tool_input['to_emails']

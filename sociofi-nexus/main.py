@@ -50,10 +50,17 @@ def verify_api_key(authorization: Optional[str] = Header(None)) -> None:
 
 
 def _record_run(result: AgentRunResult) -> None:
-    _run_history.append(result.model_dump())
-    # Keep last 1000 runs in memory
-    if len(_run_history) > 1000:
+    run_dict = result.model_dump()
+    _run_history.append(run_dict)
+    # Keep last 200 runs in memory for /status endpoint
+    if len(_run_history) > 200:
         _run_history.pop(0)
+    # Persist to DB (non-blocking best-effort)
+    try:
+        from tools.supabase_tools import record_agent_run
+        record_agent_run(run_dict)
+    except Exception as e:
+        print(f'[nexus] _record_run DB persist failed: {e}')
 
 
 @app.get('/')
@@ -172,7 +179,26 @@ async def webhook_approval(payload: ApprovalWebhook, background_tasks: Backgroun
     if not approval:
         raise HTTPException(status_code=404, detail='Approval not found')
 
-    if payload.decision == 'approved' and approval.get('action_type') == 'send_email':
+    action_type = approval.get('action_type', '')
+    approval_payload = approval.get('payload', {})
+
+    if payload.decision == 'discarded':
+        update_approval_status(
+            payload.approval_id,
+            'discarded',
+            discard_reason=payload.discard_reason,
+        )
+        return {'accepted': True, 'message': 'Approval discarded'}
+
+    # ── Apply edited payload before acting ─────────────────────────────────────
+    if payload.decision == 'edited' and payload.edited_payload:
+        get_client().table('approval_queue').update(
+            {'payload': payload.edited_payload}
+        ).eq('id', payload.approval_id).execute()
+        approval_payload = payload.edited_payload
+
+    # ── HERALD: send_email ─────────────────────────────────────────────────────
+    if action_type == 'send_email':
         def send_email():
             from agents.herald import HeraldAgent
             agent = HeraldAgent()
@@ -181,41 +207,190 @@ async def webhook_approval(payload: ApprovalWebhook, background_tasks: Backgroun
                 status='success',
                 input_summary=f'Dispatch approved email for approval {payload.approval_id}',
             )
-            success = agent.dispatch_approved_email({**approval, 'decided_by': payload.decided_by})
+            merged = {**approval, 'payload': approval_payload, 'decided_by': payload.decided_by}
+            success = agent.dispatch_approved_email(merged)
             run_result.output_summary = 'Email sent' if success else 'Email send failed'
             _record_run(run_result)
 
         background_tasks.add_task(send_email)
         return {'accepted': True, 'message': 'HERALD queued to dispatch email'}
 
-    elif payload.decision == 'edited' and payload.edited_payload:
-        # Update the approval payload with edits, then send
-        get_client().table('approval_queue').update(
-            {'payload': payload.edited_payload}
-        ).eq('id', payload.approval_id).execute()
+    # ── COMPASS: update_pipeline ───────────────────────────────────────────────
+    elif action_type == 'update_pipeline' and payload.decision in ('approved', 'edited'):
+        recommendation_type = approval_payload.get('recommendation_type', '')
+        pipeline_entry_id = approval_payload.get('pipeline_entry_id')
+        contact_id = approval_payload.get('contact_id')
+        recommended_action = approval_payload.get('recommended_action', '')
 
-        def send_edited():
-            from agents.herald import HeraldAgent
-            agent = HeraldAgent()
-            updated_approval = {
-                **approval,
-                'payload': payload.edited_payload,
-                'decided_by': payload.decided_by,
-            }
-            agent.dispatch_approved_email(updated_approval)
+        if recommendation_type == 'send_followup':
+            # Look up contact email, then queue HERALD to send the followup
+            def send_compass_followup():
+                from agents.herald import HeraldAgent
+                from tools.supabase_tools import log_activity
+                contact_result = get_client().table('contacts').select('email, name').eq('id', contact_id).maybe_single().execute()
+                contact = contact_result.data or {}
+                email = contact.get('email', '')
+                name = contact.get('name', 'there')
+                if not email:
+                    print(f'[COMPASS approval] No email found for contact {contact_id}')
+                    return
+                # Build a minimal email from the recommended action text
+                html_body = f'<p>Hi {name},</p><p>{recommended_action.replace(chr(10), "</p><p>")}</p>'
+                agent = HeraldAgent()
+                agent.dispatch_approved_email({
+                    'id': payload.approval_id,
+                    'decided_by': payload.decided_by,
+                    'payload': {
+                        'to': email,
+                        'subject': f'Following up — SocioFi Technology',
+                        'html': html_body,
+                        'text': recommended_action,
+                    },
+                })
+                log_activity(
+                    action='agent.compass.followup_sent',
+                    entity_type='pipeline_entry',
+                    entity_id=pipeline_entry_id or approval_payload.get('pipeline_entry_id', ''),
+                    details={'contact_id': contact_id, 'recommendation_type': recommendation_type},
+                )
 
-        background_tasks.add_task(send_edited)
-        return {'accepted': True, 'message': 'HERALD queued to dispatch edited email'}
+            background_tasks.add_task(send_compass_followup)
+            update_approval_status(payload.approval_id, 'approved', decided_by=payload.decided_by)
+            return {'accepted': True, 'message': 'HERALD queued to send COMPASS followup email'}
 
-    elif payload.decision == 'discarded':
-        update_approval_status(
-            payload.approval_id,
-            'discarded',
-            discard_reason=payload.discard_reason,
-        )
-        return {'accepted': True, 'message': 'Approval discarded'}
+        elif recommendation_type == 'update_stage':
+            # Advance the pipeline entry to the recommended next stage
+            new_stage = approval_payload.get('new_stage') or approval_payload.get('recommended_stage')
+            if pipeline_entry_id and new_stage:
+                get_client().table('pipeline_entries').update(
+                    {'stage': new_stage, 'updated_at': __import__('datetime').datetime.utcnow().isoformat()}
+                ).eq('id', pipeline_entry_id).execute()
+            update_approval_status(payload.approval_id, 'approved', decided_by=payload.decided_by)
+            return {'accepted': True, 'message': f'Pipeline stage updated to {new_stage}'}
 
-    return {'accepted': True, 'message': f'Decision {payload.decision} recorded'}
+        elif recommendation_type == 'disqualify':
+            if pipeline_entry_id:
+                get_client().table('pipeline_entries').update(
+                    {'stage': 'closed_lost', 'updated_at': __import__('datetime').datetime.utcnow().isoformat()}
+                ).eq('id', pipeline_entry_id).execute()
+            update_approval_status(payload.approval_id, 'approved', decided_by=payload.decided_by)
+            return {'accepted': True, 'message': 'Pipeline entry marked closed_lost'}
+
+        elif recommendation_type == 'escalate':
+            # Flag the pipeline entry for urgent human attention
+            if pipeline_entry_id:
+                current = get_client().table('pipeline_entries').select('notes').eq('id', pipeline_entry_id).maybe_single().execute()
+                current_notes = (current.data or {}).get('notes') or {}
+                get_client().table('pipeline_entries').update({
+                    'notes': {**current_notes, 'escalated': True, 'escalation_reason': recommended_action},
+                    'updated_at': __import__('datetime').datetime.utcnow().isoformat(),
+                }).eq('id', pipeline_entry_id).execute()
+            update_approval_status(payload.approval_id, 'approved', decided_by=payload.decided_by)
+            return {'accepted': True, 'message': 'Pipeline entry escalated'}
+
+        # Fallback for other recommendation types
+        update_approval_status(payload.approval_id, 'approved', decided_by=payload.decided_by)
+        return {'accepted': True, 'message': f'COMPASS recommendation recorded: {recommendation_type}'}
+
+    # ── SCRIBE: content_draft publish ──────────────────────────────────────────
+    elif action_type == 'content_draft' and payload.decision in ('approved', 'edited'):
+        post_id = approval_payload.get('post_id')
+        if post_id:
+            from datetime import datetime as _dt
+            get_client().table('cms_posts').update({
+                'status': 'published',
+                'published_at': _dt.utcnow().isoformat(),
+            }).eq('id', post_id).execute()
+        update_approval_status(payload.approval_id, 'approved', decided_by=payload.decided_by)
+        return {'accepted': True, 'message': f'Post {post_id} published'}
+
+    # ── CURATOR: send_newsletter ────────────────────────────────────────────────
+    elif action_type == 'send_newsletter' and payload.decision in ('approved', 'edited'):
+        def send_newsletter():
+            from tools.supabase_tools import get_client as _gc, log_activity
+            import resend as _resend
+            from config import settings as _settings
+
+            subject = approval_payload.get('subject_a', 'SocioFi Monthly Newsletter')
+            editorial = approval_payload.get('editorial', '')
+            selected_ids = approval_payload.get('selected_post_ids', [])
+            segment = approval_payload.get('recommended_segment', 'all')
+
+            # Fetch selected posts
+            posts: list[dict] = []
+            if selected_ids:
+                result = _gc().table('cms_posts').select('title, slug, excerpt, division').in_('id', selected_ids).execute()
+                posts = result.data or []
+
+            # Build minimal HTML newsletter body
+            site_url = _settings.site_url
+            posts_html = '\n'.join(
+                f'<li><a href="{site_url}/blog/{p.get("slug", "")}">{p.get("title", "")}</a>'
+                f'<br><small>{p.get("excerpt", "")[:120]}</small></li>'
+                for p in posts
+            )
+            html_body = (
+                f'<p>{editorial}</p>'
+                f'<ul>{posts_html}</ul>'
+                f'<p><small><a href="{site_url}/unsubscribe">Unsubscribe</a></small></p>'
+            )
+
+            # Fetch subscribers for the target segment
+            sub_query = _gc().table('subscribers').select('email').eq('status', 'active')
+            if segment != 'all':
+                sub_query = sub_query.eq('list', segment)
+            sub_result = sub_query.execute()
+            subscribers_list = [r['email'] for r in (sub_result.data or []) if r.get('email')]
+
+            if not subscribers_list:
+                print(f'[CURATOR] No active subscribers for segment={segment}')
+                return
+
+            if not _settings.resend_api_key:
+                print(f'[CURATOR] Resend not configured — would send to {len(subscribers_list)} subscribers')
+                return
+
+            _resend.api_key = _settings.resend_api_key
+            # Send in batches of 50 (Resend free tier limit)
+            batch_size = 50
+            sent = 0
+            for i in range(0, len(subscribers_list), batch_size):
+                batch = subscribers_list[i:i + batch_size]
+                try:
+                    _resend.Emails.send({
+                        'from': f'SocioFi Technology <{_settings.resend_from_email}>',
+                        'bcc': batch,
+                        'to': _settings.resend_from_email,  # required 'to' when using bcc
+                        'subject': subject,
+                        'html': html_body,
+                    })
+                    sent += len(batch)
+                except Exception as e:
+                    print(f'[CURATOR] Resend batch failed: {e}')
+
+            # Mark newsletter_issues row as sent
+            try:
+                _gc().table('newsletter_issues').update({
+                    'status': 'sent',
+                    'sent_at': __import__('datetime').datetime.utcnow().isoformat(),
+                }).eq('approval_id', payload.approval_id).execute()
+            except Exception:
+                pass
+
+            log_activity(
+                action='agent.curator.newsletter_sent',
+                entity_type='newsletter',
+                entity_id=payload.approval_id,
+                details={'subject': subject, 'sent_count': sent, 'segment': segment},
+            )
+
+        background_tasks.add_task(send_newsletter)
+        update_approval_status(payload.approval_id, 'approved', decided_by=payload.decided_by)
+        return {'accepted': True, 'message': 'Newsletter send queued'}
+
+    # ── Fallback ───────────────────────────────────────────────────────────────
+    update_approval_status(payload.approval_id, 'approved', decided_by=payload.decided_by)
+    return {'accepted': True, 'message': f'Decision {payload.decision} recorded for {action_type}'}
 
 
 @app.post('/trigger/{agent_name}', dependencies=[Depends(verify_api_key)])

@@ -77,11 +77,11 @@ export async function POST(req: NextRequest) {
 
     let nexusResponse: Record<string, unknown> = {}
     try {
-      const nexusRes = await fetch(`${nexusUrl}/agents/scribe/run`, {
+      const nexusRes = await fetch(`${nexusUrl}/trigger/scribe`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-API-Key': nexusKey,
+          'Authorization': `Bearer ${nexusKey}`,
         },
         body: JSON.stringify({ task: 'draft_content', brief }),
         signal: controller.signal,
@@ -144,10 +144,13 @@ export async function POST(req: NextRequest) {
       .insert({
         agent_name: 'SCRIBE',
         action_type: 'content_draft',
-        subject: `Blog draft: "${brief.title}"`,
+        entity_type: 'cms_post',
+        entity_id: postId,
+        title: `Blog draft: "${brief.title}"`,
+        context: `SCRIBE drafted content for division: ${brief.division ?? 'general'}, type: ${brief.content_type}.`,
         payload: { post_id: postId, calendar_id: body.calendar_id ?? null },
-        urgency: 'low',
         confidence: 80,
+        priority: 'normal',
         status: 'pending',
       })
       .select('id')

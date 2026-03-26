@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { processSubmission } from '@/lib/admin/processSubmission';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
 const ContactSchema = z.object({
   name: z.string().min(1),
@@ -19,6 +20,16 @@ const ContactSchema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
+    // Rate limiting: 5 submissions per IP per hour
+    const ip = getClientIp(req)
+    const rl = checkRateLimit(`contact:${ip}`, 5, 60 * 60 * 1000)
+    if (!rl.success) {
+      return NextResponse.json(
+        { error: 'Too many submissions. Please wait before trying again.' },
+        { status: 429 }
+      )
+    }
+
     let body: unknown;
     try {
       body = await req.json();
@@ -26,7 +37,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
     }
 
-    const parsed = ContactSchema.safeParse(body);
+    // Honeypot: bots fill hidden fields, humans don't
+    const { hp_field, ...bodyWithoutHoneypot } = body as Record<string, unknown>
+    if (hp_field) {
+      // Silently succeed — don't tell bots they were caught
+      return NextResponse.json({ ok: true })
+    }
+
+    const parsed = ContactSchema.safeParse(bodyWithoutHoneypot);
     if (!parsed.success) {
       return NextResponse.json(
         { error: 'Validation failed', issues: parsed.error.issues },

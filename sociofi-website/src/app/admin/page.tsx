@@ -356,6 +356,47 @@ export default function AdminDashboard() {
         @keyframes spin { to { transform: rotate(360deg); } }
       `}</style>
 
+      {data.usingMock && (
+        <div
+          role="alert"
+          style={{
+            background: 'rgba(232,184,77,0.08)',
+            border: '1px solid rgba(232,184,77,0.25)',
+            borderRadius: '10px',
+            padding: '12px 20px',
+            margin: '0 0 24px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+          }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E8B84D" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          <div>
+            <span style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: '0.84rem',
+              fontWeight: 600,
+              color: '#E8B84D',
+              display: 'block',
+              marginBottom: 2,
+            }}>
+              Live data unavailable — showing cached snapshot
+            </span>
+            <span style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: '0.78rem',
+              color: 'var(--text-muted)',
+            }}>
+              Supabase connection issue. Numbers shown are for reference only. Check database connection.
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Section label + title */}
       <div style={{ marginBottom: '24px' }}>
         <div style={{ color: '#59A392', fontSize: '0.65rem', fontFamily: "'Fira Code', monospace", textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '4px' }}>— OVERVIEW</div>

@@ -1,0 +1,18 @@
+{
+  "name": "sociofitechnology",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "dev:web": "pnpm --filter sociofi-website dev",
+    "dev:cms": "pnpm --filter @sociofitechnology/cms dev",
+    "build:web": "pnpm --filter sociofi-website build",
+    "build:cms": "pnpm --filter @sociofitechnology/cms build"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.4"
+  },
+  "packageManager": "pnpm@10.7.0"
+}

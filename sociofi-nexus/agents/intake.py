@@ -88,6 +88,13 @@ Draft a personalized response email that:
 - Is warm but professional, 150-200 words
 - Subject line is compelling and specific
 
+## Company Research (Web Search)
+You have access to live web search. Use it to research the contact's company before scoring:
+- Search "[company name] funding" or "[company name] product" if they mentioned a company
+- Look for signals: funded startup, established business, solo project, etc.
+- A funded startup with a named product is worth +10 points on top of the base score
+- Keep searches brief — 1 search per submission if a company name is present
+
 Always create an approval request for the email draft — humans review before sending."""
 
 
@@ -244,6 +251,11 @@ class IntakeAgent(BaseAgent):
     def tools(self) -> list[dict]:
         return INTAKE_TOOLS
 
+    @property
+    def server_tools(self) -> list[dict]:
+        # Live web search for company/product research before lead scoring
+        return [{"type": "web_search_20260209", "name": "web_search"}]
+
     def execute_tool(self, tool_name: str, tool_input: dict[str, Any]) -> Any:
         if tool_name == 'query_contact':
             return query_contact_by_email(tool_input['email'])
@@ -351,12 +363,13 @@ UTM: {data.get('utm', {})}
 
 Please:
 1. Query the contact by email to check for existing records
-2. Classify and score this submission
-3. Update submission with ai_classification, ai_score, ai_tags
-4. Update contact with relevant tags + lifecycle stage
-5. Create pipeline entry if score >= 40 and not newsletter/careers
-6. Draft a personalized response email and create approval request
-7. Schedule a Day 3 follow-up if appropriate"""
+2. If a company name is present, search the web for it (1 search max) to gauge funding/stage
+3. Classify and score this submission (apply web research signals to the score)
+4. Update submission with ai_classification, ai_score, ai_tags
+5. Update contact with relevant tags + lifecycle stage
+6. Create pipeline entry if score >= 40 and not newsletter/careers
+7. Draft a personalized response email and create approval request
+8. Schedule a Day 3 follow-up if appropriate"""
 
         result = self.run(message, context={'submission_id': submission_id, 'contact_id': contact_id})
 

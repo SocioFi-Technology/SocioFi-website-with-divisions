@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { processSubmission } from '@/lib/admin/processSubmission';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
 const StartProjectSchema = z.object({
   name: z.string().min(1),
@@ -22,6 +23,16 @@ const StartProjectSchema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
+    // Rate limiting: 5 submissions per IP per hour
+    const ip = getClientIp(req)
+    const rl = checkRateLimit(`start-project:${ip}`, 5, 60 * 60 * 1000)
+    if (!rl.success) {
+      return NextResponse.json(
+        { error: 'Too many submissions. Please wait before trying again.' },
+        { status: 429 }
+      )
+    }
+
     let body: unknown;
     try {
       body = await req.json();

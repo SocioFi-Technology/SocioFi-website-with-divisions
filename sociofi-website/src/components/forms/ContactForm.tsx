@@ -10,6 +10,7 @@ interface FormValues {
   division: string;
   message: string;
   source: string;
+  hp_field?: string;
 }
 
 interface FormErrors {
@@ -118,6 +119,7 @@ export default function ContactForm({
     division: defaultDivision,
     message: '',
     source: '',
+    hp_field: '',
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Partial<Record<keyof FormValues, boolean>>>({});
@@ -211,6 +213,18 @@ export default function ContactForm({
   return (
     <form onSubmit={handleSubmit} className={className} noValidate
       style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+
+      {/* Honeypot — hidden from real users, filled by bots */}
+      <input
+        type="text"
+        name="hp_field"
+        value={values.hp_field ?? ''}
+        onChange={(e) => setValues(v => ({ ...v, hp_field: e.target.value }))}
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        style={{ position: 'absolute', left: '-9999px', opacity: 0, height: 0, width: 0 }}
+      />
 
       {/* Name + Email row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">

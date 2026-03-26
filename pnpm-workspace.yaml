@@ -1,0 +1,3 @@
+packages:
+  - 'sociofi-website'
+  - 'apps/*'

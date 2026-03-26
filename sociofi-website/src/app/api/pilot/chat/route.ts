@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -39,6 +40,16 @@ interface HistoryMessage {
 
 export async function POST(req: NextRequest) {
   try {
+    // Rate limiting: 30 messages per IP per hour
+    const ip = getClientIp(req)
+    const rl = checkRateLimit(`pilot:${ip}`, 30, 60 * 60 * 1000)
+    if (!rl.success) {
+      return NextResponse.json(
+        { error: 'Too many submissions. Please wait before trying again.' },
+        { status: 429 }
+      )
+    }
+
     const { message, division, page_url, page_title, history = [] } = (await req.json()) as {
       message: string;
       conversation_id?: string;

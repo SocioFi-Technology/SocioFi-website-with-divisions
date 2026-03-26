@@ -71,10 +71,11 @@ export interface DashboardData {
   pipeline: PipelineBar[]
   loading: boolean
   error: string | null
+  usingMock: boolean
 }
 
 // ── Mock data (used when Supabase tables don't have data yet) ──
-function getMockData(): Omit<DashboardData, 'loading' | 'error'> {
+function getMockData(): Omit<DashboardData, 'loading' | 'error' | 'usingMock'> {
   return {
     kpi: {
       newLeads: 12, newLeadsDelta: 3,
@@ -169,10 +170,12 @@ function getMockData(): Omit<DashboardData, 'loading' | 'error'> {
 }
 
 export function useDashboardData() {
+  const [usingMock, setUsingMock] = useState(false)
   const [data, setData] = useState<DashboardData>({
     ...getMockData(),
     loading: true,
     error: null,
+    usingMock: false,
   })
 
   const fetchData = useCallback(async () => {
@@ -244,6 +247,7 @@ export function useDashboardData() {
         }
       })
 
+      setUsingMock(false)
       setData(prev => ({
         ...prev,
         kpi: {
@@ -265,9 +269,11 @@ export function useDashboardData() {
         attention: attentionItems.length ? attentionItems : [],
         loading: false,
         error: null,
+        usingMock: false,
       }))
     } catch {
-      setData(prev => ({ ...prev, loading: false }))
+      setUsingMock(true)
+      setData(prev => ({ ...prev, loading: false, usingMock: true }))
     }
   }, [])
 
@@ -281,5 +287,5 @@ export function useDashboardData() {
     setData(prev => ({ ...prev, kpi: { ...prev.kpi, ...updates } }))
   }, [])
 
-  return { data, addActivity, updateKPI, refetch: fetchData }
+  return { data: { ...data, usingMock }, addActivity, updateKPI, refetch: fetchData }
 }
