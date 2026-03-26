@@ -231,14 +231,14 @@ export async function fetchAgentLastRuns(): Promise<
   const supabase = createClient()
   const since = new Date(Date.now() - 24 * 3_600_000).toISOString()
   const { data } = await supabase
-    .from('agent_runs')
-    .select('agent_name,status,created_at')
+    .from('nexus_agent_runs')
+    .select('agent,status,created_at')
     .gte('created_at', since)
     .order('created_at', { ascending: false })
 
   const byAgent: Record<string, { lastRun: string; tasks: number; hasError: boolean }> = {}
   for (const run of data ?? []) {
-    const name = run.agent_name as string
+    const name = run.agent as string
     if (!byAgent[name]) byAgent[name] = { lastRun: run.created_at, tasks: 0, hasError: false }
     byAgent[name].tasks++
     if (run.status === 'failed') byAgent[name].hasError = true
